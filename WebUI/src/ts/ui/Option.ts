@@ -1,8 +1,8 @@
-export class Option {
+export class Option<T = any> {
 
   constructor(
-    readonly value: any,
-    readonly label: string = value.toString(),
+    readonly value: T,
+    readonly label: string = String(value),
     readonly disabled: boolean = false
   ) {}
 

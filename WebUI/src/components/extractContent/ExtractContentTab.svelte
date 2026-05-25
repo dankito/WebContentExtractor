@@ -22,7 +22,7 @@
   let format = $state<OutputFormat>(OutputFormat.Markdown)
   let includeMetadata = $state<boolean | undefined>(false)
   let fetcher = $state<WebFetcher | undefined>(undefined)
-  let extractor = $state<WebContentExtractor>(WebContentExtractor.Trafilatura)
+  let extractor = $state<WebContentExtractor | undefined>(undefined)
   let converter = $state<MarkdownConverter | undefined>(undefined)
   let loading = $state(false)
   let error = $state<string | undefined>(undefined)
