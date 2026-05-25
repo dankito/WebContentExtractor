@@ -9,4 +9,9 @@ export default defineConfig({
     svelte(),
     tailwindcss(),
   ],
+  server: {
+    host: "0.0.0.0",
+
+    hmr: true,
+  }
 })
