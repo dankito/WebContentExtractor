@@ -1,12 +1,18 @@
 import type {WebClient} from "../clients/web/WebClient"
 import {FetchWebClient} from "../clients/web/FetchWebClient"
 import {LogService} from "./LogService"
+import { WebExtractionClient } from "../clients/webExtraction/WebExtractionClient"
+import { WebExtractionService } from "./WebExtractionService"
 
 export class DI {
 
   static readonly log: LogService = new LogService()
 
   private static readonly webClient: WebClient = new FetchWebClient(DI.getBaseUrl(), DI.log)
+
+  private static readonly client = new WebExtractionClient(DI.webClient)
+
+  static readonly service = new WebExtractionService(DI.client)
 
 
   private static getBaseUrl(): string {
