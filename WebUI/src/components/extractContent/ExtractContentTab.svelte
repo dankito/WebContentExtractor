@@ -7,10 +7,21 @@
   import { DI } from "../../ts/service/DI"
   import { ExtractionRequest } from "../../ts/model/ExtractionRequest"
   import Card from "../common/form/Card.svelte"
+  import { WebFetcherOptions } from "../../ts/model/WebFetcherOptions"
+  import { MarkdownConverterOptions } from "../../ts/model/MarkdownConverterOptions"
+  import { WebContentExtractorOptions } from "../../ts/model/WebContentExtractorOptions"
+  import { WebContentExtractor } from "../../ts/model/WebContentExtractor"
+  import { Option } from "../../ts/ui/Option"
+  import ComboBox from "../common/form/ComboBox.svelte"
+  import { WebFetcher } from "../../ts/model/WebFetcher"
+  import { MarkdownConverter } from "../../ts/model/MarkdownConverter"
 
   let url = $state("")
   let format = $state<OutputFormat>(OutputFormat.Markdown)
   let includeMetadata = $state<boolean | undefined>(false)
+  let fetcher = $state<WebFetcher | undefined>(undefined)
+  let extractor = $state<WebContentExtractor>(WebContentExtractor.Trafilatura)
+  let converter = $state<MarkdownConverter | undefined>(undefined)
   let loading = $state(false)
   let error = $state<string | null>(null)
   let result = $state<ExtractionResponse | null>(null)
@@ -21,6 +32,24 @@
     { value: OutputFormat.Html, label: "HTML" },
     { value: OutputFormat.Markdown, label: "Markdown" },
     { value: OutputFormat.Text, label: "Text" },
+  ]
+
+  const fetcherOptions = [
+    new Option(WebFetcher.CurlCffi, "curl-cffi"),
+    new Option(WebFetcher.Camoufox, "Camoufox"),
+    new Option(WebFetcher.Zendriver, "Zendriver"),
+    new Option(WebFetcher.PythonHttpx, "Python httpx"),
+  ]
+
+  const extractorOptions = [
+    new Option(WebContentExtractor.Trafilatura, "Trafilatura"),
+    new Option(WebContentExtractor.ReadabilityLxml, "Readability Lxml"),
+  ]
+
+  const converterOptions = [
+    new Option(MarkdownConverter.Markdownify, "Markdownify"),
+    new Option(MarkdownConverter.Html2Text, "html2text"),
+    new Option(MarkdownConverter.Kreuzberg, "Kreuzberg"),
   ]
 
   const service = DI.service
@@ -36,7 +65,11 @@
     result = null
     viewMode = "rendered"
 
-    const request = new ExtractionRequest(url.trim(), format, includeMetadata ?? false)
+    const request = new ExtractionRequest(url.trim(), format, includeMetadata ?? false,
+      new WebFetcherOptions(fetcher ? [ fetcher ] : undefined),
+      new WebContentExtractorOptions(extractor ? [ extractor ] : undefined),
+      new MarkdownConverterOptions(converter ? [ converter ] : undefined,),
+    )
 
     try {
       result = await service.extract(request)
@@ -95,7 +128,7 @@
         </div>
 
         <!-- Options row -->
-        <div class="flex flex-wrap items-center gap-5 px-1">
+        <div class="flex flex-wrap items-center gap-3.5 px-1">
           <div class="flex items-center gap-2">
             <label for="format-select" class="text-xs text-zinc-400 whitespace-nowrap">Output</label>
             <select id="format-select" bind:value={format} disabled={loading}
@@ -110,6 +143,12 @@
           </div>
 
           <SwitchInput label="Include metadata" bind:value={includeMetadata} disabled={loading} />
+
+          <ComboBox label="Fetcher" options={fetcherOptions} selectedOption={fetcher} selectionChanged={value => fetcher = value} />
+
+          <ComboBox label="Extractor" options={extractorOptions} selectedOption={extractor} selectionChanged={value => extractor = value} />
+
+          <ComboBox label="Converter" options={converterOptions} selectedOption={converter} selectionChanged={value => converter = value} />
         </div>
       </div>
     </Card>
