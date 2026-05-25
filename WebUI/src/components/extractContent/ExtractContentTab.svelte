@@ -15,6 +15,7 @@
   import ComboBox from "../common/form/ComboBox.svelte"
   import { WebFetcher } from "../../ts/model/WebFetcher"
   import { MarkdownConverter } from "../../ts/model/MarkdownConverter"
+  import MetadataView from "../result/MetadataView.svelte"
 
   let url = $state("")
   let format = $state<OutputFormat>(OutputFormat.Markdown)
@@ -26,7 +27,6 @@
   let error = $state<string | undefined>(undefined)
   let result = $state<ExtractionResult | undefined>(undefined)
   let viewMode = $state<"source" | "rendered">("rendered")
-  let metaOpen = $state(true)
 
   const formatOptions = [
     new Option(OutputFormat.Html, "HTML"),
@@ -99,7 +99,7 @@
 
 
 <div class="h-full min-h-0">
-  <div class="flex flex-col gap-6 w-full h-full min-h-0 max-w-100 lg:max-w-200 mx-auto">
+  <div class="flex flex-col gap-4 w-full h-full min-h-0 max-w-100 lg:max-w-200 mx-auto">
 
     <!-- URL + controls row -->
     <Card>
@@ -155,32 +155,8 @@
 
     <!-- Result -->
     {#if result}
-      <!-- Metadata -->
       {#if result.metadata}
-        {@const meta = result.metadata}
-        {@const entries = Object.entries(meta).filter(([, v]) => v != null)}
-        {#if entries.length > 0}
-          <Card>
-            <div class="p-2">
-              <button
-                  onclick={() => (metaOpen = !metaOpen)}
-                  class="flex items-center gap-1.5 w-full text-left text-xs font-medium text-zinc-600 hover:text-zinc-800 transition"
-              >
-                <Info class="w-3.5 h-3.5 text-primary" />
-                Metadata
-                <ChevronDown class="w-3.5 h-3.5 ml-auto transition-transform {metaOpen ? 'rotate-180' : ''}" />
-              </button>
-              {#if metaOpen}
-                <dl class="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs">
-                  {#each entries as [key, val]}
-                    <dt class="text-zinc-400 font-medium">{key}</dt>
-                    <dd class="text-zinc-700 wrap-break-word">{val}</dd>
-                  {/each}
-                </dl>
-              {/if}
-            </div>
-          </Card>
-        {/if}
+        <MetadataView metadata={result.metadata} />
       {/if}
 
       <Card classes="h-full min-h-0 flex flex-col overflow-hidden p-0">
