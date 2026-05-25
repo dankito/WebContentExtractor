@@ -99,7 +99,7 @@
 
 
 <div class="h-full min-h-0">
-  <div class="flex flex-col gap-6 w-full h-full min-h-0 max-w-100 lg:max-w-[800px] mx-auto">
+  <div class="flex flex-col gap-6 w-full h-full min-h-0 max-w-100 lg:max-w-200 mx-auto">
 
     <!-- URL + controls row -->
     <Card>
@@ -110,13 +110,13 @@
             <input type="url" bind:value={url} placeholder="https://example.com"
                    onkeydown={onKeydown} disabled={loading}
                 class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-zinc-300
-                       text-zinc-800 placeholder-zinc-400 text-sm
+                       text-zinc-800 placeholder-zinc-400
                        focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary
                        disabled:opacity-50 disabled:cursor-not-allowed transition"
             />
           </div>
           <button onclick={extract} disabled={loading || !url.trim()}
-                  class="flex items-center justify-center px-4 py-2.5 text-sm bg-zinc-300 border-zinc-400 rounded-lg whitespace-nowrap hover:bg-zinc-400 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
+                  class="flex items-center justify-center px-4 py-2.5 bg-zinc-300 border-zinc-400 rounded-lg whitespace-nowrap hover:bg-zinc-400 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
           >
             {#if loading}
               <Loader2 class="w-4 h-4 animate-spin" />
@@ -130,9 +130,9 @@
         <!-- Options row -->
         <div class="flex flex-wrap items-center gap-3.5 px-1">
           <div class="flex items-center gap-2">
-            <label for="format-select" class="text-xs text-zinc-400 whitespace-nowrap">Output</label>
+            <label for="format-select" class="text-zinc-400 whitespace-nowrap">Output</label>
             <select id="format-select" bind:value={format} disabled={loading}
-                class="text-sm rounded-lg bg-white border border-zinc-300 text-zinc-700 px-2.5 py-1.5
+                class="rounded-lg bg-white border border-zinc-300 text-zinc-700 px-2.5 py-1.5
                      focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary
                      disabled:opacity-50 transition"
             >
@@ -148,7 +148,9 @@
 
           <ComboBox label="Extractor" options={extractorOptions} selectedOption={extractor} selectionChanged={value => extractor = value} />
 
-          <ComboBox label="Converter" options={converterOptions} selectedOption={converter} selectionChanged={value => converter = value} />
+          {#if format !== OutputFormat.Html}
+            <ComboBox label="Converter" options={converterOptions} selectedOption={converter} selectionChanged={value => converter = value} />
+          {/if}
         </div>
       </div>
     </Card>
@@ -183,7 +185,7 @@
                 <dl class="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs">
                   {#each entries as [key, val]}
                     <dt class="text-zinc-400 font-medium">{key}</dt>
-                    <dd class="text-zinc-700 break-words">{val}</dd>
+                    <dd class="text-zinc-700 wrap-break-word">{val}</dd>
                   {/each}
                 </dl>
               {/if}
@@ -218,7 +220,7 @@
             Source
           </button>
           <span class="ml-auto text-xs text-zinc-400">
-            Extractor: {result.extractor} · {result.content.length.toLocaleString()} chars
+            Extractor: {result.extraction_result?.extractor} · {result.content.length.toLocaleString()} chars
           </span>
         </div>
 
