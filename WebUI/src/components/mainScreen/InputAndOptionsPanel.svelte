@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { Globe, Loader2 } from "@lucide/svelte"
   import Card from "../common/form/Card.svelte"
   import ComboBox from "../common/form/ComboBox.svelte"
   import SwitchInput from "../common/form/SwitchInput.svelte"
@@ -14,9 +13,19 @@
   import { MarkdownConverterOptions } from "../../ts/model/MarkdownConverterOptions"
   import type { ExtractionResult } from "../../ts/model/ExtractionResult"
   import { DI } from "../../ts/service/DI"
+  import { ExtractionAction } from "../../ts/ui/ExtractionAction"
+  import SplitButton from "../common/form/SplitButton.svelte"
+  import SourceInput from "../common/form/SourceInput.svelte"
+  import { SourceMode } from "../../ts/ui/SourceMode"
+  import type { MarkdownConversionResult } from "../../ts/model/MarkdownConversionResult"
 
 
-  let { result = $bindable(), error = $bindable() } = $props<{ result?: ExtractionResult, error?: string }>()
+  let { extractionResult = $bindable(), convertResult = $bindable(), error = $bindable() } =
+    $props<{ extractionResult?: ExtractionResult, convertResult?: MarkdownConversionResult, error?: string }>()
+
+  let action = $state(ExtractionAction.Extract)
+  let sourceMode = $state(SourceMode.Url)
+  let rawHtml = $state("")
 
   let url = $state("")
   let format = $state<OutputFormat>(OutputFormat.Markdown)
@@ -25,9 +34,18 @@
   let extractor = $state<WebContentExtractor | undefined>(undefined)
   let converter = $state<MarkdownConverter | undefined>(undefined)
   let loading = $state(false)
+  let actionRequiresExtraction = $derived(action === ExtractionAction.Extract || action === ExtractionAction.CompareExtractors)
 
   const service = DI.service
 
+
+  async function executeAction() {
+    if (action === ExtractionAction.Extract) {
+      await extract()
+    } else if (action === ExtractionAction.Convert) {
+      await convert()
+    }
+  }
 
   async function extract() {
     if (!url.trim()) {
@@ -36,7 +54,7 @@
 
     loading = true
     error = undefined
-    result = undefined
+    extractionResult = undefined
 
     const request = new ExtractionRequest(url.trim(), format, includeMetadata ?? false,
       new WebFetcherOptions(fetcher ? [ fetcher ] : undefined),
@@ -45,7 +63,7 @@
     )
 
     try {
-      result = await service.extract(request)
+      extractionResult = await service.extract(request)
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     } finally {
@@ -53,11 +71,31 @@
     }
   }
 
-  function onKeydown(e: KeyboardEvent) {
-    if (e.key === "Enter") {
-      extract()
+  async function convert() {
+    const html = rawHtml.trim()
+    if (!html) {
+      return
+    }
+
+    loading = true
+    error = undefined
+    convertResult = undefined
+
+    try {
+      convertResult = await service.convertHtmlToMarkdown(html)
+    } catch (e) {
+      error = e instanceof Error ? e.message : String(e)
+    } finally {
+      loading = false
     }
   }
+
+  const extractOptions = [
+    new Option(ExtractionAction.Extract, "Extract"),
+    new Option(ExtractionAction.Convert, "Convert"),
+    new Option(ExtractionAction.CompareExtractors, "Compare Extractors"),
+    new Option(ExtractionAction.CompareConverters, "Compare Converters"),
+  ]
 
   const formatOptions = [
     new Option(OutputFormat.Html, "HTML"),
@@ -82,43 +120,35 @@
     new Option(MarkdownConverter.Html2Text, "html2text"),
     new Option(MarkdownConverter.Kreuzberg, "Kreuzberg"),
   ]
+
+  $effect(() => {
+    sourceMode = action === ExtractionAction.Convert || action === ExtractionAction.CompareConverters ? SourceMode.Html : SourceMode.Url
+  })
 </script>
 
 
 <Card>
   <div class="flex flex-col gap-2.5 m-2">
     <div class="flex gap-2 items-center">
-      <div class="relative flex-1">
-        <Globe class="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4 pointer-events-none" />
-        <input type="url" bind:value={url} placeholder="https://example.com"
-               onkeydown={onKeydown} disabled={loading}
-               class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-zinc-300
-                       text-zinc-800 placeholder-zinc-400
-                       focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary
-                       disabled:opacity-50 disabled:cursor-not-allowed transition"
-        />
-      </div>
-      <button onclick={extract} disabled={loading || !url.trim()}
-              class="flex items-center justify-center px-4 py-2.5 bg-zinc-300 border-zinc-400 rounded-lg whitespace-nowrap hover:bg-zinc-400 disabled:opacity-40 cursor-pointer disabled:cursor-default transition-colors"
-      >
-        {#if loading}
-          <Loader2 class="w-4 h-4 animate-spin" />
-          Extracting…
-        {:else}
-          Extract
-        {/if}
-      </button>
+      <SourceInput bind:url bind:html={rawHtml} bind:mode={sourceMode} disabled={loading} onSubmit={executeAction}/>
+
+      <SplitButton options={extractOptions} selectedOption={action} loading={loading}
+                   disabled={loading || (sourceMode === SourceMode.Url ? !url.trim() : !rawHtml.trim())} onSelect={(value) => { action = value; executeAction() }} />
     </div>
 
     <!-- Options row -->
     <div class="flex flex-wrap items-center gap-3.5 px-1">
-      <ComboBox label="Output" options={formatOptions} selectedOption={format} selectionChanged={value => format = value} />
+      {#if actionRequiresExtraction}
+        <ComboBox label="Output" options={formatOptions} selectedOption={format} selectionChanged={value => format = value} />
+      {/if}
 
       <SwitchInput label="Include metadata" bind:value={includeMetadata} disabled={loading} />
 
-      <ComboBox label="Fetcher" options={fetcherOptions} selectedOption={fetcher} selectionChanged={value => fetcher = value} />
+      {#if actionRequiresExtraction}
+        <ComboBox label="Fetcher" options={fetcherOptions} selectedOption={fetcher} selectionChanged={value => fetcher = value} />
 
-      <ComboBox label="Extractor" options={extractorOptions} selectedOption={extractor} selectionChanged={value => extractor = value} />
+        <ComboBox label="Extractor" options={extractorOptions} selectedOption={extractor} selectionChanged={value => extractor = value} />
+      {/if}
 
       {#if format !== OutputFormat.Html}
         <ComboBox label="Converter" options={converterOptions} selectedOption={converter} selectionChanged={value => converter = value} />

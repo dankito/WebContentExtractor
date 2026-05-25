@@ -4,9 +4,10 @@
   import { OutputFormat } from "../../ts/model/OutputFormat"
   import type { WebContentExtractor } from "../../ts/model/WebContentExtractor"
   import Card from "../common/form/Card.svelte"
+  import type { MarkdownConverter } from "../../ts/model/MarkdownConverter"
 
-  let { content, format, extractor = undefined }:
-    { content: string, format: OutputFormat, extractor?: WebContentExtractor } = $props()
+  let { content, format, extractor = undefined, converter = undefined }:
+    { content: string, format: OutputFormat, extractor?: WebContentExtractor, converter?: MarkdownConverter } = $props()
 
   let viewMode = $state<"source" | "rendered">("rendered")
 
@@ -23,6 +24,15 @@
     const _ = content
     viewMode = "rendered"
   })
+
+  function formatTools(): string {
+    const tools = [
+      extractor ? extractor : "",
+      converter ? converter : "",
+    ]
+
+    return tools.filter(it => it !== "").join(" · ")
+  }
 </script>
 
 <Card classes="h-full min-h-0 flex flex-col overflow-hidden p-0">
@@ -51,8 +61,8 @@
       Source
     </button>
     <span class="ml-auto text-xs text-zinc-400">
-            Extractor: {extractor} · {content.length.toLocaleString()} chars
-          </span>
+      {formatTools()} · {content.length.toLocaleString()} chars
+    </span>
   </div>
 
   <!-- Content -->
