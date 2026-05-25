@@ -28,10 +28,10 @@
   let viewMode = $state<"source" | "rendered">("rendered")
   let metaOpen = $state(true)
 
-  const formatOptions: { value: OutputFormat; label: string }[] = [
-    { value: OutputFormat.Html, label: "HTML" },
-    { value: OutputFormat.Markdown, label: "Markdown" },
-    { value: OutputFormat.Text, label: "Text" },
+  const formatOptions = [
+    new Option(OutputFormat.Html, "HTML"),
+    new Option(OutputFormat.Markdown, "Markdown"),
+    new Option(OutputFormat.Text, "Text"),
   ]
 
   const fetcherOptions = [
@@ -129,18 +129,7 @@
 
         <!-- Options row -->
         <div class="flex flex-wrap items-center gap-3.5 px-1">
-          <div class="flex items-center gap-2">
-            <label for="format-select" class="text-zinc-400 whitespace-nowrap">Output</label>
-            <select id="format-select" bind:value={format} disabled={loading}
-                class="rounded-lg bg-white border border-zinc-300 text-zinc-700 px-2.5 py-1.5
-                     focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary
-                     disabled:opacity-50 transition"
-            >
-              {#each formatOptions as opt}
-                <option value={opt.value}>{opt.label}</option>
-              {/each}
-            </select>
-          </div>
+          <ComboBox label="Output" options={formatOptions} selectedOption={format} selectionChanged={value => format = value} />
 
           <SwitchInput label="Include metadata" bind:value={includeMetadata} disabled={loading} />
 
@@ -170,7 +159,7 @@
       {#if result.metadata}
         {@const meta = result.metadata}
         {@const entries = Object.entries(meta).filter(([, v]) => v != null)}
-        {#if entries.length > 0 || result.extractor}
+        {#if entries.length > 0}
           <Card>
             <div class="p-2">
               <button
