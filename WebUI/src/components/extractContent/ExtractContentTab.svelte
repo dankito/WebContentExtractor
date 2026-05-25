@@ -1,6 +1,6 @@
 <script lang="ts">
   import { marked } from "marked"
-  import { Globe, Code, Eye, ChevronDown, Loader2, AlertCircle, Info } from "@lucide/svelte"
+  import { AlertCircle, Code, Eye, Globe, Loader2 } from "@lucide/svelte"
   import SwitchInput from "../common/form/SwitchInput.svelte"
   import { OutputFormat } from "../../ts/model/OutputFormat"
   import type { ExtractionResult } from "../../ts/model/ExtractionResult"
@@ -87,13 +87,13 @@
   }
 
   const renderedMarkdown = $derived(
-    result?.format === "markdown"
+    result?.format === OutputFormat.Markdown
       ? (marked(result.content) as string)
       : undefined
   )
 
   const supportsRendered = $derived(
-    result?.format === "html" || result?.format === "markdown"
+    result?.format === OutputFormat.Html || result?.format === OutputFormat.Markdown
   )
 </script>
 
@@ -195,12 +195,12 @@
             <pre class="p-4 text-xs text-zinc-700 font-mono whitespace-pre-wrap wrap-break-word leading-relaxed">
               {result.content}
             </pre>
-          {:else if result.format === "html"}
+          {:else if result.format === OutputFormat.Html}
             <iframe srcdoc={result.content} sandbox="allow-same-origin" title="Rendered HTML"
                     class="w-full h-full min-h-96 border-0 bg-white" >
 
             </iframe>
-          {:else if result.format === "markdown" && renderedMarkdown}
+          {:else if result.format === OutputFormat.Markdown && renderedMarkdown}
             <div class="markdown-body p-4 py-2.5 text-sm text-zinc-700">
               {@html renderedMarkdown}
             </div>
