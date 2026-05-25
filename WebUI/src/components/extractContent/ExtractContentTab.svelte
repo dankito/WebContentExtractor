@@ -3,7 +3,7 @@
   import { Globe, Code, Eye, ChevronDown, Loader2, AlertCircle, Info } from "@lucide/svelte"
   import SwitchInput from "../common/form/SwitchInput.svelte"
   import { OutputFormat } from "../../ts/model/OutputFormat"
-  import type { ExtractionResponse } from "../../ts/model/ExtractionResponse"
+  import type { ExtractionResult } from "../../ts/model/ExtractionResult"
   import { DI } from "../../ts/service/DI"
   import { ExtractionRequest } from "../../ts/model/ExtractionRequest"
   import Card from "../common/form/Card.svelte"
@@ -23,8 +23,8 @@
   let extractor = $state<WebContentExtractor>(WebContentExtractor.Trafilatura)
   let converter = $state<MarkdownConverter | undefined>(undefined)
   let loading = $state(false)
-  let error = $state<string | null>(null)
-  let result = $state<ExtractionResponse | null>(null)
+  let error = $state<string | undefined>(undefined)
+  let result = $state<ExtractionResult | undefined>(undefined)
   let viewMode = $state<"source" | "rendered">("rendered")
   let metaOpen = $state(true)
 
@@ -61,8 +61,8 @@
     }
 
     loading = true
-    error = null
-    result = null
+    error = undefined
+    result = undefined
     viewMode = "rendered"
 
     const request = new ExtractionRequest(url.trim(), format, includeMetadata ?? false,
@@ -89,7 +89,7 @@
   const renderedMarkdown = $derived(
     result?.format === "markdown"
       ? (marked(result.content) as string)
-      : null
+      : undefined
   )
 
   const supportsRendered = $derived(
