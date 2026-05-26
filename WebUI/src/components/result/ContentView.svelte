@@ -5,9 +5,10 @@
   import type { WebContentExtractor } from "../../ts/model/WebContentExtractor"
   import Card from "../common/form/Card.svelte"
   import type { MarkdownConverter } from "../../ts/model/MarkdownConverter"
+  import type { WebFetcher } from "../../ts/model/WebFetcher"
 
-  let { content, format, extractor = undefined, converter = undefined }:
-    { content: string, format: OutputFormat, extractor?: WebContentExtractor, converter?: MarkdownConverter } = $props()
+  let { content, format, fetcher = undefined, extractor = undefined, converter = undefined }:
+    { content: string, format: OutputFormat, fetcher?: WebFetcher, extractor?: WebContentExtractor, converter?: MarkdownConverter } = $props()
 
   let viewMode = $state<"source" | "rendered">("rendered")
 
@@ -27,6 +28,7 @@
 
   function formatTools(): string {
     const tools = [
+      fetcher ? fetcher : "",
       extractor ? extractor : "",
       converter ? converter : "",
     ]

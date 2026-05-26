@@ -33,7 +33,10 @@
         <MetadataView metadata={extractionResult.metadata} />
       {/if}
 
-      <ContentView content={extractionResult.content} format={extractionResult.format} extractor={extractionResult.extraction_result?.extractor} />
+      {#if extractionResult.content}
+        <ContentView content={extractionResult.content} format={extractionResult.format} fetcher={extractionResult.fetch_result?.fetcher}
+                     extractor={extractionResult.extraction_result?.extractor} converter={extractionResult.conversion_result?.converter} />
+      {/if}
     {:else if convertResult && convertResult.content}
       <ContentView content={convertResult.content} format={OutputFormat.Markdown} />
     {/if}
