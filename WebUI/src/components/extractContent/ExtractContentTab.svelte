@@ -5,7 +5,7 @@
   import InputAndOptionsPanel from "../mainScreen/InputAndOptionsPanel.svelte"
   import type { MarkdownConversionResult } from "../../ts/model/MarkdownConversionResult"
   import { OutputFormat } from "../../ts/model/OutputFormat"
-  import ResultError from "../result/ResultError.svelte"
+  import ResultErrors from "../result/ResultErrors.svelte"
 
   let extractionResult = $state<ExtractionResult | undefined>(undefined)
   let convertResult = $state<MarkdownConversionResult | undefined>(undefined)
@@ -19,7 +19,8 @@
     <InputAndOptionsPanel bind:extractionResult bind:convertResult bind:error />
 
     <!-- Extraction response -->
-    <ResultError {error} fetchResult={extractionResult?.fetch_result} />
+    <ResultErrors {error} fetchResult={extractionResult?.fetch_result} extractionResult={extractionResult?.extraction_result}
+                  convertResult={convertResult ?? extractionResult?.conversion_result} />
 
     <!-- Result -->
     {#if extractionResult}
