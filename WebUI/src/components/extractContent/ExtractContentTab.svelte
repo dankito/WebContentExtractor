@@ -46,7 +46,7 @@
     const returnedFormats: RequestedFormat[] = []
 
     if (extractionResult) {
-      if (extractionResult.fetch_result.html) returnedFormats.push(RequestedFormat.RawHtml)
+      if (extractionResult.fetch_result?.html) returnedFormats.push(RequestedFormat.RawHtml)
       if (extractionResult.extraction_result?.content) returnedFormats.push(RequestedFormat.ContentHtml)
       if (extractionResult.content_markdown?.content) returnedFormats.push(RequestedFormat.ContentMarkdown)
       if (extractionResult.content_text?.content) returnedFormats.push(RequestedFormat.ContentText)
