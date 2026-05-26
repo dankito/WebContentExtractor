@@ -21,19 +21,18 @@
   import { ExtractFromHtmlRequest } from "../../ts/model/ExtractFromHtmlRequest"
 
 
-  let { extractionResult = $bindable(), convertResult = $bindable(), error = $bindable() } =
-    $props<{ extractionResult?: ExtractionResult, convertResult?: MarkdownConversionResult, error?: string }>()
-
-  let action = $state<ExtractionAction>(ExtractionAction.Extract)
-  let sourceMode = $state<SourceMode>(SourceMode.Url)
-  let rawHtml = $state("")
+  let { action = $bindable(), sourceMode = $bindable(), extractionResult = $bindable(), convertResult = $bindable(), error = $bindable() } =
+    $props<{ action: ExtractionAction, sourceMode: SourceMode, extractionResult?: ExtractionResult, convertResult?: MarkdownConversionResult, error?: string }>()
 
   let url = $state("")
+  let rawHtml = $state("")
+
   let format = $state<OutputFormat>(OutputFormat.Markdown)
   let includeMetadata = $state<boolean | undefined>(false)
   let fetcher = $state<WebFetcher | undefined>(undefined)
   let extractor = $state<WebContentExtractor | undefined>(undefined)
   let converter = $state<MarkdownConverter | undefined>(undefined)
+
   let loading = $state(false)
   let actionRequiresFetcher = $derived(sourceMode !== SourceMode.Html)
   let actionRequiresExtraction = $derived(action === ExtractionAction.Extract || action === ExtractionAction.CompareExtractors)
