@@ -1,14 +1,17 @@
 <script lang="ts">
-  import type { WebFetcherResult } from "../../ts/model/WebFetcherResult"
   import ResultError from "./ResultError.svelte"
-  import type { WebContentExtractionResult } from "../../ts/model/WebContentExtractionResult"
   import type { MarkdownConversionResult } from "../../ts/model/MarkdownConversionResult"
+  import type { ExtractionResult } from "../../ts/model/ExtractionResult"
 
-  let { error, fetchResult, extractionResult, convertResult }:
-    { error?: string, fetchResult?: WebFetcherResult, extractionResult?: WebContentExtractionResult, convertResult?: MarkdownConversionResult } = $props()
+  let { error, extractionResult, convertResult } =
+    $props<{ error?: string, extractionResult?: ExtractionResult, convertResult?: MarkdownConversionResult }>()
 
-  let extractContentErrors = $derived(Object.entries(extractionResult?.failures ?? {}))
-  let markdownConversionErrors = $derived(Object.entries(convertResult?.failures ?? {}))
+  let fetchResult = $derived(extractionResult?.fetch_result)
+  let contentExtractionResult = $derived(extractionResult?.extraction_result)
+  let convertMarkdownResult = $derived(convertResult?.markdown_conversion_result ?? extractionResult?.conversion_result)
+
+  let extractContentErrors = $derived(Object.entries(contentExtractionResult?.failures ?? {}))
+  let markdownConversionErrors = $derived(Object.entries(convertMarkdownResult?.failures ?? {}))
 </script>
 
 {#if error}

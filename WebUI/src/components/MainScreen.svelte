@@ -22,8 +22,7 @@
     <InputAndOptionsPanel bind:action bind:sourceMode bind:extractionResult bind:convertResult bind:error />
 
     <!-- Extraction response -->
-    <ResultErrors {error} fetchResult={extractionResult?.fetch_result} extractionResult={extractionResult?.extraction_result}
-                  convertResult={convertResult ?? extractionResult?.conversion_result} />
+    <ResultErrors {error} {extractionResult} {convertResult} />
 
     <!-- Result -->
     {#if action === ExtractionAction.Extract}
