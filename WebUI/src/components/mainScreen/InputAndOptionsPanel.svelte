@@ -59,7 +59,7 @@
     const request = new ExtractionRequest(url.trim(), format, includeMetadata ?? false,
       new WebFetcherOptions(fetcher ? [ fetcher ] : undefined),
       new WebContentExtractorOptions(extractor ? [ extractor ] : undefined),
-      new MarkdownConverterOptions(converter ? [ converter ] : undefined,),
+      new MarkdownConverterOptions(converter ? [ converter ] : undefined),
     )
 
     try {
@@ -82,7 +82,7 @@
     convertResult = undefined
 
     try {
-      convertResult = await service.convertHtmlToMarkdown(html)
+      convertResult = await service.convertHtmlToMarkdown(html, new MarkdownConverterOptions(converter ? [ converter ] : undefined))
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     } finally {
