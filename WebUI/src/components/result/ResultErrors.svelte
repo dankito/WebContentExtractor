@@ -1,10 +1,10 @@
 <script lang="ts">
   import ResultError from "./ResultError.svelte"
   import type { MarkdownConversionResult } from "../../ts/model/MarkdownConversionResult"
-  import type { ExtractionResult } from "../../ts/model/ExtractionResult"
+  import type { MultiFormatExtractionResult } from "../../ts/model/MultiFormatExtractionResult"
 
   let { error, extractionResult, convertResult } =
-    $props<{ error?: string, extractionResult?: ExtractionResult, convertResult?: MarkdownConversionResult }>()
+    $props<{ error?: string, extractionResult?: MultiFormatExtractionResult, convertResult?: MarkdownConversionResult }>()
 
   let fetchResult = $derived(extractionResult?.fetch_result)
   let contentExtractionResult = $derived(extractionResult?.extraction_result)

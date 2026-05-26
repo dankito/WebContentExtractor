@@ -7,11 +7,9 @@
   import { WebFetcher } from "../../ts/model/WebFetcher"
   import { WebContentExtractor } from "../../ts/model/WebContentExtractor"
   import { MarkdownConverter } from "../../ts/model/MarkdownConverter"
-  import { ExtractionRequest } from "../../ts/model/ExtractionRequest"
   import { WebFetcherOptions } from "../../ts/model/WebFetcherOptions"
   import { WebContentExtractorOptions } from "../../ts/model/WebContentExtractorOptions"
   import { MarkdownConverterOptions } from "../../ts/model/MarkdownConverterOptions"
-  import type { ExtractionResult } from "../../ts/model/ExtractionResult"
   import { DI } from "../../ts/service/DI"
   import { ExtractionAction } from "../../ts/ui/ExtractionAction"
   import SplitButton from "../common/form/SplitButton.svelte"
@@ -19,15 +17,17 @@
   import { SourceMode } from "../../ts/ui/SourceMode"
   import type { MarkdownConversionResult } from "../../ts/model/MarkdownConversionResult"
   import { ExtractFromHtmlRequest } from "../../ts/model/ExtractFromHtmlRequest"
+  import { RequestedFormat } from "../../ts/model/RequestedFormat"
+  import { MultiFormatExtractionRequest } from "../../ts/model/MultiFormatExtractionRequest"
+  import type { MultiFormatExtractionResult } from "../../ts/model/MultiFormatExtractionResult"
 
 
-  let { action = $bindable(), sourceMode = $bindable(), extractionResult = $bindable(), convertResult = $bindable(), error = $bindable() } =
-    $props<{ action: ExtractionAction, sourceMode: SourceMode, extractionResult?: ExtractionResult, convertResult?: MarkdownConversionResult, error?: string }>()
+  let { action = $bindable(), sourceMode = $bindable(), format = $bindable(), extractionResult = $bindable(), convertResult = $bindable(), error = $bindable() } =
+    $props<{ action: ExtractionAction, sourceMode: SourceMode, format: OutputFormat, extractionResult?: MultiFormatExtractionResult, convertResult?: MarkdownConversionResult, error?: string }>()
 
   let url = $state("")
   let rawHtml = $state("")
 
-  let format = $state<OutputFormat>(OutputFormat.Markdown)
   let includeMetadata = $state<boolean | undefined>(false)
   let fetcher = $state<WebFetcher | undefined>(undefined)
   let extractor = $state<WebContentExtractor | undefined>(undefined)
@@ -61,14 +61,20 @@
     error = undefined
     extractionResult = undefined
 
-    const request = new ExtractionRequest(url.trim(), format, includeMetadata ?? false,
+    const formats = [ RequestedFormat.RawHtml, RequestedFormat.ContentHtml ]
+    if (format === OutputFormat.Markdown) {
+      formats.push(RequestedFormat.ContentMarkdown)
+    } else if (format === OutputFormat.Text) {
+      formats.push(RequestedFormat.ContentText, RequestedFormat.ContentMarkdown)
+    }
+    const request = new MultiFormatExtractionRequest(url.trim(), formats, includeMetadata ?? false,
       new WebFetcherOptions(fetcher ? [ fetcher ] : undefined),
       new WebContentExtractorOptions(extractor ? [ extractor ] : undefined),
       new MarkdownConverterOptions(converter ? [ converter ] : undefined),
     )
 
     try {
-      extractionResult = sourceMode === SourceMode.Url ? await service.extract(request) : await service.extractFromHtml(request)
+      extractionResult = await service.extractMultipleResponseFormat(request)
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     } finally {
@@ -91,7 +97,7 @@
     )
 
     try {
-      extractionResult = await service.extractFromHtml(request)
+      extractionResult = await service.extractMultipleResponseFormatFromHtml(request)
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     } finally {

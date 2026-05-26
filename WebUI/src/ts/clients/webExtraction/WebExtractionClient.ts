@@ -6,6 +6,8 @@ import type { MarkdownConversionResult } from "../../model/MarkdownConversionRes
 import { ExtractFromHtmlRequest } from "../../model/ExtractFromHtmlRequest"
 import type { ExtractFromHtmlResult } from "../../model/ExtractFromHtmlResult"
 import type { MarkdownConverterOptions } from "../../model/MarkdownConverterOptions"
+import type { MultiFormatExtractionRequest } from "../../model/MultiFormatExtractionRequest"
+import type { MultiFormatExtractionResult } from "../../model/MultiFormatExtractionResult"
 
 export class WebExtractionClient {
 
@@ -19,6 +21,10 @@ export class WebExtractionClient {
   async extractFromHtml(request: ExtractFromHtmlRequest): Promise<ExtractFromHtmlResult> {
     return this.webClient.post(new WebRequest(`/extract/html${this.createQueryParameters(request)}`,
       request.html, "text/html", "application/json"))
+  }
+
+  async extractMultipleResponseFormat(request: MultiFormatExtractionRequest): Promise<MultiFormatExtractionResult> {
+    return this.webClient.post(new WebRequest("/extract/multiple", request))
   }
 
   async convertHtmlToMarkdown(html: string, options?: MarkdownConverterOptions): Promise<MarkdownConversionResult> {
