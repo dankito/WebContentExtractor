@@ -62,7 +62,7 @@
 
   <!-- Dropdown -->
   {#if open}
-    <div class="absolute right-0 top-full mt-1 z-50 min-w-max
+    <div class="absolute right-0 top-full mt-1 z-50 w-[250px]
                 bg-white border border-zinc-200 rounded-xl shadow-lg
                 py-1 overflow-hidden">
       {#each options as option}
