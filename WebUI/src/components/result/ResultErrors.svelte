@@ -6,6 +6,9 @@
 
   let { error, fetchResult, extractionResult, convertResult }:
     { error?: string, fetchResult?: WebFetcherResult, extractionResult?: WebContentExtractionResult, convertResult?: MarkdownConversionResult } = $props()
+
+  let extractContentErrors = $derived(Object.entries(extractionResult?.failures ?? {}))
+  let markdownConversionErrors = $derived(Object.entries(convertResult?.failures ?? {}))
 </script>
 
 {#if error}
@@ -23,22 +26,22 @@
   </ResultError>
 {/if}
 
-{#if extractionResult?.failures}
+{#if extractContentErrors.length}
   <ResultError>
     <div class="flex flex-col gap-2">
       <span>Extracting page content errors:</span>
-      {#each Object.entries(extractionResult.failures ?? {}) as [key, value]}
+      {#each extractContentErrors as [key, value]}
         <span>{key}: {value}</span>
       {/each}
     </div>
   </ResultError>
 {/if}
 
-{#if convertResult?.failures}
+{#if markdownConversionErrors.length}
   <ResultError>
     <div class="flex flex-col gap-2">
       <span>Markdown conversion errors:</span>
-      {#each Object.entries(convertResult.failures ?? {}) as [key, value]}
+      {#each markdownConversionErrors as [key, value]}
         <span>{key}: {value}</span>
       {/each}
     </div>
