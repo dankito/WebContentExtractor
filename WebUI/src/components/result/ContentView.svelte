@@ -2,10 +2,10 @@
   import { marked } from "marked"
   import { Code, Eye } from "@lucide/svelte"
   import { OutputFormat } from "../../ts/model/OutputFormat"
-  import type { WebContentExtractor } from "../../ts/model/WebContentExtractor"
+  import { WebContentExtractor } from "../../ts/model/WebContentExtractor"
   import Card from "../common/form/Card.svelte"
-  import type { MarkdownConverter } from "../../ts/model/MarkdownConverter"
-  import type { WebFetcher } from "../../ts/model/WebFetcher"
+  import { MarkdownConverter } from "../../ts/model/MarkdownConverter"
+  import { WebFetcher } from "../../ts/model/WebFetcher"
 
   let { content, format, fetcher = undefined, extractor = undefined, converter = undefined }:
     { content: string, format: OutputFormat, fetcher?: WebFetcher, extractor?: WebContentExtractor, converter?: MarkdownConverter } = $props()
@@ -28,12 +28,48 @@
 
   function formatTools(): string {
     const tools = [
-      fetcher ? fetcher : "",
-      extractor ? extractor : "",
-      converter ? converter : "",
+      fetcher ? getShortFetcherName(fetcher) : "",
+      extractor ? getShortExtractorName(extractor) : "",
+      converter ? getShortConverterName(converter) : "",
     ]
 
     return tools.filter(it => it !== "").join(" · ")
+  }
+
+  function getShortFetcherName(fetcher: WebFetcher): string {
+    if (fetcher === WebFetcher.CurlCffi) {
+      return "curl"
+    } else if (fetcher === WebFetcher.Camoufox) {
+      return "Camoufox"
+    } else if (fetcher === WebFetcher.Zendriver) {
+      return "Zendriver"
+    } else if (fetcher === WebFetcher.PythonHttpx) {
+      return "httpx"
+    } else {
+      return fetcher
+    }
+  }
+
+  function getShortExtractorName(extractor: WebContentExtractor): string {
+    if (extractor === WebContentExtractor.Trafilatura) {
+      return "Trafilatura"
+    } else if (extractor === WebContentExtractor.ReadabilityLxml) {
+      return "Readability"
+    } else {
+      return extractor
+    }
+  }
+
+  function getShortConverterName(converter: MarkdownConverter): string {
+    if (converter === MarkdownConverter.Markdownify) {
+      return "curl"
+    } else if (converter === MarkdownConverter.Html2Text) {
+      return "html2text"
+    } else if (converter === MarkdownConverter.Kreuzberg) {
+      return "Kreuzberg"
+    } else {
+      return converter
+    }
   }
 </script>
 
