@@ -2,6 +2,8 @@ import type { WebExtractionClient } from "../clients/webExtraction/WebExtraction
 import type { ExtractionRequest } from "../model/ExtractionRequest"
 import type { ExtractionResult } from "../model/ExtractionResult"
 import type { MarkdownConversionResult } from "../model/MarkdownConversionResult"
+import { ExtractFromHtmlRequest } from "../model/ExtractFromHtmlRequest"
+import type { ExtractFromHtmlResult } from "../model/ExtractFromHtmlResult"
 import type { MarkdownConverterOptions } from "../model/MarkdownConverterOptions"
 
 export class WebExtractionService {
@@ -11,6 +13,10 @@ export class WebExtractionService {
 
   async extract(request: ExtractionRequest): Promise<ExtractionResult> {
     return this.client.extract(request)
+  }
+
+  async extractFromHtml(request: ExtractFromHtmlRequest): Promise<ExtractFromHtmlResult> {
+    return this.client.extractFromHtml(request)
   }
 
   async convertHtmlToMarkdown(html: string, options?: MarkdownConverterOptions): Promise<MarkdownConversionResult> {

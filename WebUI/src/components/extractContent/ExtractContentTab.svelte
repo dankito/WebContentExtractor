@@ -29,8 +29,10 @@
       {/if}
 
       {#if extractionResult.content}
+        <!-- TODO: this is not fully correct as you can switch between extractionResult and convertResult, so both may be present -->
         <ContentView content={extractionResult.content} format={extractionResult.format} fetcher={extractionResult.fetch_result?.fetcher}
-                     extractor={extractionResult.extraction_result?.extractor} converter={extractionResult.conversion_result?.converter} />
+                     extractor={extractionResult.extraction_result?.extractor}
+                     converter={extractionResult.conversion_result?.converter ?? convertResult?.converter} />
       {/if}
     {:else if convertResult && convertResult.content}
       <ContentView content={convertResult.content} format={OutputFormat.Markdown} />

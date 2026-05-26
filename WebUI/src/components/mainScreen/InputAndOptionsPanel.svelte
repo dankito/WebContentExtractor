@@ -18,13 +18,14 @@
   import SourceInput from "../common/form/SourceInput.svelte"
   import { SourceMode } from "../../ts/ui/SourceMode"
   import type { MarkdownConversionResult } from "../../ts/model/MarkdownConversionResult"
+  import { ExtractFromHtmlRequest } from "../../ts/model/ExtractFromHtmlRequest"
 
 
   let { extractionResult = $bindable(), convertResult = $bindable(), error = $bindable() } =
     $props<{ extractionResult?: ExtractionResult, convertResult?: MarkdownConversionResult, error?: string }>()
 
-  let action = $state(ExtractionAction.Extract)
-  let sourceMode = $state(SourceMode.Url)
+  let action = $state<ExtractionAction>(ExtractionAction.Extract)
+  let sourceMode = $state<SourceMode>(SourceMode.Url)
   let rawHtml = $state("")
 
   let url = $state("")
@@ -34,6 +35,7 @@
   let extractor = $state<WebContentExtractor | undefined>(undefined)
   let converter = $state<MarkdownConverter | undefined>(undefined)
   let loading = $state(false)
+  let actionRequiresFetcher = $derived(sourceMode !== SourceMode.Html)
   let actionRequiresExtraction = $derived(action === ExtractionAction.Extract || action === ExtractionAction.CompareExtractors)
 
   const service = DI.service
@@ -41,13 +43,17 @@
 
   async function executeAction() {
     if (action === ExtractionAction.Extract) {
-      await extract()
+      if (sourceMode === SourceMode.Html) {
+        extractFromHtml()
+      } else {
+        await extractFromUrl()
+      }
     } else if (action === ExtractionAction.Convert) {
       await convert()
     }
   }
 
-  async function extract() {
+  async function extractFromUrl() {
     if (!url.trim()) {
       return
     }
@@ -63,7 +69,30 @@
     )
 
     try {
-      extractionResult = await service.extract(request)
+      extractionResult = sourceMode === SourceMode.Url ? await service.extract(request) : await service.extractFromHtml(request)
+    } catch (e) {
+      error = e instanceof Error ? e.message : String(e)
+    } finally {
+      loading = false
+    }
+  }
+
+  async function extractFromHtml() {
+    if (!rawHtml.trim()) {
+      return
+    }
+
+    loading = true
+    error = undefined
+    extractionResult = undefined
+
+    const request = new ExtractFromHtmlRequest(rawHtml.trim(), format, includeMetadata ?? false,
+      new WebContentExtractorOptions(extractor ? [ extractor ] : undefined),
+      new MarkdownConverterOptions(converter ? [ converter ] : undefined),
+    )
+
+    try {
+      extractionResult = await service.extractFromHtml(request)
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     } finally {
@@ -144,9 +173,11 @@
 
       <SwitchInput label="Include metadata" bind:value={includeMetadata} disabled={loading} />
 
-      {#if actionRequiresExtraction}
+      {#if actionRequiresFetcher}
         <ComboBox label="Fetcher" options={fetcherOptions} selectedOption={fetcher} selectionChanged={value => fetcher = value} />
+      {/if}
 
+      {#if actionRequiresExtraction}
         <ComboBox label="Extractor" options={extractorOptions} selectedOption={extractor} selectionChanged={value => extractor = value} />
       {/if}
 
