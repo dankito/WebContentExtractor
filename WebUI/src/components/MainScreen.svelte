@@ -28,7 +28,7 @@
 
     <!-- Result -->
     {#if action === ExtractionAction.Extract}
-      <ExtractContentTab {extractionResult} {format} />
+      <ExtractContentTab {extractionResult} requestedFormat={format} />
     {:else if action === ExtractionAction.Convert}
       <ConvertResult {convertResult} />
     {/if}

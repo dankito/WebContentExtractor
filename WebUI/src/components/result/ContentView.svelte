@@ -6,11 +6,16 @@
   import Card from "../common/form/Card.svelte"
   import { MarkdownConverter } from "../../ts/model/MarkdownConverter"
   import { WebFetcher } from "../../ts/model/WebFetcher"
+  import { RequestedFormat } from "../../ts/model/RequestedFormat"
+  import ComboBox from "../common/form/ComboBox.svelte"
 
-  let { content, format, fetcher = undefined, extractor = undefined, converter = undefined }:
-    { content: string, format: OutputFormat, fetcher?: WebFetcher, extractor?: WebContentExtractor, converter?: MarkdownConverter } = $props()
+  let { content, format, fetcher = undefined, extractor = undefined, converter = undefined, returnedFormats = [], displayedFormat = $bindable() }:
+    { content: string, format: OutputFormat, fetcher?: WebFetcher, extractor?: WebContentExtractor, converter?: MarkdownConverter,
+      returnedFormats?: RequestedFormat[], displayedFormat?: RequestedFormat } = $props()
 
   let viewMode = $state<"source" | "rendered">("rendered")
+
+  let returnedFormatsOptions = $derived(returnedFormats.map(format => new Option(getRequestedFormatDisplayName(format), format)))
 
   const renderedMarkdown = $derived(
     format === OutputFormat.Markdown
@@ -26,7 +31,13 @@
     viewMode = "rendered"
   })
 
+
   async function copyToClipboard() {
+    if (!navigator.clipboard) {
+      console.warn("Aborting, clipboard is not supported")
+      return
+    }
+
     /**
      * A few caveats worth knowing:
      *
@@ -36,13 +47,24 @@
      * - **Safari** supports it but requires all `Blob` promises to be resolved *synchronously* at construction time — don't `await` anything before building the `ClipboardItem`.
      */
     const items: Record<string, string | Blob> = {}
-    if (format == OutputFormat.Html) {
-      items["text/html"] = new Blob([content], { type: "text/html" })
-      items["text/plain"] = new Blob([content], { type: "text/plain" }) // without it copying html to clipboard will not work
-    } else if (format === OutputFormat.Markdown) {
-      items["text/plain"] = content
-    } else if (format == OutputFormat.Text) {
-      items["text/plain"] = new Blob([content], { type: "text/plain" })
+    if (displayedFormat) {
+      if (displayedFormat == RequestedFormat.RawHtml || displayedFormat == RequestedFormat.ContentHtml) {
+        items["text/html"] = new Blob([content], { type: "text/html" })
+        items["text/plain"] = new Blob([content], { type: "text/plain" }) // without it copying html to clipboard will not work
+      } else if (displayedFormat === RequestedFormat.ContentMarkdown) {
+        items["text/plain"] = content
+      } else if (displayedFormat == RequestedFormat.ContentText) {
+        items["text/plain"] = new Blob([content], { type: "text/plain" })
+      }
+    } else {
+      if (format == OutputFormat.Html) {
+        items["text/html"] = new Blob([content], { type: "text/html" })
+        items["text/plain"] = new Blob([content], { type: "text/plain" }) // without it copying html to clipboard will not work
+      } else if (format === OutputFormat.Markdown) {
+        items["text/plain"] = content
+      } else if (format == OutputFormat.Text) {
+        items["text/plain"] = new Blob([content], { type: "text/plain" })
+      }
     }
 
     const clipboardItem = new ClipboardItem(items)
@@ -100,6 +122,20 @@
       return converter
     }
   }
+
+  function getRequestedFormatDisplayName(format: RequestedFormat): string {
+    if (format == RequestedFormat.RawHtml) {
+      return "Raw HTML"
+    } else if (format == RequestedFormat.ContentHtml) {
+      return "HTML"
+    } else if (format == RequestedFormat.ContentMarkdown) {
+      return "Markdown"
+    } else if (format == RequestedFormat.ContentText) {
+      return "Text"
+    } else {
+      return format // should never come to here as we don't request other formats
+    }
+  }
 </script>
 
 <Card classes="h-full min-h-0 flex flex-col overflow-hidden p-0">
@@ -128,6 +164,12 @@
       Source
     </button>
 
+    {#if returnedFormats.length}
+      <div class="ml-1">
+        <ComboBox options={returnedFormatsOptions} bind:selectedOption={displayedFormat} />
+      </div>
+    {/if}
+
     <div class="ml-auto flex items-center gap-1.5">
       <span class="text-xs text-zinc-400" title={formatToolsAndChars()}>
         {formatToolsAndChars()}
@@ -142,9 +184,9 @@
   <!-- Content -->
   <div class="h-full min-h-0 overflow-auto">
     {#if viewMode === "source"}
-            <pre class="p-4 text-xs text-zinc-700 font-mono whitespace-pre-wrap wrap-break-word leading-relaxed">
-              {content}
-            </pre>
+      <pre class="p-4 text-xs text-zinc-700 font-mono whitespace-pre-wrap wrap-break-word leading-relaxed">
+        {content}
+      </pre>
     {:else if format === OutputFormat.Html}
       <iframe srcdoc={content} sandbox="allow-same-origin" title="Rendered HTML"
               class="w-full h-full min-h-96 border-0 bg-white" >
@@ -155,9 +197,9 @@
         {@html renderedMarkdown}
       </div>
     {:else}
-            <pre class="p-4 text-xs text-zinc-700 whitespace-pre-wrap wrap-break-word leading-relaxed">
-              {content}
-            </pre>
+      <pre class="p-4 text-xs text-zinc-700 whitespace-pre-wrap wrap-break-word leading-relaxed">
+        {content}
+      </pre>
     {/if}
   </div>
 </Card>
