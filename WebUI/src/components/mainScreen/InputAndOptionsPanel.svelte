@@ -36,14 +36,21 @@
   let loading = $state(false)
   let actionRequiresFetcher = $derived(sourceMode !== SourceMode.Html)
   let actionRequiresExtraction = $derived(action === ExtractionAction.Extract || action === ExtractionAction.CompareExtractors)
+  let isSelectingSourceModePossible = $derived(action !== ExtractionAction.Convert && action !== ExtractionAction.CompareConverters)
 
   const service = DI.service
 
 
+  $effect(() => {
+    if (!!!isSelectingSourceModePossible) {
+      sourceMode = SourceMode.Html // URL is not sensible for conversion
+    }
+  })
+
   async function executeAction() {
     if (action === ExtractionAction.Extract) {
       if (sourceMode === SourceMode.Html) {
-        extractFromHtml()
+        await extractFromHtml()
       } else {
         await extractFromUrl()
       }
@@ -164,7 +171,7 @@
 <Card>
   <div class="flex flex-col gap-2.5 m-2">
     <div class="flex gap-2 items-center">
-      <SourceInput bind:url bind:html={rawHtml} bind:mode={sourceMode} disabled={loading} onSubmit={executeAction}/>
+      <SourceInput bind:url bind:html={rawHtml} bind:mode={sourceMode} disabled={loading} onSubmit={executeAction} {isSelectingSourceModePossible}/>
 
       <SplitButton options={extractOptions} selectedOption={action} loading={loading}
                    disabled={loading || (sourceMode === SourceMode.Url ? !url.trim() : !rawHtml.trim())} onSelect={(value) => { action = value; executeAction() }} />

@@ -2,12 +2,13 @@
   import { Globe, Code2 } from "@lucide/svelte"
   import { SourceMode } from "../../../ts/ui/SourceMode"
 
-  let { url = $bindable(""), html = $bindable(""), mode = $bindable(SourceMode.Url), disabled = false, onSubmit, }: {
+  let { url = $bindable(""), html = $bindable(""), mode = $bindable(SourceMode.Url), disabled = false, onSubmit, isSelectingSourceModePossible }: {
     url?: string
     html?: string
     mode?: SourceMode
     disabled?: boolean
     onSubmit?: () => void
+    isSelectingSourceModePossible: boolean
   } = $props()
 
   function toggleMode() {
@@ -23,19 +24,21 @@
 
 <div class="relative flex-1">
   <!-- Mode toggle icon -->
-  <button
-      type="button"
-      onclick={toggleMode}
-      title={mode === SourceMode.Url ? "Switch to HTML input" : "Switch to URL input"}
-      class="absolute left-3 top-3 z-10 text-zinc-400 hover:text-primary transition-colors cursor-pointer"
-      aria-label="Toggle input mode"
-  >
-    {#if mode === SourceMode.Url}
-      <Globe class="w-4 h-4" />
-    {:else}
-      <Code2 class="w-4 h-4 text-primary" />
-    {/if}
-  </button>
+  {#if isSelectingSourceModePossible}
+    <button
+        type="button"
+        onclick={toggleMode}
+        title={mode === SourceMode.Url ? "Switch to HTML input" : "Switch to URL input"}
+        class="absolute left-3 top-3 z-10 text-zinc-400 hover:text-primary transition-colors cursor-pointer"
+        aria-label="Toggle input mode"
+    >
+      {#if mode === SourceMode.Url}
+        <Globe class="w-4 h-4" />
+      {:else}
+        <Code2 class="w-4 h-4 text-primary" />
+      {/if}
+    </button>
+  {/if}
 
   {#if mode === SourceMode.Url}
     <input type="url" bind:value={url} placeholder="https://example.com" onkeydown={onKeydown} {disabled}
