@@ -7,5 +7,5 @@
 </script>
 
 {#if convertResult && convertResult.content}
-  <ContentView content={convertResult.content} format={OutputFormat.Markdown} />
+  <ContentView content={convertResult.content} converter={convertResult.converter} format={OutputFormat.Markdown} />
 {/if}

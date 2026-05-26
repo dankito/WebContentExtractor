@@ -62,7 +62,7 @@
 
   function getShortConverterName(converter: MarkdownConverter): string {
     if (converter === MarkdownConverter.Markdownify) {
-      return "curl"
+      return "Markdownify"
     } else if (converter === MarkdownConverter.Html2Text) {
       return "html2text"
     } else if (converter === MarkdownConverter.Kreuzberg) {
