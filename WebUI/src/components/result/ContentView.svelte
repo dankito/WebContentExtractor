@@ -26,14 +26,43 @@
     viewMode = "rendered"
   })
 
-  function formatTools(): string {
+  async function copyToClipboard() {
+    /**
+     * A few caveats worth knowing:
+     *
+     * - **`text/markdown` is not a registered MIME type** the browser clipboard will accept. The workaround is to put your markdown in `text/plain` (most markdown-aware apps like Notion, Linear, and Bear detect it anyway), or use a custom `web text/markdown` type with the new [Web Custom Formats](https://docs.google.com/document/d/1XDOtTv8DtwTi4GaszwRFIJCOuzAEA4g9Tk0HrasQAdE) spec (Chrome 104+ only).
+     * - **`clipboard.write()`** (as opposed to `writeText`) requires user gesture and a secure context, same as `writeText`.
+     * - **Firefox** has partial support — `text/plain` and `text/html` work, but it may block custom types.
+     * - **Safari** supports it but requires all `Blob` promises to be resolved *synchronously* at construction time — don't `await` anything before building the `ClipboardItem`.
+     */
+    const items: Record<string, string | Blob> = {}
+    if (format == OutputFormat.Html) {
+      items["text/html"] = new Blob([content], { type: "text/html" })
+      items["text/plain"] = new Blob([content], { type: "text/plain" }) // without it copying html to clipboard will not work
+    } else if (format === OutputFormat.Markdown) {
+      items["text/plain"] = content
+    } else if (format == OutputFormat.Text) {
+      items["text/plain"] = new Blob([content], { type: "text/plain" })
+    }
+
+    const clipboardItem = new ClipboardItem(items)
+    await navigator.clipboard.write([ clipboardItem ])
+  }
+
+  function formatToolsAndChars(): string {
     const tools = [
       fetcher ? getShortFetcherName(fetcher) : "",
       extractor ? getShortExtractorName(extractor) : "",
       converter ? getShortConverterName(converter) : "",
-    ]
+    ].filter(it => it !== "")
 
-    return tools.filter(it => it !== "").join(" · ")
+    const countChars = content.length.toLocaleString() + " chars"
+
+    if (tools.length) {
+      return tools.join(" · ") + " · " + countChars
+    } else {
+      return countChars
+    }
   }
 
   function getShortFetcherName(fetcher: WebFetcher): string {
@@ -98,9 +127,16 @@
       <Code class="w-3.5 h-3.5" />
       Source
     </button>
-    <span class="ml-auto text-xs text-zinc-400">
-      {formatTools()} · {content.length.toLocaleString()} chars
-    </span>
+
+    <div class="ml-auto flex items-center gap-1.5">
+      <span class="text-xs text-zinc-400" title={formatToolsAndChars()}>
+        {formatToolsAndChars()}
+      </span>
+
+      <button onclick={copyToClipboard} aria-label="Copy displayed content to clipboard">
+        <span class="ml-0.5 lg:ml-1.5 icon-[mdi--content-copy] text-zinc-500 size-4.5 cursor-pointer"></span>
+      </button>
+    </div>
   </div>
 
   <!-- Content -->
