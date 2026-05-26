@@ -40,11 +40,7 @@ export class WebExtractionService {
       extraction_result: contentHtml.extraction_result ?? contentMarkdown.extraction_result,
       metadata: contentHtml.metadata ?? contentMarkdown.metadata,
 
-      raw_html: request.html,
-      content_html: contentHtml.content,
-
-      raw_markdown: undefined,
-      content_markdown: contentMarkdown.content,
+      content_markdown: contentMarkdown.conversion_result,
     }
   }
 

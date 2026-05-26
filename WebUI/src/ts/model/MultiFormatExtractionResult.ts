@@ -1,20 +1,21 @@
 import type { WebFetcherResult } from "./WebFetcherResult"
 import type { WebContentExtractionResult } from "./WebContentExtractionResult"
 import type { ExtractedMetadata } from "./ExtractedMetadata"
+import type { MarkdownConversionResult } from "./MarkdownConversionResult"
 
 export interface MultiFormatExtractionResult {
   readonly url: string
-  readonly fetch_result: WebFetcherResult
 
+  // contains raw html
+  readonly fetch_result: WebFetcherResult
+  // contains extracted page content html
   readonly extraction_result?: WebContentExtractionResult
+
   readonly metadata?: ExtractedMetadata
 
-  raw_html?: string
-  content_html?: string
+  raw_markdown?: MarkdownConversionResult
+  content_markdown?: MarkdownConversionResult
 
-  raw_markdown?: string
-  content_markdown?: string
-
-  raw_text?: string
-  content_text?: string
+  raw_text?: MarkdownConversionResult
+  content_text?: MarkdownConversionResult
 }

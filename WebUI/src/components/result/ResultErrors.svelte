@@ -8,7 +8,8 @@
 
   let fetchResult = $derived(extractionResult?.fetch_result)
   let contentExtractionResult = $derived(extractionResult?.extraction_result)
-  let convertMarkdownResult = $derived(convertResult?.markdown_conversion_result ?? extractionResult?.conversion_result)
+  // actually we would need to merge the failures of extractionResult.content_markdown and extractionResult.content_text
+  let convertMarkdownResult = $derived(convertResult?.markdown_conversion_result ?? extractionResult?.content_markdown ?? extractionResult?.content_text)
 
   let extractContentErrors = $derived(Object.entries(contentExtractionResult?.failures ?? {}))
   let markdownConversionErrors = $derived(Object.entries(convertMarkdownResult?.failures ?? {}))
