@@ -8,30 +8,38 @@
   import ConvertResult from "./result/ConvertResult.svelte"
   import type { MultiFormatExtractionResult } from "../ts/model/MultiFormatExtractionResult"
   import { OutputFormat } from "../ts/model/OutputFormat"
+  import { MarkdownConverter } from "../ts/model/MarkdownConverter"
 
   let action = $state<ExtractionAction>(ExtractionAction.Extract)
   let sourceMode = $state<SourceMode>(SourceMode.Url)
   let format = $state<OutputFormat>(OutputFormat.Markdown)
 
   let extractionResult = $state<MultiFormatExtractionResult | undefined>(undefined)
-  let convertResult = $state<MarkdownConversionResult | undefined>(undefined)
+  let convertResults = $state<Record<MarkdownConverter, MarkdownConversionResult>>({})
   let error = $state<string | undefined>(undefined)
+
+  let singleResult = $derived(action !== ExtractionAction.Convert || Object.keys(convertResults).length < 2)
 </script>
 
 <div class="flex flex-col gap-3 w-full h-full min-h-0 mx-auto p-3.5 ">
-  <div class="flex flex-col gap-4 w-full h-full min-h-0 max-w-100 lg:max-w-200 mx-auto">
+  <div class="flex flex-col gap-4 w-full h-full min-h-0">
 
-    <InputAndOptionsPanel bind:action bind:sourceMode bind:format bind:extractionResult bind:convertResult bind:error />
+    <div class="flex flex-col gap-4 w-full max-w-100 lg:max-w-200 mx-auto">
+      <InputAndOptionsPanel bind:action bind:sourceMode bind:format bind:extractionResult bind:convertResults bind:error />
 
-    <!-- Extraction response -->
-    <ResultErrors {error} {extractionResult} {convertResult} />
+      <!-- Extraction response -->
+      <!-- TODO -->
+      <ResultErrors {error} extractionResult={action === ExtractionAction.Extract ? extractionResult : undefined}  />
+    </div>
 
     <!-- Result -->
-    {#if action === ExtractionAction.Extract}
-      <ExtractContentTab {extractionResult} requestedFormat={format} />
-    {:else if action === ExtractionAction.Convert}
-      <ConvertResult {convertResult} />
-    {/if}
+    <div class={[ "flex flex-col gap-4 w-full min-h-0 mx-auto", singleResult ? "max-w-100 lg:max-w-200" : "" ]}>
+      {#if action === ExtractionAction.Extract}
+        <ExtractContentTab {extractionResult} requestedFormat={format} />
+      {:else if action === ExtractionAction.Convert}
+        <ConvertResult {convertResults} />
+      {/if}
+    </div>
 
   </div>
 </div>

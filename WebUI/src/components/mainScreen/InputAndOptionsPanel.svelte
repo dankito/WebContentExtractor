@@ -20,10 +20,11 @@
   import { RequestedFormat } from "../../ts/model/RequestedFormat"
   import { MultiFormatExtractionRequest } from "../../ts/model/MultiFormatExtractionRequest"
   import type { MultiFormatExtractionResult } from "../../ts/model/MultiFormatExtractionResult"
+  import MultiSelect from "../common/form/MultiSelect.svelte"
 
 
-  let { action = $bindable(), sourceMode = $bindable(), format = $bindable(), extractionResult = $bindable(), convertResult = $bindable(), error = $bindable() } =
-    $props<{ action: ExtractionAction, sourceMode: SourceMode, format: OutputFormat, extractionResult?: MultiFormatExtractionResult, convertResult?: MarkdownConversionResult, error?: string }>()
+  let { action = $bindable(), sourceMode = $bindable(), format = $bindable(), extractionResult = $bindable(), convertResults = $bindable({}), error = $bindable() } =
+    $props<{ action: ExtractionAction, sourceMode: SourceMode, format: OutputFormat, extractionResult?: MultiFormatExtractionResult, convertResults?: Record<MarkdownConverter, MarkdownConversionResult>, error?: string }>()
 
   let url = $state("")
   let rawHtml = $state("")
@@ -32,6 +33,7 @@
   let fetcher = $state<WebFetcher | undefined>(undefined)
   let extractor = $state<WebContentExtractor | undefined>(undefined)
   let converter = $state<MarkdownConverter | undefined>(undefined)
+  let converters = $state<MarkdownConverter[]>([])
 
   let loading = $state(false)
   let actionRequiresFetcher = $derived(sourceMode !== SourceMode.Html)
@@ -120,10 +122,17 @@
 
     loading = true
     error = undefined
-    convertResult = undefined
+    convertResults = {}
 
     try {
-      convertResult = await service.convertHtmlToMarkdown(html, new MarkdownConverterOptions(converter ? [ converter ] : undefined))
+      if (converters.length === 0) {
+        const result = await service.convertHtmlToMarkdown(html)
+        convertResults[result.converter!] = result
+      } else {
+        converters.forEach(async (converter) => {
+          convertResults[converter] = await service.convertHtmlToMarkdown(html, new MarkdownConverterOptions(converter ? [ converter ] : undefined))
+        })
+      }
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     } finally {
@@ -194,7 +203,7 @@
       {/if}
 
       {#if format !== OutputFormat.Html}
-        <ComboBox label="Converter" options={converterOptions} selectedOption={converter} selectionChanged={value => converter = value} />
+        <MultiSelect label="Converters" options={converterOptions} selectedOptions={converters} selectionChanged={value => converters = value} />
       {/if}
     </div>
   </div>
