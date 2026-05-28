@@ -38,14 +38,14 @@ export class WebExtractionClient {
     if (request.format) {
       params.append("format", request.format)
     }
-    if (request.include_metadata) {
-      params.append("include_metadata", request.include_metadata.toString())
+    if (request.includeMetadata) {
+      params.append("include_metadata", request.includeMetadata.toString())
     }
-    if (request.extractor_options?.extractors?.length) {
-      params.append("extractor", request.extractor_options?.extractors[0])
+    if (request.extractorOptions?.extractors?.length) {
+      params.append("extractor", request.extractorOptions?.extractors[0])
     }
-    if (request.converter_options?.converters?.length) {
-      params.append("converter", request.converter_options?.converters[0])
+    if (request.converterOptions?.converters?.length) {
+      params.append("converter", request.converterOptions?.converters[0])
     }
 
     if (params.size) {

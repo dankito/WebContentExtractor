@@ -4,10 +4,10 @@ export interface WebFetcherResult {
   fetcher?: WebFetcher
   error?: string
   html?: string
-  status_code?: number
-  final_url?: string
+  statusCode?: number
+  finalUrl?: string
   headers?: Record<string, string>
   cookies?: Record<string, string>
-  http_version?: string
-  elapsed_microseconds?: number
+  httpVersion?: string
+  elapsedMicroseconds?: number
 }

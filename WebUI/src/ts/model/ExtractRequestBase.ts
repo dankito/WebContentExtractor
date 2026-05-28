@@ -6,9 +6,9 @@ export class ExtractRequestBase {
 
   constructor(
     readonly format?: OutputFormat,
-    readonly include_metadata?: boolean,
-    readonly extractor_options?: WebContentExtractorOptions,
-    readonly converter_options?: MarkdownConverterOptions,
+    readonly includeMetadata?: boolean,
+    readonly extractorOptions?: WebContentExtractorOptions,
+    readonly converterOptions?: MarkdownConverterOptions,
   ) { }
 
 }

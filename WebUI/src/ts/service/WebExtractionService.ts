@@ -36,11 +36,11 @@ export class WebExtractionService {
 
     return {
       url: "",
-      fetch_result: undefined,
-      extraction_result: contentHtml.extraction_result ?? contentMarkdown.extraction_result,
+      fetchResult: undefined,
+      extractionResult: contentHtml.extractionResult ?? contentMarkdown.extractionResult,
       metadata: contentHtml.metadata ?? contentMarkdown.metadata,
 
-      content_markdown: contentMarkdown.conversion_result,
+      contentMarkdown: contentMarkdown.conversionResult,
     }
   }
 

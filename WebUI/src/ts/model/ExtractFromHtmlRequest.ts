@@ -8,11 +8,11 @@ export class ExtractFromHtmlRequest extends ExtractRequestBase {
   constructor(
     readonly html: string,
     readonly format?: OutputFormat,
-    readonly include_metadata?: boolean,
-    readonly extractor_options?: WebContentExtractorOptions,
-    readonly converter_options?: MarkdownConverterOptions,
+    readonly includeMetadata?: boolean,
+    readonly extractorOptions?: WebContentExtractorOptions,
+    readonly converterOptions?: MarkdownConverterOptions,
   ) {
-    super(format, include_metadata, extractor_options, converter_options)
+    super(format, includeMetadata, extractorOptions, converterOptions)
   }
 
 }

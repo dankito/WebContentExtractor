@@ -8,10 +8,10 @@ export class MultiFormatExtractionRequest {
   constructor(
     readonly url: string,
     readonly formats: RequestedFormat[] = [ RequestedFormat.ContentHtml ],
-    readonly include_metadata?: boolean,
-    readonly web_fetcher_options?: WebFetcherOptions,
-    readonly extractor_options?: WebContentExtractorOptions,
-    readonly converter_options?: MarkdownConverterOptions,
+    readonly includeMetadata?: boolean,
+    readonly webFetcherOptions?: WebFetcherOptions,
+    readonly extractorOptions?: WebContentExtractorOptions,
+    readonly converterOptions?: MarkdownConverterOptions,
   ) { }
 
 }

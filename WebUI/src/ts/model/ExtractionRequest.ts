@@ -9,12 +9,12 @@ export class ExtractionRequest extends ExtractRequestBase {
   constructor(
     readonly url: string,
     readonly format?: OutputFormat,
-    readonly include_metadata?: boolean,
-    readonly web_fetcher_options?: WebFetcherOptions,
-    readonly extractor_options?: WebContentExtractorOptions,
-    readonly converter_options?: MarkdownConverterOptions,
+    readonly includeMetadata?: boolean,
+    readonly webFetcherOptions?: WebFetcherOptions,
+    readonly extractorOptions?: WebContentExtractorOptions,
+    readonly converterOptions?: MarkdownConverterOptions,
   ) {
-    super(format, include_metadata, extractor_options, converter_options)
+    super(format, includeMetadata, extractorOptions, converterOptions)
   }
   
 }

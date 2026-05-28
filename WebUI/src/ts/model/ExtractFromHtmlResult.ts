@@ -7,6 +7,6 @@ export interface ExtractFromHtmlResult {
   format: OutputFormat
   content?: string
   metadata?: ExtractedMetadata
-  extraction_result?: WebContentExtractionResult
-  conversion_result?: MarkdownConversionResult
+  extractionResult?: WebContentExtractionResult
+  conversionResult?: MarkdownConversionResult
 }

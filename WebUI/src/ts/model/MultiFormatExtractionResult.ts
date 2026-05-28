@@ -7,15 +7,15 @@ export interface MultiFormatExtractionResult {
   readonly url: string
 
   // contains raw html
-  readonly fetch_result: WebFetcherResult
+  readonly fetchResult: WebFetcherResult
   // contains extracted page content html
-  readonly extraction_result?: WebContentExtractionResult
+  readonly extractionResult?: WebContentExtractionResult
 
   readonly metadata?: ExtractedMetadata
 
-  raw_markdown?: MarkdownConversionResult
-  content_markdown?: MarkdownConversionResult
+  rawMarkdown?: MarkdownConversionResult
+  contentMarkdown?: MarkdownConversionResult
 
-  raw_text?: MarkdownConversionResult
-  content_text?: MarkdownConversionResult
+  rawText?: MarkdownConversionResult
+  contentText?: MarkdownConversionResult
 }
