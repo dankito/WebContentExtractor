@@ -33,7 +33,7 @@
     </div>
 
     <!-- Result -->
-    <div class={[ "flex flex-col gap-4 w-full min-h-0 mx-auto", singleResult ? "max-w-100 lg:max-w-200" : "" ]}>
+    <div class={[ "flex flex-col gap-4 w-full h-full min-h-0 mx-auto", singleResult ? "max-w-100 lg:max-w-200" : "" ]}>
       {#if action === ExtractionAction.Extract}
         <ExtractContentTab {extractionResult} requestedFormat={format} />
       {:else if action === ExtractionAction.Convert}
