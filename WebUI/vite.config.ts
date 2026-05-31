@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite"
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: process.env.VITE_BASE_PATH ?? "/",
+  base: "./", // set a relative base path so that .js and .css files get correctly resolved when app/API is being served from a custom root path
   plugins: [
     svelte(),
     tailwindcss(),
