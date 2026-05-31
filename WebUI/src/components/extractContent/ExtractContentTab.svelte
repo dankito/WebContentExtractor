@@ -14,9 +14,9 @@
   $effect(() => {
     const _ = extractionResult // execute on each change to extractionResult
 
-    const rawHtml = extractionResult?.fetch_result?.html
-    const contentHtml = extractionResult?.extraction_result?.content
-    const contentMarkdown = extractionResult?.content_markdown?.content
+    const rawHtml = extractionResult?.fetchResult?.html
+    const contentHtml = extractionResult?.extractionResult?.content
+    const contentMarkdown = extractionResult?.contentMarkdown?.content
 
     if (requestedFormat == OutputFormat.Html) {
       content = contentHtml ?? rawHtml
@@ -25,20 +25,20 @@
       content = contentMarkdown ?? contentHtml ?? rawHtml
       displayedFormat = RequestedFormat.ContentMarkdown
     } else if (requestedFormat == OutputFormat.Text) {
-      content = extractionResult?.content_text?.content ?? contentMarkdown ?? contentHtml ?? rawHtml
+      content = extractionResult?.contentText?.content ?? contentMarkdown ?? contentHtml ?? rawHtml
       displayedFormat = RequestedFormat.ContentText
     }
   })
 
   $effect(() => {
     if (displayedFormat == RequestedFormat.RawHtml) {
-      content = extractionResult?.fetch_result?.html
+      content = extractionResult?.fetchResult?.html
     } else if (displayedFormat == RequestedFormat.ContentHtml) {
-      content = extractionResult?.extraction_result?.content
+      content = extractionResult?.extractionResult?.content
     } else if (displayedFormat == RequestedFormat.ContentMarkdown) {
-      content = extractionResult?.content_markdown?.content
+      content = extractionResult?.contentMarkdown?.content
     } else if (displayedFormat == RequestedFormat.ContentText) {
-      content = extractionResult?.content_text?.content
+      content = extractionResult?.contentText?.content
     }
   })
 
@@ -46,10 +46,10 @@
     const returnedFormats: RequestedFormat[] = []
 
     if (extractionResult) {
-      if (extractionResult.fetch_result?.html) returnedFormats.push(RequestedFormat.RawHtml)
-      if (extractionResult.extraction_result?.content) returnedFormats.push(RequestedFormat.ContentHtml)
-      if (extractionResult.content_markdown?.content) returnedFormats.push(RequestedFormat.ContentMarkdown)
-      if (extractionResult.content_text?.content) returnedFormats.push(RequestedFormat.ContentText)
+      if (extractionResult.fetchResult?.html) returnedFormats.push(RequestedFormat.RawHtml)
+      if (extractionResult.extractionResult?.content) returnedFormats.push(RequestedFormat.ContentHtml)
+      if (extractionResult.contentMarkdown?.content) returnedFormats.push(RequestedFormat.ContentMarkdown)
+      if (extractionResult.contentText?.content) returnedFormats.push(RequestedFormat.ContentText)
     }
 
     return returnedFormats
@@ -63,9 +63,9 @@
   {/if}
 
   {#if content}
-    <ContentView content={content} format={requestedFormat} fetcher={extractionResult.fetch_result?.fetcher}
-                 extractor={extractionResult.extraction_result?.extractor}
-                 converter={extractionResult.content_markdown?.converter ?? extractionResult?.content_text?.converter}
+    <ContentView content={content} format={requestedFormat} fetcher={extractionResult.fetchResult?.fetcher}
+                 extractor={extractionResult.extractionResult?.extractor}
+                 converter={extractionResult.contentMarkdown?.converter ?? extractionResult?.contentText?.converter}
                  {returnedFormats} bind:displayedFormat
      />
   {/if}
