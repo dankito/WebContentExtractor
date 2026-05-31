@@ -8,9 +8,11 @@
   import { WebFetcher } from "../../ts/model/WebFetcher"
   import { RequestedFormat } from "../../ts/model/RequestedFormat"
   import ComboBox from "../common/form/ComboBox.svelte"
+  import type { WebContentExtractionResult } from "../../ts/model/WebContentExtractionResult"
+  import type { ExtractionMetrics } from "../../ts/model/ExtractionMetrics"
 
-  let { content, format, fetcher = undefined, extractor = undefined, converter = undefined, returnedFormats = [], displayedFormat = $bindable() }:
-    { content: string, format: OutputFormat, fetcher?: WebFetcher, extractor?: WebContentExtractor, converter?: MarkdownConverter,
+  let { content, format, fetcher = undefined, extractionResult = undefined, converter = undefined, returnedFormats = [], displayedFormat = $bindable() }:
+    { content: string, format: OutputFormat, fetcher?: WebFetcher, extractionResult?: WebContentExtractionResult, converter?: MarkdownConverter,
       returnedFormats?: RequestedFormat[], displayedFormat?: RequestedFormat } = $props()
 
   let viewMode = $state<"source" | "rendered">("rendered")
@@ -71,10 +73,33 @@
     await navigator.clipboard.write([ clipboardItem ])
   }
 
+
+  function formatExtractionMetrics(): string {
+    if (!extractionResult?.allMetrics && !extractionResult?.metrics) {
+      return ""
+    }
+
+    const extractorMetrics: Record<WebContentExtractor, ExtractionMetrics> = { }
+    extractorMetrics[extractionResult.extractor!] = extractionResult.metrics!
+    const metrics = extractionResult.allMetrics ?? extractorMetrics
+    const extractors = Object.keys(metrics) as WebContentExtractor[]
+    const col_w = 16
+    const metric_name_w = 30
+
+    return [
+      "\n".padEnd(metric_name_w) + extractors.map(e => e.padEnd(col_w)).join(" "),
+      "Link density:".padEnd(metric_name_w) + extractors.map(e => metrics[e].linkDensity.toFixed(2).padEnd(col_w)).join(" "),
+      "Avg. sentence length:".padEnd(metric_name_w) + extractors.map(e => metrics[e].avgSentenceLength.toFixed(2).padEnd(col_w)).join(" "),
+      "Compression ratio:".padEnd(metric_name_w) + extractors.map(e => metrics[e].compressionRatio.toFixed(2).padEnd(col_w)).join(" "),
+      "Readability score:".padEnd(metric_name_w) + extractors.map(e => metrics[e].readabilityScore.toFixed(2).padEnd(col_w)).join(" "),
+      "Total score:".padEnd(metric_name_w) + extractors.map(e => metrics[e].score.toFixed(2).padEnd(col_w)).join(" "),
+    ].join("\n")
+  }
+
   function formatToolsAndChars(): string {
     const tools = [
       fetcher ? getShortFetcherName(fetcher) : "",
-      extractor ? getShortExtractorName(extractor) : "",
+      extractionResult ? getShortExtractorInfo(extractionResult) : "",
       converter ? getShortConverterName(converter) : "",
     ].filter(it => it !== "")
 
@@ -99,6 +124,12 @@
     } else {
       return fetcher
     }
+  }
+
+  function getShortExtractorInfo(result: WebContentExtractionResult): string {
+    const name = result.extractor ? getShortExtractorName(result.extractor) : ""
+    const score = result.metrics ? `(${result.metrics.score.toFixed(2)})` : ""
+    return [name + score].filter(it => it != "").join("  ")
   }
 
   function getShortExtractorName(extractor: WebContentExtractor): string {
@@ -171,7 +202,7 @@
     {/if}
 
     <div class="ml-auto flex items-center gap-1.5">
-      <span class="text-xs text-zinc-400" title={formatToolsAndChars()}>
+      <span class="text-xs text-zinc-400" title={formatToolsAndChars() + formatExtractionMetrics()}>
         {formatToolsAndChars()}
       </span>
 

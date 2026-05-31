@@ -64,7 +64,7 @@
 
   {#if content}
     <ContentView content={content} format={requestedFormat} fetcher={extractionResult.fetchResult?.fetcher}
-                 extractor={extractionResult.extractionResult?.extractor}
+                 extractionResult={extractionResult.extractionResult}
                  converter={extractionResult.contentMarkdown?.converter ?? extractionResult?.contentText?.converter}
                  {returnedFormats} bind:displayedFormat
      />

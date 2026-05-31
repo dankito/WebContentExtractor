@@ -34,9 +34,17 @@ export class WebExtractionService {
     const markdownRequest = { ...request, format: OutputFormat.Markdown }
     const contentMarkdown = await this.client.extractFromHtml(markdownRequest)
 
+    if (contentHtml.extractionResult) {
+      contentHtml.extractionResult.content = contentHtml.content
+    }
+    if (contentMarkdown.conversionResult) {
+      contentMarkdown.conversionResult.content = contentMarkdown.content
+    }
+
     return {
       url: "",
       fetchResult: undefined,
+
       extractionResult: contentHtml.extractionResult ?? contentMarkdown.extractionResult,
       metadata: contentHtml.metadata ?? contentMarkdown.metadata,
 
