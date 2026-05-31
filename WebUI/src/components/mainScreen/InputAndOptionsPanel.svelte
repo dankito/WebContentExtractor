@@ -202,7 +202,7 @@
         <ComboBox label="Extractor" options={extractorOptions} selectedOption={extractor} selectionChanged={value => extractor = value} />
       {/if}
 
-      {#if format !== OutputFormat.Html}
+      {#if action === ExtractionAction.Convert || format !== OutputFormat.Html}
         <MultiSelect label="Converters" options={converterOptions} selectedOptions={converters} selectionChanged={value => converters = value} />
       {/if}
     </div>
