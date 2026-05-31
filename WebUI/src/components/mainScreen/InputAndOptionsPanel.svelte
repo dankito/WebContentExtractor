@@ -32,7 +32,6 @@
   let includeMetadata = $state<boolean | undefined>(false)
   let fetcher = $state<WebFetcher | undefined>(undefined)
   let extractor = $state<WebContentExtractor | undefined>(undefined)
-  let converter = $state<MarkdownConverter | undefined>(undefined)
   let converters = $state<MarkdownConverter[]>([])
 
   let loading = $state(false)
@@ -79,7 +78,7 @@
     const request = new MultiFormatExtractionRequest(url.trim(), formats, includeMetadata ?? false,
       new WebFetcherOptions(fetcher ? [ fetcher ] : undefined),
       new WebContentExtractorOptions(extractor ? [ extractor ] : undefined),
-      new MarkdownConverterOptions(converter ? [ converter ] : undefined),
+      new MarkdownConverterOptions(converters),
     )
 
     try {
@@ -102,7 +101,7 @@
 
     const request = new ExtractFromHtmlRequest(rawHtml.trim(), format, includeMetadata ?? false,
       new WebContentExtractorOptions(extractor ? [ extractor ] : undefined),
-      new MarkdownConverterOptions(converter ? [ converter ] : undefined),
+      new MarkdownConverterOptions(converters),
     )
 
     try {
