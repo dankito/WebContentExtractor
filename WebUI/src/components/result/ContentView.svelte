@@ -138,9 +138,11 @@
     if (extractor === WebContentExtractor.Trafilatura) {
       return "Trafilatura"
     } else if (extractor === WebContentExtractor.ReadabilityLxml) {
-      return "Readability"
+      return "ReadabilityPy"
     } else if (extractor === WebContentExtractor.Newspaper4k) {
       return "Newspaper4k"
+    } else if (extractor === WebContentExtractor.ReadabilityJs) {
+      return "ReadabilityJs"
     } else {
       return extractor
     }
