@@ -176,6 +176,7 @@
   const extractorOptions = [
     new Option(WebContentExtractor.Trafilatura, "Trafilatura"),
     new Option(WebContentExtractor.ReadabilityLxml, "Readability Lxml"),
+    new Option(WebContentExtractor.Newspaper4k, "Newspaper4k"),
   ]
 
   const converterOptions = [
