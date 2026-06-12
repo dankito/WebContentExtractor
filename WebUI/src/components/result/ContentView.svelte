@@ -10,6 +10,7 @@
   import ComboBox from "../common/form/ComboBox.svelte"
   import type { WebContentExtractionResult } from "../../ts/model/WebContentExtractionResult"
   import type { ExtractionMetrics } from "../../ts/model/ExtractionMetrics"
+  import { Option } from "../../ts/ui/Option"
   import HtmlContent from "../common/controls/HtmlContent.svelte"
 
   let { content, format, fetcher = undefined, extractionResult = undefined, converter = undefined, returnedFormats = [], displayedFormat = $bindable() }:
@@ -18,7 +19,7 @@
 
   let viewMode = $state<"source" | "rendered">("rendered")
 
-  let returnedFormatsOptions = $derived(returnedFormats.map(format => new Option(getRequestedFormatDisplayName(format), format)))
+  let returnedFormatsOptions = $derived(returnedFormats.map(format => new Option(format, getRequestedFormatDisplayName(format))))
 
   const renderedMarkdown = $derived(
     format === OutputFormat.Markdown
