@@ -2,16 +2,17 @@
   import ResultError from "./ResultError.svelte"
   import type { MarkdownConversionResult } from "../../ts/model/MarkdownConversionResult"
   import type { MultiFormatExtractionResult } from "../../ts/model/MultiFormatExtractionResult"
+  import type { WebContentExtractionResult } from "../../ts/model/WebContentExtractionResult"
 
-  let { error, extractionResult, convertResult } =
-    $props<{ error?: string, extractionResult?: MultiFormatExtractionResult, convertResult?: MarkdownConversionResult }>()
+  let { error, extractionResults = [], convertResult } =
+    $props<{ error?: string, extractionResults: MultiFormatExtractionResult[], convertResult?: MarkdownConversionResult }>()
 
-  let fetchResult = $derived(extractionResult?.fetch_result)
-  let contentExtractionResult = $derived(extractionResult?.extraction_result)
+  let fetchResultErrors = $derived(extractionResults.map((result: MultiFormatExtractionResult) => result.fetchResult?.error).filter(error => !!error))
+  let contentExtractionResults = $derived(extractionResults.map((result: MultiFormatExtractionResult) => result.extractionResult))
   // actually we would need to merge the failures of extractionResult.content_markdown and extractionResult.content_text
-  let convertMarkdownResult = $derived(convertResult?.markdown_conversion_result ?? extractionResult?.content_markdown ?? extractionResult?.content_text)
+  let convertMarkdownResult = $derived(convertResult?.markdown_conversion_result ?? extractionResults?.content_markdown ?? extractionResults?.content_text)
 
-  let extractContentErrors = $derived(Object.entries(contentExtractionResult?.failures ?? {}))
+  let extractContentErrors = $derived(contentExtractionResults.flatMap((result: WebContentExtractionResult) => result?.failures).filter(failure => !!failure && Object.keys(failure).length > 0))
   let markdownConversionErrors = $derived(Object.entries(convertMarkdownResult?.failures ?? {}))
 </script>
 
@@ -21,14 +22,14 @@
   </ResultError>
 {/if}
 
-{#if fetchResult?.error}
+{#each fetchResultErrors as error}
   <ResultError>
     <div class="flex flex-col gap-2">
       <span>Fetching failed:</span>
-      <span>{fetchResult?.error}</span>
+      <span>{error}</span>
     </div>
   </ResultError>
-{/if}
+{/each}
 
 {#if extractContentErrors.length}
   <ResultError>

@@ -14,28 +14,29 @@
   let sourceMode = $state<SourceMode>(SourceMode.Url)
   let format = $state<OutputFormat>(OutputFormat.Markdown)
 
-  let extractionResult = $state<MultiFormatExtractionResult | undefined>(undefined)
+  let extractionResults = $state<MultiFormatExtractionResult[]>([])
   let convertResults = $state<Record<MarkdownConverter, MarkdownConversionResult>>({})
   let error = $state<string | undefined>(undefined)
 
-  let singleResult = $derived(action !== ExtractionAction.Convert || Object.keys(convertResults).length < 2)
+  let singleResult = $derived( action === ExtractionAction.Extract && extractionResults.filter(it => !!it.extractionResult?.content).length < 2
+    || action === ExtractionAction.Convert && Object.keys(convertResults).length < 2)
 </script>
 
 <div class="flex flex-col gap-3 w-full h-full min-h-0 mx-auto p-3.5 ">
   <div class="flex flex-col gap-4 w-full h-full min-h-0">
 
     <div class="flex flex-col gap-4 w-full max-w-100 lg:max-w-200 mx-auto">
-      <InputAndOptionsPanel bind:action bind:sourceMode bind:format bind:extractionResult bind:convertResults bind:error />
+      <InputAndOptionsPanel bind:action bind:sourceMode bind:format bind:extractionResults bind:convertResults bind:error />
 
       <!-- Extraction response -->
       <!-- TODO -->
-      <ResultErrors {error} extractionResult={action === ExtractionAction.Extract ? extractionResult : undefined}  />
+      <ResultErrors {error} extractionResults={action === ExtractionAction.Extract ? extractionResults : []}  />
     </div>
 
     <!-- Result -->
     <div class={[ "flex flex-col gap-4 w-full h-full min-h-0 mx-auto", singleResult ? "max-w-100 lg:max-w-200" : "" ]}>
       {#if action === ExtractionAction.Extract}
-        <ExtractContentTab {extractionResult} requestedFormat={format} />
+        <ExtractContentTab {extractionResults} requestedFormat={format} />
       {:else if action === ExtractionAction.Convert}
         <ConvertResult {convertResults} />
       {/if}

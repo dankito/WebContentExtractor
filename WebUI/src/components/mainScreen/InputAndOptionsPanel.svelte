@@ -23,15 +23,15 @@
   import MultiSelect from "../common/form/MultiSelect.svelte"
 
 
-  let { action = $bindable(), sourceMode = $bindable(), format = $bindable(), extractionResult = $bindable(), convertResults = $bindable({}), error = $bindable() } =
-    $props<{ action: ExtractionAction, sourceMode: SourceMode, format: OutputFormat, extractionResult?: MultiFormatExtractionResult, convertResults?: Record<MarkdownConverter, MarkdownConversionResult>, error?: string }>()
+  let { action = $bindable(), sourceMode = $bindable(), format = $bindable(), extractionResults = $bindable(), convertResults = $bindable({}), error = $bindable() } =
+    $props<{ action: ExtractionAction, sourceMode: SourceMode, format: OutputFormat, extractionResults?: MultiFormatExtractionResult[], convertResults?: Record<MarkdownConverter, MarkdownConversionResult>, error?: string }>()
 
   let url = $state("")
   let rawHtml = $state("")
 
   let includeMetadata = $state<boolean | undefined>(false)
   let fetcher = $state<WebFetcher | undefined>(undefined)
-  let extractor = $state<WebContentExtractor | undefined>(undefined)
+  let extractors = $state<WebContentExtractor[]>([])
   let converters = $state<MarkdownConverter[]>([])
 
   let loading = $state(false)
@@ -67,7 +67,7 @@
 
     loading = true
     error = undefined
-    extractionResult = undefined
+    extractionResults = []
 
     const formats = [ RequestedFormat.RawHtml, RequestedFormat.ContentHtml ]
     if (format === OutputFormat.Markdown) {
@@ -77,12 +77,19 @@
     }
     const request = new MultiFormatExtractionRequest(url.trim(), formats, includeMetadata ?? false,
       new WebFetcherOptions(fetcher ? [ fetcher ] : undefined),
-      new WebContentExtractorOptions(extractor ? [ extractor ] : undefined),
+      new WebContentExtractorOptions(extractors.length ? extractors : undefined),
       new MarkdownConverterOptions(converters),
     )
 
     try {
-      extractionResult = await service.extractMultipleResponseFormat(request)
+      if (extractors.length == 0) {
+        const result = await service.extractMultipleResponseFormat(request)
+        extractionResults = [ result ]
+      } else {
+        extractors.forEach(async (extractor, index) => {
+          extractionResults[index] = await service.extractMultipleResponseFormat({ ...request, extractorOptions: new WebContentExtractorOptions([ extractor ]) })
+        })
+      }
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     } finally {
@@ -97,15 +104,22 @@
 
     loading = true
     error = undefined
-    extractionResult = undefined
+    extractionResults = []
 
     const request = new ExtractFromHtmlRequest(rawHtml.trim(), format, includeMetadata ?? false,
-      new WebContentExtractorOptions(extractor ? [ extractor ] : undefined),
+      new WebContentExtractorOptions(extractors),
       new MarkdownConverterOptions(converters),
     )
 
     try {
-      extractionResult = await service.extractMultipleResponseFormatFromHtml(request)
+      if (extractors.length === 0) {
+        const result = await service.extractMultipleResponseFormatFromHtml(request)
+        extractionResults = [ result ]
+      } else {
+        extractors.forEach(async (extractor, index) => {
+          extractionResults[index] = await service.extractMultipleResponseFormatFromHtml({ ...request, extractorOptions: new WebContentExtractorOptions([ extractor ]) })
+        })
+      }
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     } finally {
@@ -198,7 +212,7 @@
       {/if}
 
       {#if actionRequiresExtraction}
-        <ComboBox label="Extractor" options={extractorOptions} selectedOption={extractor} selectionChanged={value => extractor = value} />
+        <MultiSelect label="Extractor" options={extractorOptions} selectedOptions={extractors} selectionChanged={value => extractors = value} />
       {/if}
 
       {#if action === ExtractionAction.Convert || format !== OutputFormat.Html}
