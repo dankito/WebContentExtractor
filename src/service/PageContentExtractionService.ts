@@ -1,15 +1,15 @@
 import { ExtractResult } from "../model/ExtractResult.ts"
+import type { ReadabilityContentExtractor } from "./ReadabilityContentExtractor.ts"
 
 export class PageContentExtractionService {
+
+  constructor(private readonly readability: ReadabilityContentExtractor) { }
 
   /**
    * Extracts readable content from HTML.
    */
   extractContentFromHtml(html: string, url?: string): ExtractResult {
-    // TODO: extract page content
-    const pageContentHtml = html
-
-    return new ExtractResult(pageContentHtml, url)
+    return this.readability.cleanAndExtractReadableContent(html, url)
   }
 
 }

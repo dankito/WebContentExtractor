@@ -3,6 +3,7 @@ import { DI } from "../service/DI.ts"
 import { ErrorResponse } from "../model/ErrorResponse.ts"
 import { ValidationError } from "../model/ValidationError.ts"
 import type { ExtractFromHtmlQueryParams } from "../model/requestParameter/ExtractFromHtmlQueryParams.ts"
+import { ExtractResponse } from "../model/ExtractResponse.ts"
 
 
 export const pageContentExtractionRouter = new Hono()
@@ -31,7 +32,11 @@ pageContentExtractionRouter.post("/extract/html", async (context) => {
 
     const result = extractionService.extractContentFromHtml(params.html, params.url)
 
-    return context.json(result)
+    if (result.success) {
+      return context.json(new ExtractResponse(result.url, result.pageContentHtml!!))
+    } else {
+      return context.json<ErrorResponse>(new ErrorResponse(result.errorMessage ?? "Extraction failed"), 500)
+    }
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error"
     return context.json<ErrorResponse>(new ErrorResponse("Extraction failed", message), 500)
