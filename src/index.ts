@@ -16,8 +16,6 @@ app.route("/", pageContentExtractionRouter)
 const host = process.env.HOST ?? "localhost"
 const port = parseInt(process.env.PORT ?? "3030")
 
-console.log(`🚀 Readability API running on http://${host}:${port}`)
-
 export default {
   hostname: host,
   port: port,
