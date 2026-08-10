@@ -39,8 +39,8 @@ export class PageContentExtractionService {
   }
 
 
-  convertToPlainText(html: string): string {
-    return this.contentConverter.convertToPlainText(html)
+  convertToPlainText(content: ExtractedContent): string {
+    return content.pageContentAsText ?? this.contentConverter.convertToPlainText(content.pageContentHtml)
   }
 
 }
