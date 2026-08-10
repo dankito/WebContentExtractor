@@ -5,8 +5,8 @@
   "type": "module",
   "module": "src/index.ts",
   "scripts": {
-    "dev": "bun --watch run src/index.ts",
-    "start": "bun run src/index.ts",
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
