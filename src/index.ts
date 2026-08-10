@@ -1,6 +1,7 @@
 import { Hono } from "hono"
 import { logger } from "hono/logger"
 import { pageContentExtractionRouter } from "./routes/pageContentExtractionRouter.ts"
+import * as process from "bun"
 
 const app = new Hono()
 
@@ -12,11 +13,13 @@ app.get("/health", (c) => {
 
 app.route("/", pageContentExtractionRouter)
 
+const host = process.env.HOST ?? "localhost"
 const port = parseInt(process.env.PORT ?? "3030")
 
-console.log(`🚀 Readability API running on http://localhost:${port}`)
+console.log(`🚀 Readability API running on http://${host}:${port}`)
 
 export default {
-  port,
+  hostname: host,
+  port: port,
   fetch: app.fetch,
 }
