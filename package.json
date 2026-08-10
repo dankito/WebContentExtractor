@@ -12,6 +12,7 @@
   "dependencies": {
     "@mozilla/readability": "mozilla/readability#main",
     "hono": "^4.13.1",
+    "html-to-text": "^10.0.0",
     "linkedom": "^0.18.13"
   },
   "devDependencies": {

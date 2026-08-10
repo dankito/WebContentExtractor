@@ -3,11 +3,13 @@ import type { ReadabilityContentExtractor } from "./ReadabilityContentExtractor.
 import type { Result } from "../model/Result.ts"
 import type { ExtractFromUrlParams } from "../model/requestParameter/ExtractFromUrlParams.ts"
 import type { WebFetcher } from "../webFetcher/WebFetcher.ts"
+import type { ContentConverter } from "./ContentConverter.ts"
 
 export class PageContentExtractionService {
 
   constructor(
     private readonly readability: ReadabilityContentExtractor,
+    private readonly contentConverter: ContentConverter,
     private readonly webFetcher: WebFetcher,
   ) { }
 
@@ -34,6 +36,11 @@ export class PageContentExtractionService {
    */
   extractContentFromHtml(html: string, url?: string): Result<ExtractedContent> {
     return this.readability.cleanAndExtractReadableContent(html, url)
+  }
+
+
+  convertToPlainText(html: string): string {
+    return this.contentConverter.convertToPlainText(html)
   }
 
 }

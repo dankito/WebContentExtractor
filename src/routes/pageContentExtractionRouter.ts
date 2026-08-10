@@ -95,6 +95,8 @@ function mapToResponse(params: ExtractParamsBase, result: Result<ExtractedConten
 
     if (acceptHeaders.includes("text/html")) {
       return context.html(content.pageContentHtml)
+    } else if (acceptHeaders.includes("text/plain")) {
+      return context.text(extractionService.convertToPlainText(content.pageContentHtml))
     } else {
       return context.json(new ExtractResponse(content.url, content.pageContentHtml, params.includeMetadata ? content.metadata : undefined))
     }

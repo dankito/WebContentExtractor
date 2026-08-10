@@ -5,6 +5,7 @@ import { ReadabilityContentExtractor } from "./ReadabilityContentExtractor.ts"
 import { HtmlCleaner } from "./html/HtmlCleaner.ts"
 import type { WebFetcher } from "../webFetcher/WebFetcher.ts"
 import { FetchApiWebFetcher } from "../webFetcher/FetchApiWebFetcher.ts"
+import { ContentConverter } from "./ContentConverter.ts"
 
 export class DI {
 
@@ -15,11 +16,13 @@ export class DI {
 
   static readonly htmlCleaner = new HtmlCleaner()
 
+  static readonly contentConverter = new ContentConverter()
+
   static readonly webFetcher: WebFetcher = new FetchApiWebFetcher()
 
 
   static readonly readability = new ReadabilityContentExtractor(DI.domService, DI.htmlCleaner)
 
-  static readonly pageContentExtractionService = new PageContentExtractionService(DI.readability, DI.webFetcher)
+  static readonly pageContentExtractionService = new PageContentExtractionService(DI.readability, DI.contentConverter, DI.webFetcher)
 
 }
