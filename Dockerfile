@@ -1,5 +1,4 @@
-# if using native modules like sqlite, sharp, bcrypt, prefere oven/bun:1-slim (glics) over -alpine
-FROM oven/bun:1-alpine AS base
+FROM oven/bun:1-slim AS base
 WORKDIR /app
 
 
@@ -10,7 +9,10 @@ RUN bun install --frozen-lockfile --production
 
 
 # Final image
-FROM base AS runner
+FROM oven/bun:1-distroless AS runner
+
+WORKDIR /app
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY src ./src
 COPY package.json ./
@@ -21,4 +23,4 @@ ENV NODE_ENV=production
 
 EXPOSE 3030
 
-CMD ["bun", "run", "src/index.ts"]
+CMD ["src/index.ts"]
