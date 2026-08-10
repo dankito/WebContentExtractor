@@ -1,0 +1,268 @@
+
+export class HtmlCleaner {
+
+  private static MaxHtmlChars = 1_000_000
+
+  private static MaxEstimatedNestingDepth = 3_000
+
+
+  // CSS property values that indicate an element is hidden
+  private static HIDDEN_STYLE_PATTERNS: Array<[string, RegExp]> = [
+    ["display", /^\s*none\s*$/i],
+    ["visibility", /^\s*hidden\s*$/i],
+    ["opacity", /^\s*0\s*$/],
+    ["font-size", /^\s*0(px|em|rem|pt|%)?\s*$/i],
+    ["text-indent", /^\s*-\d{4,}px\s*$/],
+    ["color", /^\s*transparent\s*$/i],
+    ["color", /^\s*rgba\s*\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0(?:\.0+)?\s*\)\s*$/i],
+    ["color", /^\s*hsla\s*\(\s*[\d.]+\s*,\s*[\d.]+%?\s*,\s*[\d.]+%?\s*,\s*0(?:\.0+)?\s*\)\s*$/i],
+  ]
+
+  // Class names associated with visually hidden content
+  private static HIDDEN_CLASS_NAMES = new Set([
+    "sr-only",
+    "visually-hidden",
+    "d-none",
+    "hidden",
+    "invisible",
+    "screen-reader-only",
+    "offscreen",
+  ])
+
+  // Cheap heuristic to skip Readability+DOM parsing on pathological HTML (deep nesting => stack/memory blowups).
+  // Not an HTML parser tuned to catch attacker-controlled "<div><div>..." cases.
+  private static VoidTags = new Set([
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+  ])
+
+
+  stripComments(html: string): string {
+    return html.replace(/<!--[\s\S]*?-->/g, "")
+  }
+
+  decodeEntities(html: string): string {
+    return html
+      .replace(/&nbsp;/gi, " ")
+      .replace(/&amp;/gi, "&")
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/gi, "'")
+      .replace(/&lt;/gi, "<")
+      .replace(/&gt;/gi, ">")
+      .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(Number.parseInt(hex, 16)))
+      .replace(/&#(\d+);/gi, (_, dec) => String.fromCharCode(Number.parseInt(dec, 10)));
+  }
+
+
+  sanitizeHtml(document: Document): Document {
+    // Walk all elements and remove hidden ones (bottom-up to avoid re-walking removed subtrees)
+    const all = Array.from(document.querySelectorAll("*"))
+    for (let i = all.length - 1; i >= 0; i--) {
+      const el = all[i]
+      if (this.shouldRemoveElement(el)) {
+        el.parentNode?.removeChild(el)
+      }
+    }
+
+    return document
+  }
+
+
+  private shouldRemoveElement(element: Element): boolean {
+    const tagName = element.tagName.toLowerCase()
+
+    // Always-remove tags
+    // original: ["meta", "template", "svg", "canvas", "iframe", "object", "embed"]
+    if (["template", "svg", "canvas"].includes(tagName)) {
+      return true
+    }
+
+    // input type=hidden
+    if (tagName === "input" && element.getAttribute("type")?.toLowerCase() === "hidden") {
+      return true
+    }
+
+    // aria-hidden=true
+    if (element.getAttribute("aria-hidden") === "true") {
+      return true
+    }
+
+    // hidden attribute
+    if (element.hasAttribute("hidden")) {
+      return true
+    }
+
+    // class-based hiding
+    const className = element.getAttribute("class") ?? ""
+    if (this.hasHiddenClass(className)) {
+      return true
+    }
+
+    // inline style-based hiding
+    const style = element.getAttribute("style") ?? ""
+    if (style && this.isStyleHidden(style)) {
+      return true
+    }
+
+    return false
+  }
+
+  private hasHiddenClass(className: string): boolean {
+    const classes = className.toLowerCase().split(/\s+/)
+    return classes.some((cls) => HtmlCleaner.HIDDEN_CLASS_NAMES.has(cls))
+  }
+
+  isStyleHidden(style: string): boolean {
+    for (const [prop, pattern] of HtmlCleaner.HIDDEN_STYLE_PATTERNS) {
+      const escapedProp = prop.replace(/-/g, "\\-")
+      const match = style.match(new RegExp(`(?:^|)\\s*${escapedProp}\\s*:\\s*([^]+)`, "i"))
+      if (match && pattern.test(match[1])) {
+        return true
+      }
+    }
+
+    // clip-path: none is not hidden, but positive percentage inset() clipping hides content.
+    const clipPath = style.match(/(?:^|)\s*clip-path\s*:\s*([^]+)/i)
+    if (clipPath && !/^\s*none\s*$/i.test(clipPath[1])) {
+      if (/inset\s*\(\s*(?:0*\.\d+|[1-9]\d*(?:\.\d+)?)%/i.test(clipPath[1])) {
+        return true
+      }
+    }
+
+    // transform: scale(0)
+    const transform = style.match(/(?:^|)\s*transform\s*:\s*([^]+)/i)
+    if (transform) {
+      if (/scale\s*\(\s*0\s*\)/i.test(transform[1])) {
+        return true
+      }
+      if (/translateX\s*\(\s*-\d{4,}px\s*\)/i.test(transform[1])) {
+        return true
+      }
+      if (/translateY\s*\(\s*-\d{4,}px\s*\)/i.test(transform[1])) {
+        return true
+      }
+    }
+
+    // width:0 + height:0 + overflow:hidden
+    const width = style.match(/(?:^|)\s*width\s*:\s*([^]+)/i)
+    const height = style.match(/(?:^|)\s*height\s*:\s*([^]+)/i)
+    const overflow = style.match(/(?:^|)\s*overflow\s*:\s*([^]+)/i)
+    if (
+      width &&
+      /^\s*0(px)?\s*$/i.test(width[1]) &&
+      height &&
+      /^\s*0(px)?\s*$/i.test(height[1]) &&
+      overflow &&
+      /^\s*hidden\s*$/i.test(overflow[1])
+    ) {
+      return true
+    }
+
+    // Offscreen positioning: left/top far negative
+    const left = style.match(/(?:^|)\s*left\s*:\s*([^]+)/i)
+    const top = style.match(/(?:^|)\s*top\s*:\s*([^]+)/i)
+    if (left && /^\s*-\d{4,}px\s*$/i.test(left[1])) {
+      return true
+    }
+    if (top && /^\s*-\d{4,}px\s*$/i.test(top[1])) {
+      return true
+    }
+
+    return false
+  }
+
+
+  isTooLong(document: Document): boolean {
+    const html = document.toString()
+    return html.length > HtmlCleaner.MaxHtmlChars ||
+      this.exceedsEstimatedHtmlNestingDepth(html, HtmlCleaner.MaxEstimatedNestingDepth)
+  }
+
+  private exceedsEstimatedHtmlNestingDepth(html: string, maxDepth: number): boolean {
+    let depth = 0
+    const len = html.length
+    for (let i = 0; i < len; i++) {
+      if (html.charCodeAt(i) !== 60) {
+        continue // '<'
+      }
+      const next = html.charCodeAt(i + 1)
+      if (next === 33 || next === 63) {
+        continue // <! ...> or <? ...>
+      }
+
+      let j = i + 1
+      let closing = false
+      if (html.charCodeAt(j) === 47) {
+        closing = true
+        j += 1
+      }
+
+      while (j < len && html.charCodeAt(j) <= 32) {
+        j += 1
+      }
+
+      const nameStart = j
+      while (j < len) {
+        const c = html.charCodeAt(j)
+        const isNameChar =
+          (c >= 65 && c <= 90) || // A-Z
+          (c >= 97 && c <= 122) || // a-z
+          (c >= 48 && c <= 57) || // 0-9
+          c === 58 || // :
+          c === 45 // -
+        if (!isNameChar) {
+          break
+        }
+        j += 1
+      }
+
+      const tagName = html.slice(nameStart, j).toLowerCase()
+      if (!tagName) {
+        continue
+      }
+
+      if (closing) {
+        depth = Math.max(0, depth - 1)
+        continue
+      }
+
+      if (HtmlCleaner.VoidTags.has(tagName)) {
+        continue
+      }
+
+      // Best-effort self-closing detection: scan a short window for "/>".
+      let selfClosing = false
+      for (let k = j; k < len && k < j + 200; k++) {
+        const c = html.charCodeAt(k)
+        if (c === 62) {
+          if (html.charCodeAt(k - 1) === 47) {
+            selfClosing = true
+          }
+          break
+        }
+      }
+      if (selfClosing) {
+        continue
+      }
+
+      depth += 1
+      if (depth > maxDepth) {
+        return true
+      }
+    }
+    return false
+  }
+
+}

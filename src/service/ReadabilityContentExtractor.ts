@@ -5,15 +5,20 @@ import {DI} from "./DI"
 import type { Result } from "../model/Result.ts"
 import { ErrorResult } from "../model/ErrorResult.ts"
 import { SuccessResult } from "../model/SuccessResult.ts"
+import type { HtmlCleaner } from "./html/HtmlCleaner.ts"
 
+// noinspection HtmlRequiredLangAttribute
 export class ReadabilityContentExtractor {
 
   constructor(
     private readonly domService: DomService = DI.domService,
+    private readonly htmlCleaner: HtmlCleaner = DI.htmlCleaner,
   ) { }
 
 
   cleanAndExtractReadableContent(html: string, url?: string): Result<ExtractedContent> {
+    html = this.htmlCleaner.stripComments(html)
+
     let document = this.domService.parseToDocument(html, url)
 
     // Readability requires that html is wrapped in <html><body>...</body></html> so ensuring that the html shell is there
@@ -28,6 +33,12 @@ export class ReadabilityContentExtractor {
 
   extractReadableContent(document: Document, url?: string): Result<ExtractedContent> {
     try {
+      this.htmlCleaner.sanitizeHtml(document)
+      if (this.htmlCleaner.isTooLong(document)) {
+        console.error(`HTML was too long for ${url}`)
+        return ErrorResult.for(`HTML was too long for ${url}`)
+      }
+
       const reader = new Readability(document, { charThreshold: 0 })
       const parsed = reader.parse()
 

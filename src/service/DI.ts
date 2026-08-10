@@ -2,6 +2,7 @@ import { PageContentExtractionService } from "./PageContentExtractionService.ts"
 import { RequestValidator } from "./RequestValidator.ts"
 import { DomService } from "./html/DomService.ts"
 import { ReadabilityContentExtractor } from "./ReadabilityContentExtractor.ts"
+import { HtmlCleaner } from "./html/HtmlCleaner.ts"
 
 export class DI {
 
@@ -10,7 +11,9 @@ export class DI {
 
   static readonly domService = new DomService()
 
-  static readonly readability = new ReadabilityContentExtractor(DI.domService)
+  static htmlCleaner = new HtmlCleaner()
+
+  static readonly readability = new ReadabilityContentExtractor(DI.domService, DI.htmlCleaner)
 
   static readonly pageContentExtractionService = new PageContentExtractionService(DI.readability)
 
