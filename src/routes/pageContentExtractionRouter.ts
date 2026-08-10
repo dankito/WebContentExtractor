@@ -87,11 +87,17 @@ async function extractFromUrl(context: Context, extractFromBody: boolean) {
 }
 
 function mapToResponse(params: ExtractParamsBase, result: Result<ExtractedContent>, context: Context) {
-  if (result.success) {
-    const content = result.data
-    return context.json(new ExtractResponse(content.url, content.pageContentHtml, params.includeMetadata ? content.metadata : undefined))
-  } else {
+  if (result.success === false) {
     return context.json<ErrorResponse>(ErrorResponse.from(result), 500)
+  } else {
+    const content = result.data
+    const acceptHeaders = (context.req.header("Accept") ?? "").split(",").map(format => format.trim().toLowerCase())
+
+    if (acceptHeaders.includes("text/html")) {
+      return context.html(content.pageContentHtml)
+    } else {
+      return context.json(new ExtractResponse(content.url, content.pageContentHtml, params.includeMetadata ? content.metadata : undefined))
+    }
   }
 }
 
