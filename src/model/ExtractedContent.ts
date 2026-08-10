@@ -1,3 +1,5 @@
+import type { ExtractedMetadata } from "./ExtractedMetadata.ts"
+
 export class ExtractedContent {
 
   constructor(
@@ -5,6 +7,8 @@ export class ExtractedContent {
 
     readonly pageContentHtml: string,
     readonly pageContentAsText?: string,
+
+    readonly metadata?: ExtractedMetadata,
   ) { }
 
 

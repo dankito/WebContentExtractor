@@ -15,13 +15,13 @@ export class RequestValidator {
       return ErrorResult.for("Invalid JSON body")
     }
 
-    const { html, url } = body
+    const { html, url, includeMetadata } = body
 
     if (!html) {
       return ErrorResult.for("Missing required parameter: html")
     }
 
-    return SuccessResult.for(new ExtractFromHtmlQueryParams(html, url))
+    return SuccessResult.for(new ExtractFromHtmlQueryParams(html, url, includeMetadata === "true"))
   }
 
 

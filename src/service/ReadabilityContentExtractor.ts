@@ -6,6 +6,7 @@ import type { Result } from "../model/Result.ts"
 import { ErrorResult } from "../model/ErrorResult.ts"
 import { SuccessResult } from "../model/SuccessResult.ts"
 import type { HtmlCleaner } from "./html/HtmlCleaner.ts"
+import { ExtractedMetadata } from "../model/ExtractedMetadata.ts"
 
 // noinspection HtmlRequiredLangAttribute
 export class ReadabilityContentExtractor {
@@ -43,7 +44,7 @@ export class ReadabilityContentExtractor {
       const parsed = reader.parse()
 
       if (!!parsed && parsed.content) {
-        return SuccessResult.for(new ExtractedContent(url, parsed.content, parsed.textContent ?? undefined))
+        return SuccessResult.for(new ExtractedContent(url, parsed.content, parsed.textContent ?? undefined, this.mapMetadata(parsed)))
       } else {
         return ErrorResult.for("No content found")
       }
@@ -51,6 +52,31 @@ export class ReadabilityContentExtractor {
       console.error(`Extracting content failed for ${url}`, error)
       return ErrorResult.for(error instanceof Error ? error.message : `Extracting content failed for ${url} with error: ${error}`, error instanceof Error ? error : undefined)
     }
+  }
+
+
+  private mapMetadata(parsed: {
+    title: string | null | undefined;
+    content: string | null | undefined;
+    textContent: string | null | undefined;
+    length: number | null | undefined;
+    excerpt: string | null | undefined;
+    byline: string | null | undefined;
+    dir: string | null | undefined;
+    siteName: string | null | undefined;
+    lang: string | null | undefined;
+    publishedTime: string | null | undefined
+  }): ExtractedMetadata {
+    return new ExtractedMetadata(
+      parsed.title ?? undefined,
+      parsed.length ?? undefined,
+      parsed.excerpt ?? undefined,
+      parsed.byline ?? undefined,
+      parsed.dir ?? undefined,
+      parsed.siteName ?? undefined,
+      parsed.lang ?? undefined,
+      parsed.publishedTime ?? undefined,
+    )
   }
 
 

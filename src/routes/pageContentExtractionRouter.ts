@@ -1,8 +1,9 @@
-import { Hono } from "hono"
+import { Context, Hono } from "hono"
 import { DI } from "../service/DI.ts"
 import { ErrorResponse } from "../model/responses/ErrorResponse.ts"
 import { ExtractResponse } from "../model/responses/ExtractResponse.ts"
 import type { ExtractFromHtmlQueryParams } from "../model/requestParameter/ExtractFromHtmlQueryParams.ts"
+import type { ExtractedContent } from "../model/ExtractedContent.ts"
 
 
 export const pageContentExtractionRouter = new Hono()
@@ -32,7 +33,7 @@ pageContentExtractionRouter.post("/extract/html", async (context) => {
     const result = extractionService.extractContentFromHtml(params.html, params.url)
 
     if (result.success) {
-      return context.json(new ExtractResponse(result.data.url, result.data.pageContentHtml))
+      return mapToResponse(params, result.data, context)
     } else {
       return context.json<ErrorResponse>(ErrorResponse.from(result), 500)
     }
@@ -41,5 +42,10 @@ pageContentExtractionRouter.post("/extract/html", async (context) => {
     return context.json<ErrorResponse>(new ErrorResponse("Extraction failed", message), 500)
   }
 })
+
+
+function mapToResponse(params: ExtractFromHtmlQueryParams, content: ExtractedContent, context: Context) {
+  return context.json(new ExtractResponse(content.url, content.pageContentHtml, params.includeMetadata ? content.metadata : undefined))
+}
 
 
