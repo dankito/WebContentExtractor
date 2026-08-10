@@ -11,6 +11,9 @@ RUN bun install --frozen-lockfile --production
 # Final image
 FROM oven/bun:1-distroless AS runner
 
+ARG VERSION
+LABEL org.opencontainers.image.version=$VERSION
+
 WORKDIR /app
 
 COPY --from=deps /app/node_modules ./node_modules
