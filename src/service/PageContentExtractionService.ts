@@ -4,11 +4,13 @@ import type { Result } from "../model/Result.ts"
 import type { ExtractFromUrlParams } from "../model/requestParameter/ExtractFromUrlParams.ts"
 import type { WebFetcher } from "../webFetcher/WebFetcher.ts"
 import type { ContentConverter } from "./ContentConverter.ts"
+import type { HtmlCleaner } from "./html/HtmlCleaner.ts"
 
 export class PageContentExtractionService {
 
   constructor(
     private readonly readability: ReadabilityContentExtractor,
+    private readonly htmlCleaner: HtmlCleaner,
     private readonly contentConverter: ContentConverter,
     private readonly webFetcher: WebFetcher,
   ) { }
@@ -35,12 +37,17 @@ export class PageContentExtractionService {
    * Extracts readable content from HTML.
    */
   extractContentFromHtml(html: string, url?: string): Result<ExtractedContent> {
-    return this.readability.cleanAndExtractReadableContent(html, url)
+    const sanitized = this.htmlCleaner.stripInvisibleUnicode(html)
+
+    return this.readability.cleanAndExtractReadableContent(sanitized, url)
   }
 
 
   convertToPlainText(content: ExtractedContent): string {
-    return content.pageContentAsText ?? this.contentConverter.convertToPlainText(content.pageContentHtml)
+    // Readability strips all new lines from text content, so prefer html-to-text in favor of content.pageContentAsText
+    const text = this.contentConverter.convertToPlainText(content.pageContentHtml)
+
+    return this.htmlCleaner.normalizeWhitespace(this.htmlCleaner.stripInvisibleUnicode(text))
   }
 
 }

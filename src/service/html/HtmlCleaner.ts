@@ -48,21 +48,33 @@ export class HtmlCleaner {
     "wbr",
   ])
 
+  // Zero-width and invisible Unicode characters used in prompt injection attacks
+  private static INVISIBLE_UNICODE_RE =
+    /[\u200B-\u200F\u202A-\u202E\u2060-\u2064\u206A-\u206F\uFEFF\u{E0000}-\u{E007F}]/gu
+
+
+
+  /*        Sanitize output of Readability            */
+
+  stripInvisibleUnicode(text: string): string {
+    return text.replace(HtmlCleaner.INVISIBLE_UNICODE_RE, "")
+  }
+
+  normalizeWhitespace(html: string): string {
+    return html
+      .replace(/\r/g, "")
+      .replace(/[ \t]+\n/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .replace(/[ \t]{2,}/g, " ")
+      .trim();
+  }
+
+
+
+  /*        Sanitize HTML before parsing with Readability       */
 
   stripComments(html: string): string {
     return html.replace(/<!--[\s\S]*?-->/g, "")
-  }
-
-  decodeEntities(html: string): string {
-    return html
-      .replace(/&nbsp;/gi, " ")
-      .replace(/&amp;/gi, "&")
-      .replace(/&quot;/gi, '"')
-      .replace(/&#39;/gi, "'")
-      .replace(/&lt;/gi, "<")
-      .replace(/&gt;/gi, ">")
-      .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(Number.parseInt(hex, 16)))
-      .replace(/&#(\d+);/gi, (_, dec) => String.fromCharCode(Number.parseInt(dec, 10)));
   }
 
 

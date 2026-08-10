@@ -23,6 +23,6 @@ export class DI {
 
   static readonly readability = new ReadabilityContentExtractor(DI.domService, DI.htmlCleaner)
 
-  static readonly pageContentExtractionService = new PageContentExtractionService(DI.readability, DI.contentConverter, DI.webFetcher)
+  static readonly pageContentExtractionService = new PageContentExtractionService(DI.readability, DI.htmlCleaner, DI.contentConverter, DI.webFetcher)
 
 }
