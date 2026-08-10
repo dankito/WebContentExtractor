@@ -1,7 +1,6 @@
-export class ExtractFromHtmlQueryParams {
+export class ExtractParamsBase {
 
   constructor(
-    readonly html: string,
     readonly url?: string,
 
     readonly includeMetadata?: boolean,

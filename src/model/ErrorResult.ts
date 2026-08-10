@@ -6,8 +6,15 @@ export class ErrorResult {
     return new ErrorResult(new ErrorDetails(errorMessage, error))
   }
 
-  static forError(error: Error): ErrorResult {
-    return new ErrorResult(new ErrorDetails(error.message, error))
+  static forError(error: Error | any): ErrorResult {
+    let details: ErrorDetails
+    if (error instanceof Error) {
+      details = new ErrorDetails(error.message, error)
+    } else {
+      details = new ErrorDetails(error.toString())
+    }
+
+    return new ErrorResult(details)
   }
 
 
