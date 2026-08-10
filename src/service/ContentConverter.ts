@@ -1,15 +1,19 @@
 import { convert } from "html-to-text"
+import { ConvertToPlainTextOptions } from "./converter/ConvertToPlainTextOptions.ts"
 
 export class ContentConverter {
 
-  convertToPlainText(html: string): string {
+  convertToPlainText(html: string, options?: ConvertToPlainTextOptions): string {
+    const preserveLinkUrls = options?.preserveLinkUrls ?? false
+    const preserveImageUrls = options?.preserveImageUrls ?? false
+
     return convert(html, {
       // see `const DEFAULT_OPTIONS = {` in html-to-text.mjs for available options
       preserveNewlines: true,
       wordwrap: false,
       selectors: [
-        { selector: "img", format: "skip" },
-        { selector: "a", options: { ignoreHref: true } },
+        { selector: "a", options: { ignoreHref: preserveLinkUrls === false, hideLinkHrefIfSameAsText: true, linkBrackets: ['(', ')'] } },
+        { selector: "img", format: preserveImageUrls ? "image" : "skip", options: { linkBrackets: ['(', ')'] } },
 
         { selector: "h1", options: { uppercase: false } },
         { selector: "h2", options: { uppercase: false } },

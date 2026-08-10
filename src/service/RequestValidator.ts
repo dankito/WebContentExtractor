@@ -5,6 +5,7 @@ import type { Result } from "../model/Result.ts"
 import { ErrorResult } from "../model/ErrorResult.ts"
 import { SuccessResult } from "../model/SuccessResult.ts"
 import { WebFetcherOptions } from "../webFetcher/WebFetcherOptions.ts"
+import { ConvertToPlainTextOptions } from "./converter/ConvertToPlainTextOptions.ts"
 
 export class RequestValidator {
 
@@ -27,7 +28,9 @@ export class RequestValidator {
       return ErrorResult.for(`Only http and https URLs are supported, ${url} is invalid`)
     }
 
-    return SuccessResult.for(new ExtractFromUrlParams(url, this.parseBoolean(includeMetadata), this.parseWebFetcherOptions(params)))
+    return SuccessResult.for(new ExtractFromUrlParams(url, this.parseBoolean(includeMetadata),
+      this.parseConvertToPlainTextOptions(params),
+      this.parseWebFetcherOptions(params)))
   }
 
 
@@ -46,7 +49,7 @@ export class RequestValidator {
       return ErrorResult.for("Missing required parameter: html")
     }
 
-    return SuccessResult.for(new ExtractFromHtmlParams(html, url, this.parseBoolean(includeMetadata)))
+    return SuccessResult.for(new ExtractFromHtmlParams(html, url, this.parseBoolean(includeMetadata), this.parseConvertToPlainTextOptions(body)))
   }
 
 
@@ -60,6 +63,16 @@ export class RequestValidator {
   }
 
 
+  private parseConvertToPlainTextOptions(params: Record<string, string>): ConvertToPlainTextOptions | undefined {
+    const { preserveLinkUrlsInPlainText, preserveImageUrlsInPlainText } = params
+
+    if (!!!preserveLinkUrlsInPlainText && !!!preserveImageUrlsInPlainText) {
+      return undefined
+    }
+
+    return new ConvertToPlainTextOptions(this.parseBoolean(preserveLinkUrlsInPlainText), this.parseBoolean(preserveImageUrlsInPlainText))
+  }
+
   private parseWebFetcherOptions(params: Record<string, string>): WebFetcherOptions | undefined {
     const { timeout, userAgent, followRedirects } = params
 
@@ -69,6 +82,7 @@ export class RequestValidator {
 
     return new WebFetcherOptions(userAgent, this.parseInt(timeout), this.parseBoolean(followRedirects))
   }
+
 
   private parseInt(value?: string | number): number | undefined {
     if (!!!value) {

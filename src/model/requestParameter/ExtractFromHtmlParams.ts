@@ -1,14 +1,17 @@
 import { ExtractParamsBase } from "./ExtractParamsBase.ts"
+import { ConvertToPlainTextOptions } from "../../service/converter/ConvertToPlainTextOptions.ts"
 
-export class ExtractFromHtmlParams extends ExtractParamsBase{
+export class ExtractFromHtmlParams extends ExtractParamsBase {
 
   constructor(
     readonly html: string,
-    readonly url?: string,
+    url?: string,
 
-    readonly includeMetadata?: boolean,
+    includeMetadata?: boolean,
+
+    convertToPlainTextOptions?: ConvertToPlainTextOptions,
   ) {
-    super(url, includeMetadata)
+    super(url, includeMetadata, convertToPlainTextOptions)
   }
 
 }

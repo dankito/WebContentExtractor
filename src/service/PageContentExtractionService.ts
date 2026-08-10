@@ -5,6 +5,7 @@ import type { ExtractFromUrlParams } from "../model/requestParameter/ExtractFrom
 import type { WebFetcher } from "../webFetcher/WebFetcher.ts"
 import type { ContentConverter } from "./ContentConverter.ts"
 import type { HtmlCleaner } from "./html/HtmlCleaner.ts"
+import { ConvertToPlainTextOptions } from "./converter/ConvertToPlainTextOptions.ts"
 
 export class PageContentExtractionService {
 
@@ -43,9 +44,9 @@ export class PageContentExtractionService {
   }
 
 
-  convertToPlainText(content: ExtractedContent): string {
+  convertToPlainText(content: ExtractedContent, options?: ConvertToPlainTextOptions): string {
     // Readability strips all new lines from text content, so prefer html-to-text in favor of content.pageContentAsText
-    const text = this.contentConverter.convertToPlainText(content.pageContentHtml)
+    const text = this.contentConverter.convertToPlainText(content.pageContentHtml, options)
 
     return this.htmlCleaner.normalizeWhitespace(this.htmlCleaner.stripInvisibleUnicode(text))
   }
