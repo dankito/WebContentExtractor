@@ -11,7 +11,7 @@ export class ReadabilityContentExtractor {
 
 
   cleanAndExtractReadableContent(html: string, url?: string): ExtractResult {
-    const document = this.domService.parseToDocument(html)
+    const document = this.domService.parseToDocument(html, url)
 
     return this.extractReadableContent(document, url)
   }
