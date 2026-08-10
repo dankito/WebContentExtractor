@@ -1,9 +1,9 @@
 import { Hono } from "hono"
 import { DI } from "../service/DI.ts"
-import { ErrorResponse } from "../model/ErrorResponse.ts"
+import { ErrorResponse } from "../model/responses/ErrorResponse.ts"
+import { ExtractResponse } from "../model/responses/ExtractResponse.ts"
 import { ValidationError } from "../model/ValidationError.ts"
 import type { ExtractFromHtmlQueryParams } from "../model/requestParameter/ExtractFromHtmlQueryParams.ts"
-import { ExtractResponse } from "../model/ExtractResponse.ts"
 
 
 export const pageContentExtractionRouter = new Hono()
