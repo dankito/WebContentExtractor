@@ -1,5 +1,6 @@
-import { ExtractResult } from "../model/ExtractResult.ts"
+import { ExtractedContent } from "../model/ExtractedContent.ts"
 import type { ReadabilityContentExtractor } from "./ReadabilityContentExtractor.ts"
+import type { Result } from "../model/Result.ts"
 
 export class PageContentExtractionService {
 
@@ -8,7 +9,7 @@ export class PageContentExtractionService {
   /**
    * Extracts readable content from HTML.
    */
-  extractContentFromHtml(html: string, url?: string): ExtractResult {
+  extractContentFromHtml(html: string, url?: string): Result<ExtractedContent> {
     return this.readability.cleanAndExtractReadableContent(html, url)
   }
 

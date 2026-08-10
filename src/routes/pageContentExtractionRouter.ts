@@ -2,7 +2,6 @@ import { Hono } from "hono"
 import { DI } from "../service/DI.ts"
 import { ErrorResponse } from "../model/responses/ErrorResponse.ts"
 import { ExtractResponse } from "../model/responses/ExtractResponse.ts"
-import { ValidationError } from "../model/ValidationError.ts"
 import type { ExtractFromHtmlQueryParams } from "../model/requestParameter/ExtractFromHtmlQueryParams.ts"
 
 
@@ -23,19 +22,19 @@ const requestValidator = DI.requestValidator
 pageContentExtractionRouter.post("/extract/html", async (context) => {
   const validationResult = await requestValidator.parseExtractFromHtmlQueryParams(context.req)
 
-  if (validationResult instanceof ValidationError) {
-    return context.json<ErrorResponse>(new ErrorResponse(validationResult.error), 400)
+  if (validationResult.success === false) {
+    return context.json<ErrorResponse>(ErrorResponse.from(validationResult), 400)
   }
 
   try {
-    const params = validationResult as ExtractFromHtmlQueryParams
+    const params: ExtractFromHtmlQueryParams = validationResult.data
 
     const result = extractionService.extractContentFromHtml(params.html, params.url)
 
     if (result.success) {
-      return context.json(new ExtractResponse(result.url, result.pageContentHtml!!))
+      return context.json(new ExtractResponse(result.data.url, result.data.pageContentHtml))
     } else {
-      return context.json<ErrorResponse>(new ErrorResponse(result.errorMessage ?? "Extraction failed"), 500)
+      return context.json<ErrorResponse>(ErrorResponse.from(result), 500)
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error"

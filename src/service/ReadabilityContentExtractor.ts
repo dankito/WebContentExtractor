@@ -1,7 +1,10 @@
 import {Readability} from "@mozilla/readability"
-import { ExtractResult } from "../model/ExtractResult.ts"
+import { ExtractedContent } from "../model/ExtractedContent.ts"
 import {DomService} from "./html/DomService"
 import {DI} from "./DI"
+import type { Result } from "../model/Result.ts"
+import { ErrorResult } from "../model/ErrorResult.ts"
+import { SuccessResult } from "../model/SuccessResult.ts"
 
 export class ReadabilityContentExtractor {
 
@@ -10,7 +13,7 @@ export class ReadabilityContentExtractor {
   ) { }
 
 
-  cleanAndExtractReadableContent(html: string, url?: string): ExtractResult {
+  cleanAndExtractReadableContent(html: string, url?: string): Result<ExtractedContent> {
     let document = this.domService.parseToDocument(html, url)
 
     // Readability requires that html is wrapped in <html><body>...</body></html> so ensuring that the html shell is there
@@ -23,19 +26,19 @@ export class ReadabilityContentExtractor {
     return this.extractReadableContent(document, url)
   }
 
-  extractReadableContent(document: Document, url?: string): ExtractResult {
+  extractReadableContent(document: Document, url?: string): Result<ExtractedContent> {
     try {
       const reader = new Readability(document, { charThreshold: 0 })
       const parsed = reader.parse()
 
       if (!!parsed && parsed.content) {
-        return ExtractResult.successHtml(url, parsed.content, parsed.textContent ?? undefined)
+        return SuccessResult.for(new ExtractedContent(url, parsed.content, parsed.textContent ?? undefined))
       } else {
-        return ExtractResult.error(url, "No content found")
+        return ErrorResult.for("No content found")
       }
     } catch (error) {
       console.error(`Extracting content failed for ${url}`, error)
-      return ExtractResult.error(url, error instanceof Error ? error.message : `Extracting content failed for ${url} with error: ${error}`)
+      return ErrorResult.for(error instanceof Error ? error.message : `Extracting content failed for ${url} with error: ${error}`, error instanceof Error ? error : undefined)
     }
   }
 

@@ -1,25 +1,27 @@
 import { ExtractFromHtmlQueryParams } from "../model/requestParameter/ExtractFromHtmlQueryParams.ts"
 import { type HonoRequest } from "hono"
-import { ValidationError } from "../model/ValidationError.ts"
+import type { Result } from "../model/Result.ts"
+import { ErrorResult } from "../model/ErrorResult.ts"
+import { SuccessResult } from "../model/SuccessResult.ts"
 
 export class RequestValidator {
 
-  async parseExtractFromHtmlQueryParams(request: HonoRequest): Promise<ExtractFromHtmlQueryParams | ValidationError> {
+  async parseExtractFromHtmlQueryParams(request: HonoRequest): Promise<Result<ExtractFromHtmlQueryParams>> {
     let body: Record<string, string>
 
     try {
       body = await request.json()
     } catch {
-      return new ValidationError("Invalid JSON body")
+      return ErrorResult.for("Invalid JSON body")
     }
 
     const { html, url } = body
 
     if (!html) {
-      return new ValidationError("Missing required parameter: html")
+      return ErrorResult.for("Missing required parameter: html")
     }
 
-    return new ExtractFromHtmlQueryParams(html, url)
+    return SuccessResult.for(new ExtractFromHtmlQueryParams(html, url))
   }
 
 
