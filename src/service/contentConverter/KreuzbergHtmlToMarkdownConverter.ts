@@ -41,6 +41,10 @@ export class KreuzbergHtmlToMarkdownConverter implements HtmlToMarkdownConverter
       /** How hard line breaks (<br>) are rendered. */
       newlineStyle: NewlineStyle.Backslash, // "spaces"
       codeBlockStyle: CodeBlockStyle.Backticks,
+      // percent-encodes every character that is not an RFC 3986
+      //   unreserved character or `/`, producing a destination that all Markdown parsers handle
+      //   correctly even when the URL contains `<`, `>`, spaces, or parentheses.
+      //urlEscapeStyle: UrlEscapeStyle.Angle,
 
       stripNewlines: false,
 
