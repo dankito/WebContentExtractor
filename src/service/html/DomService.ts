@@ -37,11 +37,11 @@ export class DomService {
       shell = rest
     } else if (hasBody) {
       // has <body> but no <html> wrapper — just add the <html>/<head> shell
-      console.log("No body found in html, wrapping DOM nodes in body")
+      console.debug("No body found in html, wrapping DOM nodes in body")
 
       shell = `<html><head></head>${rest}</html>`
     } else if (hasHtml) {
-      console.log("<html> is available but <body> is missing, adding body element")
+      console.debug("<html> is available but <body> is missing, adding body element")
 
       // TODO: this is not easily handled with string operations, find a better solution
       const htmlStartTagEnd = rest.indexOf(">")
@@ -56,7 +56,7 @@ export class DomService {
       }
     } else {
       // has neither — wrap fully
-      console.log("Neither <html> nor <body> found in html, wrapping DOM nodes in html and body")
+      console.debug("Neither <html> nor <body> found in html, wrapping DOM nodes in html and body")
 
       shell = `<html><head></head><body>${rest}</body></html>`
     }
