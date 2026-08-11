@@ -162,9 +162,8 @@ async function extractFromHtml(context: Context) {
     const result = extractionService.extractContentFromHtml(params.html, params.url)
 
     return mapToResponse(params, result, context)
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error"
-    return context.json<ErrorResponse>(new ErrorResponse("Extraction failed", message), 500)
+  } catch (error) {
+    return context.json<ErrorResponse>(ErrorResponse.from(ErrorResult.forError(error)), 500)
   }
 }
 
