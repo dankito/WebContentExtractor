@@ -18,7 +18,7 @@ The goal of Readability Server is to provide a simple, containerized API that le
 ### Docker Run
 You can run the server directly using Docker:
 ```shell
-docker run -p 3030:3030 ghcr.io/dankito/readabilityserver
+docker run -p 3030:3030 ghcr.io/dankito/readability-server
 ```
 
 ### Docker Compose
@@ -26,7 +26,7 @@ Create a `docker-compose.yml` file:
 ```yaml
 services:
   readability:
-    image: ghcr.io/dankito/readabilityserver:latest
+    image: ghcr.io/dankito/readability-server:latest
     container_name: readability
     restart: unless-stopped
     ports:
