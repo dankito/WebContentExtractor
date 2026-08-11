@@ -30,7 +30,7 @@ export class PageContentExtractionService {
     // An attacker could use the server to probe internal network resources, access cloud metadata services (e.g., 169.254.169.254), or bypass firewalls by making the request originate from the server itself.
     const urlVerificationError = await this.urlVerificationService.hasCorrectProtocolAndIsNonLocalUrl(url!)
     if (urlVerificationError !== null) {
-      return ErrorResult.for(urlVerificationError)
+      return ErrorResult.for(urlVerificationError, true)
     }
 
     const fetchHtmlResult = await this.webFetcher.fetchHtml(url!, params.webFetcherOptions)

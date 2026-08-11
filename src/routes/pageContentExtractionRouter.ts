@@ -169,7 +169,7 @@ async function extractFromHtml(context: Context) {
 
 function mapToResponse(params: ExtractParamsBase, result: Result<ExtractedContent>, context: Context) {
   if (result.success === false) {
-    return context.json<ErrorResponse>(ErrorResponse.from(result), 500)
+    return context.json<ErrorResponse>(ErrorResponse.from(result), result.details.isBadRequest ? 400 : 500)
   } else {
     const content = result.data
     const acceptHeaders = (context.req.header("Accept") ?? "").split(",").map(format => format.trim().toLowerCase())

@@ -17,12 +17,12 @@ export class RequestValidator {
     try {
       params = extractFromBody ? await request.json() : request.query()
     } catch {
-      return ErrorResult.for("Invalid JSON body")
+      return ErrorResult.for("Invalid JSON body", true)
     }
 
     const validation = ExtractFromUrlSchema.safeParse(params)
     if (!validation.success) {
-      return ErrorResult.for(validation.error.issues[0].message)
+      return ErrorResult.for(validation.error.issues[0].message, true)
     }
 
     const data = validation.data
@@ -42,12 +42,12 @@ export class RequestValidator {
     try {
       body = await request.json()
     } catch {
-      return ErrorResult.for("Invalid JSON body")
+      return ErrorResult.for("Invalid JSON body", true)
     }
 
     const validation = ExtractFromHtmlSchema.safeParse(body)
     if (!validation.success) {
-      return ErrorResult.for(validation.error.issues[0].message)
+      return ErrorResult.for(validation.error.issues[0].message, true)
     }
 
     const data = validation.data
