@@ -1,6 +1,7 @@
 import { Hono } from "hono"
 import { openAPIRouteHandler } from "hono-openapi"
 import { swaggerUI } from "@hono/swagger-ui"
+import pkg from "../../package.json" with { type: "json" }
 
 
 export class OpenApiRouter {
@@ -22,7 +23,7 @@ export class OpenApiRouter {
         documentation: {
           info: {
             title: "Readability Server",
-            version: "1.0.0",
+            version: pkg.version,
             description: "A high-performance, Hono-based web service wrapper for Mozilla's Readability.js, which powers Firefox's Reader View. " +
               "Extract clean, readable content from any webpage with lightning speed.",
           },
