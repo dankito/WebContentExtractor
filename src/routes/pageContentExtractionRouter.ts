@@ -11,6 +11,7 @@ import { ErrorResult } from "../model/ErrorResult.ts"
 import { describeRoute, resolver, validator } from "hono-openapi"
 import { ErrorResponseSchema, ExtractFromHtmlSchema, ExtractFromUrlSchema, ExtractResponseSchema } from "../model/requestParameter/ValidationSchemas.ts"
 import { ResponseFormat } from "../model/responses/ResponseFormat.ts"
+import { type StandardSchemaV1 } from "@standard-schema/spec"
 
 
 export const pageContentExtractionRouter = new Hono()
@@ -28,7 +29,9 @@ const tags: string[] = [ "Extract" ]
 
 const validationHook = (result: any, context: Context) => {
   if (!result.success) {
-    return context.json(new ErrorResponse(result.error[0].message), 400)
+    const errors = result.error as StandardSchemaV1.Issue[]
+    console.warn("Validation failed", errors ? errors.map(error => `${(error.path ?? ["<no_path_given>"]).join("/")}: ${error.message}`).join(", ") : "error array not set")
+    return context.json(new ErrorResponse(errors?.length ? errors[0].message : ""), 400)
   }
 }
 
@@ -175,6 +178,7 @@ async function extractFromHtml(context: Context) {
 
 function mapToResponse(params: ExtractParamsBase, result: Result<ExtractedContent>, context: Context) {
   if (result.success === false) {
+    console.warn("Extracting content failed", result.details)
     return context.json<ErrorResponse>(ErrorResponse.from(result), result.details.isBadRequest ? 400 : 500)
   } else {
     const content = result.data
