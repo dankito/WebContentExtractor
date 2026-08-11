@@ -1,0 +1,465 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Readability Server",
+    "description": "A high-performance, Hono-based web service wrapper for Mozilla's Readability.js, which powers Firefox's Reader View. Extract clean, readable content from any webpage with lightning speed.",
+    "version": "0.9.0"
+  },
+  "paths": {
+    "/extract": {
+      "get": {
+        "operationId": "getExtract",
+        "summary": "Extract web page content from URL via query parameters",
+        "description": "Quick, cacheable single-call extraction via query params.",
+        "tags": [
+          "Extract"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful extraction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    },
+                    "pageContentHtml": {
+                      "type": "string"
+                    },
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string"
+                        },
+                        "length": {
+                          "type": "number"
+                        },
+                        "excerpt": {
+                          "type": "string"
+                        },
+                        "byline": {
+                          "type": "string"
+                        },
+                        "contentDirection": {
+                          "type": "string"
+                        },
+                        "siteName": {
+                          "type": "string"
+                        },
+                        "contentLanguage": {
+                          "type": "string"
+                        },
+                        "publishedTime": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "pageContentHtml"
+                  ]
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Extraction failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "url",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "includeMetadata",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "timeout",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "userAgent",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "followRedirects",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "preserveLinkUrlsInPlainText",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "preserveImageUrlsInPlainText",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "postExtract",
+        "summary": "Extract web page content from URL via JSON body",
+        "description": "Preferred when passing long URLs or additional options.",
+        "tags": [
+          "Extract"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful extraction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    },
+                    "pageContentHtml": {
+                      "type": "string"
+                    },
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string"
+                        },
+                        "length": {
+                          "type": "number"
+                        },
+                        "excerpt": {
+                          "type": "string"
+                        },
+                        "byline": {
+                          "type": "string"
+                        },
+                        "contentDirection": {
+                          "type": "string"
+                        },
+                        "siteName": {
+                          "type": "string"
+                        },
+                        "contentLanguage": {
+                          "type": "string"
+                        },
+                        "publishedTime": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "pageContentHtml"
+                  ]
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Extraction failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "includeMetadata": {
+                    "type": "boolean"
+                  },
+                  "timeout": {
+                    "type": "number"
+                  },
+                  "userAgent": {
+                    "type": "string"
+                  },
+                  "followRedirects": {
+                    "type": "boolean"
+                  },
+                  "preserveLinkUrlsInPlainText": {
+                    "type": "boolean"
+                  },
+                  "preserveImageUrlsInPlainText": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/extract/html": {
+      "post": {
+        "operationId": "postExtractHtml",
+        "summary": "Extract web page content from provided HTML",
+        "description": "Extract web page content from provided HTML code.",
+        "tags": [
+          "Extract"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful extraction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    },
+                    "pageContentHtml": {
+                      "type": "string"
+                    },
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string"
+                        },
+                        "length": {
+                          "type": "number"
+                        },
+                        "excerpt": {
+                          "type": "string"
+                        },
+                        "byline": {
+                          "type": "string"
+                        },
+                        "contentDirection": {
+                          "type": "string"
+                        },
+                        "siteName": {
+                          "type": "string"
+                        },
+                        "contentLanguage": {
+                          "type": "string"
+                        },
+                        "publishedTime": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "pageContentHtml"
+                  ]
+                }
+              },
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Extraction failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "html": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "includeMetadata": {
+                    "type": "boolean"
+                  },
+                  "preserveLinkUrlsInPlainText": {
+                    "type": "boolean"
+                  },
+                  "preserveImageUrlsInPlainText": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {}
+}
