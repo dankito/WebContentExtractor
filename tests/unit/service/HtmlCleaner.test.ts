@@ -32,5 +32,10 @@ describe("HtmlCleaner", () => {
       const deepHtml = '<div>'.repeat(20) + '</div>'.repeat(20)
       expect(cleaner.exceedsEstimatedHtmlNestingDepth(deepHtml, 15)).toBe(true)
     })
+
+    it("Deep HTML with fake self close -> returns true", () => {
+      const deepHtml = '<div data-attr="/>">'.repeat(20) + '</div>'.repeat(20)
+      expect(cleaner.exceedsEstimatedHtmlNestingDepth(deepHtml, 15)).toBe(true)
+    })
   })
 })
