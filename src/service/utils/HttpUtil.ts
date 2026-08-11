@@ -24,14 +24,14 @@ export class HttpUtil {
       })
       .sort((a, b) => b.q - a.q)
 
-    for (const f of preferredFormatsSorted) {
-      if (f.type === "text/html") {
+    for (const format of preferredFormatsSorted) {
+      if (format.type === "text/html") {
         return ResponseFormat.Html
       }
-      if (f.type === "text/plain") {
+      if (format.type === "text/plain") {
         return ResponseFormat.Text
       }
-      if (f.type === "application/json") {
+      if (format.type === "application/json") {
         return ResponseFormat.Json
       }
     }
