@@ -5,7 +5,7 @@ import type { Result } from "../../model/Result.ts"
 import { ErrorResult } from "../../model/ErrorResult.ts"
 import { SuccessResult } from "../../model/SuccessResult.ts"
 import { WebFetcherOptions } from "../../webFetcher/WebFetcherOptions.ts"
-import { ConvertToPlainTextOptions } from "../converter/ConvertToPlainTextOptions.ts"
+import { ConvertToPlainTextOptions } from "../contentConverter/ConvertToPlainTextOptions.ts"
 import { ExtractFromHtmlSchema, ExtractFromUrlSchema } from "../../model/requestParameter/ValidationSchemas.ts"
 import { z } from "zod"
 

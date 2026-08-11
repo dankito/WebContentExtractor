@@ -1,6 +1,6 @@
 import { ExtractParamsBase } from "./ExtractParamsBase.ts"
 import { WebFetcherOptions } from "../../webFetcher/WebFetcherOptions.ts"
-import { ConvertToPlainTextOptions } from "../../service/converter/ConvertToPlainTextOptions.ts"
+import { ConvertToPlainTextOptions } from "../../service/contentConverter/ConvertToPlainTextOptions.ts"
 
 export class ExtractFromUrlParams extends ExtractParamsBase {
 

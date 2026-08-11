@@ -1,5 +1,5 @@
 import { convert } from "html-to-text"
-import { ConvertToPlainTextOptions } from "./converter/ConvertToPlainTextOptions.ts"
+import { ConvertToPlainTextOptions } from "./contentConverter/ConvertToPlainTextOptions.ts"
 
 export class ContentConverter {
 

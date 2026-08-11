@@ -1,5 +1,5 @@
 import { ExtractParamsBase } from "./ExtractParamsBase.ts"
-import { ConvertToPlainTextOptions } from "../../service/converter/ConvertToPlainTextOptions.ts"
+import { ConvertToPlainTextOptions } from "../../service/contentConverter/ConvertToPlainTextOptions.ts"
 
 export class ExtractFromHtmlParams extends ExtractParamsBase {
 
