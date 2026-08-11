@@ -17,6 +17,30 @@ describe("DomService", () => {
   })
 
 
+  describe("ensureHtmlShellAndParseToDocument", () => {
+    it("Only <html></html> -> <head> gets set anyway", () => {
+      const result = underTest.ensureHtmlShellAndParseToDocument("<html></html>", "https://example.com")
+      expect(result.head).not.toBeNull()
+      expect(result.querySelector("head > base")).not.toBeNull()
+      expect(result.querySelector("head > base")!.getAttribute("href")).toBe("https://example.com")
+    })
+
+    it("Only content -> <head> gets set anyway", () => {
+      const result = underTest.ensureHtmlShellAndParseToDocument("<div>Fragment content</div>", "https://example.com")
+      expect(result.head).not.toBeNull()
+      expect(result.querySelector("head > base")).not.toBeNull()
+      expect(result.querySelector("head > base")!.getAttribute("href")).toBe("https://example.com")
+    })
+
+    it("Only <html> and content -> <head> gets set anyway", () => {
+      const result = underTest.ensureHtmlShellAndParseToDocument("<html><div>HTML content</div></html>", "https://example.com")
+      expect(result.head).not.toBeNull()
+      expect(result.querySelector("head > base")).not.toBeNull()
+      expect(result.querySelector("head > base")!.getAttribute("href")).toBe("https://example.com")
+    })
+  })
+
+
   describe("ensureHtmlShell", () => {
     it("No body, no html -> gets correctly wrapped", () => {
       ensureGetCorrectlyWrapped("<div>hello</div>")
