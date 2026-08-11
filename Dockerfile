@@ -13,6 +13,7 @@ FROM oven/bun:1-distroless AS runner
 
 ARG VERSION
 LABEL org.opencontainers.image.version=$VERSION
+LABEL org.opencontainers.image.base.name=docker.io/oven/bun:1-distroless
 
 WORKDIR /app
 
