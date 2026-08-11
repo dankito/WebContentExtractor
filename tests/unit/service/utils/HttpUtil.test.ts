@@ -23,6 +23,10 @@ describe("HttpUtil", () => {
       expect(underTest.getPreferredResponseFormatForAcceptHeader("text/plain;q=0.5, text/html;q=1.0")).toBe(ResponseFormat.Html)
     })
 
+    it("text/html;q=0.1, text/markdown;q=0.9 -> Text", () => {
+      expect(underTest.getPreferredResponseFormatForAcceptHeader("text/html;q=0.1, text/markdown;q=0.9")).toBe(ResponseFormat.Markdown)
+    })
+
     it("text/html;q=0.1, text/plain;q=0.9 -> Text", () => {
       expect(underTest.getPreferredResponseFormatForAcceptHeader("text/html;q=0.1, text/plain;q=0.9")).toBe(ResponseFormat.Text)
     })

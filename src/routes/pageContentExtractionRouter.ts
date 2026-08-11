@@ -49,6 +49,7 @@ pageContentExtractionRouter.get("/",
         content: {
           "application/json": { schema: resolver(ExtractResponseSchema) },
           "text/html": { schema: { type: "string" } },
+          "text/markdown": { schema: { type: "string" } },
           "text/plain": { schema: { type: "string" } },
         },
       },
@@ -84,6 +85,7 @@ pageContentExtractionRouter.post("/",
         content: {
           "application/json": { schema: resolver(ExtractResponseSchema) },
           "text/html": { schema: { type: "string" } },
+          "text/markdown": { schema: { type: "string" } },
           "text/plain": { schema: { type: "string" } },
         },
       },
@@ -121,6 +123,7 @@ pageContentExtractionRouter.post("/html",
         content: {
           "application/json": { schema: resolver(ExtractResponseSchema) },
           "text/html": { schema: { type: "string" } },
+          "text/markdown": { schema: { type: "string" } },
           "text/plain": { schema: { type: "string" } },
         },
       },
@@ -179,12 +182,25 @@ function mapToResponse(params: ExtractParamsBase, result: Result<ExtractedConten
 
     if (format === ResponseFormat.Html) {
       return context.html(content.pageContentHtml)
+    } else if (format === ResponseFormat.Markdown) {
+      const conversionResult = extractionService.convertToMarkdown(content, params.convertToMarkdownOptions)
+      if (conversionResult.success) {
+        return returnMarkdown(conversionResult.data, context)
+      } else {
+        return context.json<ErrorResponse>(ErrorResponse.from(conversionResult), 500)
+      }
     } else if (format === ResponseFormat.Text) {
       return context.text(extractionService.convertToPlainText(content, params.convertToPlainTextOptions))
     } else {
       return context.json(new ExtractResponse(content.url, content.pageContentHtml, params.includeMetadata ? content.metadata : undefined))
     }
   }
+}
+
+function returnMarkdown(markdown: string, context: Context): Response {
+  return context.body(markdown, 200, {
+    "Content-Type": "text/markdown; charset=UTF-8",
+  })
 }
 
 

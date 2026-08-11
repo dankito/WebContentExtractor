@@ -8,6 +8,7 @@ import { WebFetcherOptions } from "../../webFetcher/WebFetcherOptions.ts"
 import { ConvertToPlainTextOptions } from "../contentConverter/ConvertToPlainTextOptions.ts"
 import { ExtractFromHtmlSchema, ExtractFromUrlSchema } from "../../model/requestParameter/ValidationSchemas.ts"
 import { z } from "zod"
+import { ConvertToMarkdownOptions } from "../contentConverter/ConvertToMarkdownOptions.ts"
 
 export class RequestValidator {
 
@@ -30,6 +31,7 @@ export class RequestValidator {
     return SuccessResult.for(new ExtractFromUrlParams(
       data.url,
       data.includeMetadata,
+      this.mapToConvertToMarkdownOptions(data),
       this.mapToConvertToPlainTextOptions(data),
       this.mapToWebFetcherOptions(data)
     ))
@@ -56,6 +58,7 @@ export class RequestValidator {
       data.html,
       data.url || undefined,
       data.includeMetadata,
+      this.mapToConvertToMarkdownOptions(data),
       this.mapToConvertToPlainTextOptions(data)
     ))
   }
@@ -65,6 +68,7 @@ export class RequestValidator {
     return new ExtractFromUrlParams(
       data.url,
       data.includeMetadata,
+      this.mapToConvertToMarkdownOptions(data),
       this.mapToConvertToPlainTextOptions(data),
       this.mapToWebFetcherOptions(data)
     )
@@ -76,10 +80,19 @@ export class RequestValidator {
       data.html,
       data.url || undefined,
       data.includeMetadata,
+      this.mapToConvertToMarkdownOptions(data),
       this.mapToConvertToPlainTextOptions(data)
     )
   }
 
+
+  private mapToConvertToMarkdownOptions(data: z.infer<typeof ExtractFromUrlSchema> | z.infer<typeof ExtractFromHtmlSchema>): ConvertToMarkdownOptions | undefined {
+    if (data.includeImages === undefined) {
+      return undefined
+    }
+
+    return new ConvertToMarkdownOptions(data.includeImages)
+  }
 
   private mapToConvertToPlainTextOptions(data: z.infer<typeof ExtractFromUrlSchema> | z.infer<typeof ExtractFromHtmlSchema>): ConvertToPlainTextOptions | undefined {
     if (data.preserveLinkUrlsInPlainText === undefined && data.preserveImageUrlsInPlainText === undefined) {

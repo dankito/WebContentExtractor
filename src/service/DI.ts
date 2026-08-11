@@ -9,6 +9,8 @@ import { ContentConverterService } from "./contentConverter/ContentConverterServ
 import { UrlVerificationService } from "./utils/UrlVerificationService.ts"
 import { HttpUtil } from "./utils/HttpUtil.ts"
 import { HtmlToTextConverter } from "./contentConverter/HtmlToTextConverter.ts"
+import type { HtmlToMarkdownConverter } from "./contentConverter/HtmlToMarkdownConverter.ts"
+import { KreuzbergHtmlToMarkdownConverter } from "./contentConverter/KreuzbergHtmlToMarkdownConverter.ts"
 
 export class DI {
 
@@ -21,7 +23,9 @@ export class DI {
 
   static readonly htmlToTextConverter = new HtmlToTextConverter()
 
-  static readonly contentConverter = new ContentConverterService(DI.htmlToTextConverter)
+  static readonly htmlToMarkdownConverter: HtmlToMarkdownConverter = new KreuzbergHtmlToMarkdownConverter()
+
+  static readonly contentConverter = new ContentConverterService(DI.htmlToMarkdownConverter, DI.htmlToTextConverter)
 
   static readonly webFetcher: WebFetcher = new FetchApiWebFetcher()
 

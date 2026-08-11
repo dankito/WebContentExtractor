@@ -55,9 +55,13 @@ export const ExtractFromUrlSchema = z.object({
   }),
   includeMetadata: booleanSchema.optional(),
   // Flattened structure as it comes from request params/body
+  // web fetcher options
   timeout: numberSchema,
   userAgent: z.string().optional(),
   followRedirects: booleanSchema.optional(),
+  // convert to markdown options
+  includeImages: booleanSchema.optional(),
+  // convert to text options
   preserveLinkUrlsInPlainText: booleanSchema.optional(),
   preserveImageUrlsInPlainText: booleanSchema.optional(),
 })
@@ -69,6 +73,9 @@ export const ExtractFromHtmlSchema = z.object({
   ),
   url: z.string().optional(),
   includeMetadata: booleanSchema.optional(),
+  // convert to markdown options
+  includeImages: booleanSchema.optional(),
+  // convert to text options
   preserveLinkUrlsInPlainText: booleanSchema.optional(),
   preserveImageUrlsInPlainText: booleanSchema.optional(),
 })

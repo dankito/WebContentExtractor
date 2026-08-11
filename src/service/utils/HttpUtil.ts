@@ -28,6 +28,9 @@ export class HttpUtil {
       if (format.type === "text/html") {
         return ResponseFormat.Html
       }
+      if (format.type === "text/markdown") {
+        return ResponseFormat.Markdown
+      }
       if (format.type === "text/plain") {
         return ResponseFormat.Text
       }

@@ -8,6 +8,8 @@ import type { HtmlCleaner } from "./html/HtmlCleaner.ts"
 import { ConvertToPlainTextOptions } from "./contentConverter/ConvertToPlainTextOptions.ts"
 import { ErrorResult } from "../model/ErrorResult.ts"
 import type { UrlVerificationService } from "./utils/UrlVerificationService.ts"
+import type { ConvertToMarkdownOptions } from "./contentConverter/ConvertToMarkdownOptions.ts"
+import { SuccessResult } from "../model/SuccessResult.ts"
 
 export class PageContentExtractionService {
 
@@ -53,6 +55,17 @@ export class PageContentExtractionService {
     return this.readability.cleanAndExtractReadableContent(sanitized, url)
   }
 
+
+  convertToMarkdown(content: ExtractedContent, options?: ConvertToMarkdownOptions): Result<string> {
+    const result = this.contentConverter.convertToMarkdown(content.pageContentHtml, options)
+
+    if (result.success) {
+      const markdown = result.data
+      return SuccessResult.for(this.htmlCleaner.normalizeWhitespace(this.htmlCleaner.stripInvisibleUnicode(markdown)))
+    } else {
+      return result
+    }
+  }
 
   convertToPlainText(content: ExtractedContent, options?: ConvertToPlainTextOptions): string {
     // Readability strips all new lines from text content, so prefer html-to-text in favor of content.pageContentAsText

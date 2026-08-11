@@ -1,4 +1,5 @@
 import { ConvertToPlainTextOptions } from "../../service/contentConverter/ConvertToPlainTextOptions.ts"
+import type { ConvertToMarkdownOptions } from "../../service/contentConverter/ConvertToMarkdownOptions.ts"
 
 export class ExtractParamsBase {
 
@@ -7,6 +8,7 @@ export class ExtractParamsBase {
 
     readonly includeMetadata?: boolean,
 
+    readonly convertToMarkdownOptions?: ConvertToMarkdownOptions,
     readonly convertToPlainTextOptions?: ConvertToPlainTextOptions,
   ) { }
 
