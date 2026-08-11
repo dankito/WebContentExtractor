@@ -3,7 +3,7 @@ import type { ReadabilityContentExtractor } from "./ReadabilityContentExtractor.
 import type { Result } from "../model/Result.ts"
 import type { ExtractFromUrlParams } from "../model/requestParameter/ExtractFromUrlParams.ts"
 import type { WebFetcher } from "../webFetcher/WebFetcher.ts"
-import type { ContentConverter } from "./ContentConverter.ts"
+import type { ContentConverter } from "./contentConverter/ContentConverter.ts"
 import type { HtmlCleaner } from "./html/HtmlCleaner.ts"
 import { ConvertToPlainTextOptions } from "./contentConverter/ConvertToPlainTextOptions.ts"
 import { ErrorResult } from "../model/ErrorResult.ts"
