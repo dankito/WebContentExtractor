@@ -1,6 +1,12 @@
+// noinspection HtmlRequiredAltAttribute
+
 import { describe, expect, it } from "bun:test"
 import { KreuzbergHtmlToMarkdownConverter } from "../../../../src/service/contentConverter/KreuzbergHtmlToMarkdownConverter"
 import { SuccessResult } from "../../../../src/model/SuccessResult"
+import { ConvertToMarkdownOptions } from "../../../../src/service/contentConverter/ConvertToMarkdownOptions"
+
+
+const inlineImageData = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
 
 
 describe("KreuzbergHtmlToMarkdownConverter", () => {
@@ -37,8 +43,34 @@ describe("KreuzbergHtmlToMarkdownConverter", () => {
     })
 
 
-    function assertConversion(html: string, expectedMarkdown: string) {
-      const result = underTest.convertToMarkdown(html)
+    it("<img> includeImages: false -> image description", () => {
+      assertConversion(`<img src="https://liebe.de/liebe.png">Liebe</img>`, "Liebe", {
+        includeImages: false
+      })
+    })
+
+    it("<img> includeImages: true -> image url and description", () => {
+      assertConversion(`<img src="https://liebe.de/liebe.png">Liebe</img>`, "![](https://liebe.de/liebe.png)Liebe", {
+        includeImages: true
+      })
+    })
+
+    it("<img> with alt, includeImages: true -> image alt, url and description", () => {
+      assertConversion(`<img alt="Liebesbild" src="https://liebe.de/liebe.png">Liebe</img>`, "![Liebesbild](https://liebe.de/liebe.png)Liebe", {
+        includeImages: true
+      })
+    })
+
+    it("<img> with Base64 inline image, includeImages: true -> image alt, image data and description", () => {
+      assertConversion(`<img alt="Liebesbild" src="${inlineImageData}">Liebe</img>`,
+        `![Liebesbild](${inlineImageData})Liebe`, {
+          includeImages: true
+        })
+    })
+
+
+    function assertConversion(html: string, expectedMarkdown: string, options?: ConvertToMarkdownOptions) {
+      const result = underTest.convertToMarkdown(html, options)
       expect(result.success).toBe(true)
 
       let markdown = (result as SuccessResult<string>).data

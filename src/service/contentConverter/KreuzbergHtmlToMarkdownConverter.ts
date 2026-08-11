@@ -64,6 +64,19 @@ export class KreuzbergHtmlToMarkdownConverter implements HtmlToMarkdownConverter
       maxDepth: undefined, // Maximum DOM traversal depth. undefined means no limit
       wrap: false, // may good for humans but not sure
       wrapWidth: 80, // 80 = default. Only applied if wrap is true
+
+      // more a niche group requires setting these:
+      // bullets: "*", // Bullet character(s) to use for unordered list items (e.g. "-", "*").
+      // autolinks: false, // Automatically convert bare URLs into Markdown autolinks.
+      // codeLanguage: undefined, // Default language annotation for fenced code blocks that have no language hint.
+      // inferDimensions: false, // Infer image dimensions from data.
+      // maxImageSize: "5MB", Maximum decoded image size in bytes (default 5MB).
+    }
+
+
+    if (options) {
+      // @ts-ignore
+      conversionOptions.skipImages = !!!options.includeImages
     }
 
     // Strip undefined keys so we don't override the native binding's own
