@@ -8,6 +8,8 @@ import type { ExtractFromUrlParams } from "../model/requestParameter/ExtractFrom
 import { ExtractParamsBase } from "../model/requestParameter/ExtractParamsBase.ts"
 import type { Result } from "../model/Result.ts"
 import { ErrorResult } from "../model/ErrorResult.ts"
+import { validator } from "hono-openapi"
+import { ExtractFromHtmlSchema, ExtractFromUrlSchema } from "../model/requestParameter/ValidationSchemas.ts"
 
 
 export const pageContentExtractionRouter = new Hono()
@@ -19,12 +21,21 @@ const requestValidator = DI.requestValidator
 
 
 
+const validationHook = (result: any, context: Context) => {
+  if (!result.success) {
+    return context.json(new ErrorResponse(result.error[0].message), 400)
+  }
+}
+
+
 /**
  * GET /extract?url=...&format=...&includeMetadata=...&timeout=...&userAgent=...
  *
  * Quick, cacheable single-call extraction via query params.
  */
-pageContentExtractionRouter.get("/", async (context) => {
+pageContentExtractionRouter.get("/",
+  validator("query", ExtractFromUrlSchema, validationHook),
+  async (context) => {
   return await extractFromUrl(context, false)
 })
 
@@ -34,9 +45,12 @@ pageContentExtractionRouter.get("/", async (context) => {
  *
  * Preferred when passing long URLs or additional options.
  */
-pageContentExtractionRouter.post("/", async (context) => {
-  return await extractFromUrl(context, true)
-})
+pageContentExtractionRouter.post("/",
+  validator("json", ExtractFromUrlSchema, validationHook),
+  async (context) => {
+    return await extractFromUrl(context, true)
+  }
+)
 
 
 /**
@@ -45,23 +59,20 @@ pageContentExtractionRouter.post("/", async (context) => {
  *
  * Extract content from provided HTML.
  */
-pageContentExtractionRouter.post("/html", async (context) => {
+pageContentExtractionRouter.post("/html",
+  validator("json", ExtractFromHtmlSchema, validationHook),
+  async (context) => {
   return await extractFromHtml(context)
 })
 
 
 
 async function extractFromUrl(context: Context, extractFromBody: boolean) {
-  const request = context.req
-
-  const validationResult = await requestValidator.parseExtractFromUrlParams(request, extractFromBody)
-
-  if (validationResult.success === false) {
-    return context.json<ErrorResponse>(ErrorResponse.from(validationResult), 400)
-  }
+  const target = extractFromBody ? "json" : "query"
+  const data = (context.req as any).valid(target)
 
   try {
-    const params: ExtractFromUrlParams = validationResult.data
+    const params: ExtractFromUrlParams = requestValidator.mapToExtractFromUrlParams(data)
 
     const result = await extractionService.extractContentFromUrl(params)
 
@@ -72,14 +83,10 @@ async function extractFromUrl(context: Context, extractFromBody: boolean) {
 }
 
 async function extractFromHtml(context: Context) {
-  const validationResult = await requestValidator.parseExtractFromHtmlParams(context.req)
-
-  if (validationResult.success === false) {
-    return context.json<ErrorResponse>(ErrorResponse.from(validationResult), 400)
-  }
+  const data = (context.req as any).valid("json")
 
   try {
-    const params: ExtractFromHtmlParams = validationResult.data
+    const params: ExtractFromHtmlParams = requestValidator.mapToExtractFromHtmlParams(data)
 
     const result = extractionService.extractContentFromHtml(params.html, params.url)
 

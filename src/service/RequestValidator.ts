@@ -6,11 +6,13 @@ import { ErrorResult } from "../model/ErrorResult.ts"
 import { SuccessResult } from "../model/SuccessResult.ts"
 import { WebFetcherOptions } from "../webFetcher/WebFetcherOptions.ts"
 import { ConvertToPlainTextOptions } from "./converter/ConvertToPlainTextOptions.ts"
+import { ExtractFromHtmlSchema, ExtractFromUrlSchema } from "../model/requestParameter/ValidationSchemas.ts"
+import { z } from "zod"
 
 export class RequestValidator {
 
   async parseExtractFromUrlParams(request: HonoRequest, extractFromBody: boolean): Promise<Result<ExtractFromUrlParams>> {
-    let params: Record<string, string>
+    let params: any
 
     try {
       params = extractFromBody ? await request.json() : request.query()
@@ -18,24 +20,24 @@ export class RequestValidator {
       return ErrorResult.for("Invalid JSON body")
     }
 
-    const { url, includeMetadata } = params
-
-    if (!url) {
-      return ErrorResult.for("Missing required parameter: url")
+    const validation = ExtractFromUrlSchema.safeParse(params)
+    if (!validation.success) {
+      return ErrorResult.for(validation.error.issues[0].message)
     }
 
-    if (!this.isValidHttpUrl(url)) {
-      return ErrorResult.for(`Only http and https URLs are supported, ${url} is invalid`)
-    }
+    const data = validation.data
 
-    return SuccessResult.for(new ExtractFromUrlParams(url, this.parseBoolean(includeMetadata),
-      this.parseConvertToPlainTextOptions(params),
-      this.parseWebFetcherOptions(params)))
+    return SuccessResult.for(new ExtractFromUrlParams(
+      data.url,
+      data.includeMetadata,
+      this.mapToConvertToPlainTextOptions(data),
+      this.mapToWebFetcherOptions(data)
+    ))
   }
 
 
   async parseExtractFromHtmlParams(request: HonoRequest): Promise<Result<ExtractFromHtmlParams>> {
-    let body: Record<string, string>
+    let body: any
 
     try {
       body = await request.json()
@@ -43,70 +45,56 @@ export class RequestValidator {
       return ErrorResult.for("Invalid JSON body")
     }
 
-    const { html, url, includeMetadata } = body
-
-    if (!html) {
-      return ErrorResult.for("Missing required parameter: html")
+    const validation = ExtractFromHtmlSchema.safeParse(body)
+    if (!validation.success) {
+      return ErrorResult.for(validation.error.issues[0].message)
     }
 
-    return SuccessResult.for(new ExtractFromHtmlParams(html, url, this.parseBoolean(includeMetadata), this.parseConvertToPlainTextOptions(body)))
+    const data = validation.data
+
+    return SuccessResult.for(new ExtractFromHtmlParams(
+      data.html,
+      data.url || undefined,
+      data.includeMetadata,
+      this.mapToConvertToPlainTextOptions(data)
+    ))
   }
 
 
-  private isValidHttpUrl(url: string): boolean {
-    try {
-      const parsed = new URL(url)
-      return parsed.protocol === "http:" || parsed.protocol === "https:"
-    } catch {
-      return false
-    }
+  mapToExtractFromUrlParams(data: z.infer<typeof ExtractFromUrlSchema>): ExtractFromUrlParams {
+    return new ExtractFromUrlParams(
+      data.url,
+      data.includeMetadata,
+      this.mapToConvertToPlainTextOptions(data),
+      this.mapToWebFetcherOptions(data)
+    )
   }
 
 
-  private parseConvertToPlainTextOptions(params: Record<string, string>): ConvertToPlainTextOptions | undefined {
-    const { preserveLinkUrlsInPlainText, preserveImageUrlsInPlainText } = params
+  mapToExtractFromHtmlParams(data: z.infer<typeof ExtractFromHtmlSchema>): ExtractFromHtmlParams {
+    return new ExtractFromHtmlParams(
+      data.html,
+      data.url || undefined,
+      data.includeMetadata,
+      this.mapToConvertToPlainTextOptions(data)
+    )
+  }
 
-    if (!!!preserveLinkUrlsInPlainText && !!!preserveImageUrlsInPlainText) {
+
+  private mapToConvertToPlainTextOptions(data: z.infer<typeof ExtractFromUrlSchema> | z.infer<typeof ExtractFromHtmlSchema>): ConvertToPlainTextOptions | undefined {
+    if (data.preserveLinkUrlsInPlainText === undefined && data.preserveImageUrlsInPlainText === undefined) {
       return undefined
     }
 
-    return new ConvertToPlainTextOptions(this.parseBoolean(preserveLinkUrlsInPlainText), this.parseBoolean(preserveImageUrlsInPlainText))
+    return new ConvertToPlainTextOptions(data.preserveLinkUrlsInPlainText, data.preserveImageUrlsInPlainText)
   }
 
-  private parseWebFetcherOptions(params: Record<string, string>): WebFetcherOptions | undefined {
-    const { timeout, userAgent, followRedirects } = params
-
-    if (!!!timeout && !!!userAgent && !!!followRedirects) {
+  private mapToWebFetcherOptions(data: z.infer<typeof ExtractFromUrlSchema>): WebFetcherOptions | undefined {
+    if (data.timeout === undefined && data.userAgent === undefined && data.followRedirects === undefined) {
       return undefined
     }
 
-    return new WebFetcherOptions(userAgent, this.parseInt(timeout), this.parseBoolean(followRedirects))
-  }
-
-
-  private parseInt(value?: string | number): number | undefined {
-    if (!!!value) {
-      return undefined
-    }
-
-    if (typeof value === "number") {
-      return value
-    }
-
-    return Number.parseInt(value.trim())
-  }
-
-  private parseBoolean(value?: string | boolean): boolean {
-    if (!!!value) {
-      return false
-    }
-
-    if (typeof value === "boolean") {
-      return value
-    }
-
-    const normalized = value.trim().toLowerCase()
-    return normalized === "true" // may use: ['true', '1', 'yes', 'on'].includes(normalized)
+    return new WebFetcherOptions(data.userAgent, data.timeout, data.followRedirects)
   }
 
 }

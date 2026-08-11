@@ -23,7 +23,7 @@ export class PageContentExtractionService {
   async extractContentFromUrl(params: ExtractFromUrlParams): Promise<Result<ExtractedContent>> {
     const { url } = params
 
-    const fetchHtmlResult = await this.webFetcher.fetchHtml(url, params.webFetcherOptions)
+    const fetchHtmlResult = await this.webFetcher.fetchHtml(url!, params.webFetcherOptions)
 
     if (fetchHtmlResult.success == false) {
       return fetchHtmlResult
