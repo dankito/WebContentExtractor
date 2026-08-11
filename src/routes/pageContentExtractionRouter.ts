@@ -177,7 +177,7 @@ function mapToResponse(params: ExtractParamsBase, result: Result<ExtractedConten
     const content = result.data
     const format = httpUtil.getPreferredResponseFormat(context.req)
 
-    if (format === ResponseFormat.Json) {
+    if (format === ResponseFormat.Html) {
       return context.html(content.pageContentHtml)
     } else if (format === ResponseFormat.Text) {
       return context.text(extractionService.convertToPlainText(content, params.convertToPlainTextOptions))
