@@ -46,22 +46,7 @@ pageContentExtractionRouter.post("/", async (context) => {
  * Extract content from provided HTML.
  */
 pageContentExtractionRouter.post("/html", async (context) => {
-  const validationResult = await requestValidator.parseExtractFromHtmlParams(context.req)
-
-  if (validationResult.success === false) {
-    return context.json<ErrorResponse>(ErrorResponse.from(validationResult), 400)
-  }
-
-  try {
-    const params: ExtractFromHtmlParams = validationResult.data
-
-    const result = extractionService.extractContentFromHtml(params.html, params.url)
-
-    return mapToResponse(params, result, context)
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error"
-    return context.json<ErrorResponse>(new ErrorResponse("Extraction failed", message), 500)
-  }
+  return await extractFromHtml(context)
 })
 
 
@@ -83,6 +68,25 @@ async function extractFromUrl(context: Context, extractFromBody: boolean) {
     return mapToResponse(params, result, context)
   } catch (error) {
     return context.json<ErrorResponse>(ErrorResponse.from(ErrorResult.forError(error)), 500)
+  }
+}
+
+async function extractFromHtml(context: Context) {
+  const validationResult = await requestValidator.parseExtractFromHtmlParams(context.req)
+
+  if (validationResult.success === false) {
+    return context.json<ErrorResponse>(ErrorResponse.from(validationResult), 400)
+  }
+
+  try {
+    const params: ExtractFromHtmlParams = validationResult.data
+
+    const result = extractionService.extractContentFromHtml(params.html, params.url)
+
+    return mapToResponse(params, result, context)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error"
+    return context.json<ErrorResponse>(new ErrorResponse("Extraction failed", message), 500)
   }
 }
 
