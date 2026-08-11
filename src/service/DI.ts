@@ -8,6 +8,7 @@ import { FetchApiWebFetcher } from "../webFetcher/FetchApiWebFetcher.ts"
 import { ContentConverterService } from "./contentConverter/ContentConverterService.ts"
 import { UrlVerificationService } from "./utils/UrlVerificationService.ts"
 import { HttpUtil } from "./utils/HttpUtil.ts"
+import { HtmlToTextConverter } from "./contentConverter/HtmlToTextConverter.ts"
 
 export class DI {
 
@@ -18,7 +19,9 @@ export class DI {
 
   static readonly htmlCleaner = new HtmlCleaner()
 
-  static readonly contentConverter = new ContentConverterService()
+  static readonly htmlToTextConverter = new HtmlToTextConverter()
+
+  static readonly contentConverter = new ContentConverterService(DI.htmlToTextConverter)
 
   static readonly webFetcher: WebFetcher = new FetchApiWebFetcher()
 
