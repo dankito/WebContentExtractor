@@ -4,7 +4,7 @@ import { pageContentExtractionRouter } from "./routes/pageContentExtractionRoute
 import * as process from "bun"
 import { OpenApiRouter } from "./routes/OpenApiRouter.ts"
 
-const app = new Hono()
+export const app = new Hono()
 
 app.use("*", logger())
 
