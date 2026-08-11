@@ -202,7 +202,7 @@ export class HtmlCleaner {
       this.exceedsEstimatedHtmlNestingDepth(html, HtmlCleaner.MaxEstimatedNestingDepth)
   }
 
-  private exceedsEstimatedHtmlNestingDepth(html: string, maxDepth: number): boolean {
+  exceedsEstimatedHtmlNestingDepth(html: string, maxDepth: number): boolean {
     let depth = 0
     const len = html.length
     for (let i = 0; i < len; i++) {
@@ -254,12 +254,25 @@ export class HtmlCleaner {
         continue
       }
 
+      // If an HTML attribute contains characters like > or /> (e.g., <div data-info="/>">), the parser will misidentify it as the end of a tag or a self-closing tag, leading to incorrect depth calculations or incorrect bypasses of the depth limit.
       // Best-effort self-closing detection: scan a short window for "/>".
+      // We skip quoted attribute values to avoid false positives.
       let selfClosing = false
-      for (let k = j; k < len && k < j + 200; k++) {
+      let inQuote = 0 // 0: none, 34: ", 39: '
+      for (let k = j; k < len && k < j + 400; k++) {
         const c = html.charCodeAt(k)
-        if (c === 62) {
-          if (html.charCodeAt(k - 1) === 47) {
+        if (inQuote !== 0) {
+          if (c === inQuote) {
+            inQuote = 0
+          }
+          continue
+        }
+        if (c === 34 || c === 39) {
+          inQuote = c
+          continue
+        }
+        if (c === 62) { // '>'
+          if (html.charCodeAt(k - 1) === 47) { // '/'
             selfClosing = true
           }
           break
