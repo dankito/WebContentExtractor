@@ -8,7 +8,6 @@ import { SuccessResult } from "../model/SuccessResult.ts"
 import type { HtmlCleaner } from "./html/HtmlCleaner.ts"
 import { ExtractedMetadata } from "../model/ExtractedMetadata.ts"
 
-// noinspection HtmlRequiredLangAttribute
 export class ReadabilityContentExtractor {
 
   constructor(
@@ -20,14 +19,8 @@ export class ReadabilityContentExtractor {
   cleanAndExtractReadableContent(html: string, url?: string): Result<ExtractedContent> {
     html = this.htmlCleaner.stripComments(html)
 
-    let document = this.domService.parseToDocument(html, url)
-
     // Readability requires that html is wrapped in <html><body>...</body></html> so ensuring that the html shell is there
-    if (!!!document.documentElement.querySelector("body")) {
-      console.log("No body found in html, adding html shell")
-      const htmlWithHtmlShell = this.ensureHtmlShell(html)
-      document = this.domService.parseToDocument(htmlWithHtmlShell, url)
-    }
+    const document = this.domService.ensureHtmlShellAndParseToDocument(html, url)
 
     return this.extractReadableContent(document, url)
   }
@@ -79,30 +72,4 @@ export class ReadabilityContentExtractor {
     )
   }
 
-
-  private ensureHtmlShell(html: string): string {
-    const trimmed = html.trim()
-
-    // Pull out a leading doctype, if present, so we don't nest it inside <body>
-    const doctypeMatch = trimmed.match(/^<!DOCTYPE[^>]*>/i)
-    const doctype = doctypeMatch ? doctypeMatch[0] : ""
-    const rest = doctype ? trimmed.slice(doctype.length).trim() : trimmed
-
-    const hasHtml = /<html[\s>]/i.test(rest)
-    const hasBody = /<body[\s>]/i.test(rest)
-
-    let shell
-    if (hasHtml) {
-      // already has <html>, leave structure alone
-      shell = rest
-    } else if (hasBody) {
-      // has <body> but no <html> wrapper — just add the <html>/<head> shell
-      shell = `<html><head></head>${rest}</html>`
-    } else {
-      // has neither — wrap fully
-      shell = `<html><head></head><body>${rest}</body></html>`
-    }
-
-    return doctype ? `${doctype}\n${shell}` : shell
-  }
 }
