@@ -8,6 +8,15 @@ import { ConvertToMarkdownOptions } from "../../../../src/service/contentConvert
 
 const inlineImageData = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
 
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 29.6" width="64" height="64">
+  <title>Red heart</title>
+  <path fill="#e0245e" d="M23.6,0c-3.4,0-6.3,2.1-7.6,5c-1.3-2.9-4.2-5-7.6-5C3.4,0,0,3.4,0,7.6
+    c0,8.4,10.5,13.4,16,20.7c5.5-7.3,16-12.3,16-20.7C32,3.4,28.6,0,23.6,0z"/>
+</svg>`
+
+const convertedSvg = `![Red heart](data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjY0IiB2aWV3Qm94PSIwIDAgMzIgMjkuNiIgd2lkdGg9IjY0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDx0aXRsZT5SZWQgaGVhcnQ8L3RpdGxlPgogIDxwYXRoIGQ9Ik0yMy42LDBjLTMuNCwwLTYuMywyLjEtNy42LDVjLTEuMy0yLjktNC4yLTUtNy42LTVDMy40LDAsMCwzLjQsMCw3LjYKICAgIGMwLDguNCwxMC41LDEzLjQsMTYsMjAuN2M1LjUtNy4zLDE2LTEyLjMsMTYtMjAuN0MzMiwzLjQsMjguNiwwLDIzLjYsMHoiIGZpbGw9IiNlMDI0NWUiIC8+Cjwvc3ZnPg==)`
+
+
 
 describe("KreuzbergHtmlToMarkdownConverter", () => {
   const underTest = new KreuzbergHtmlToMarkdownConverter()
@@ -66,6 +75,19 @@ describe("KreuzbergHtmlToMarkdownConverter", () => {
         `![Liebesbild](${inlineImageData})Liebe`, {
           includeImages: true
         })
+    })
+
+
+    it("<svg> includeImages: false -> ''", () => {
+      assertConversion(svg, "", {
+        includeImages: false
+      })
+    })
+
+    it("<svg> includeImages: true -> [Red heart]", () => {
+      assertConversion(svg, convertedSvg, {
+        includeImages: true
+      })
     })
 
 

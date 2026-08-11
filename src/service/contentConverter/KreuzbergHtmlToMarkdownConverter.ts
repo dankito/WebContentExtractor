@@ -15,7 +15,7 @@ export class KreuzbergHtmlToMarkdownConverter implements HtmlToMarkdownConverter
   convertToMarkdown(html: string, options?: ConvertToMarkdownOptions): Result<string> {
     const result = convert(html, this.toConversionOptions(options))
 
-    if (result.content) {
+    if (result.content !== undefined) { // keep empty output ("") which may be correct
       return SuccessResult.for(result.content)
     } else {
       console.log("HTML to Markdown conversion failed", result.warnings, result)
@@ -47,7 +47,7 @@ export class KreuzbergHtmlToMarkdownConverter implements HtmlToMarkdownConverter
       includeDocumentStructure: false,
       extractMetadata: false,
       extractImages: false,
-      captureSvg: false,
+      captureSvg: false, // does not seem to have any effect
 
       highlightStyle: HighlightStyle.Bold,
 
