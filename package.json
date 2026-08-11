@@ -9,6 +9,7 @@
     "start": "bun src/index.ts",
     "typecheck": "tsc --noEmit",
     "test:unit": "bun test tests/unit",
+    "test:api": "bun test tests/integration",
     "test": "bun test"
   },
   "dependencies": {
