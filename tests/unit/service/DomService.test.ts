@@ -2,7 +2,6 @@ import { describe, expect, it } from "bun:test"
 import { DomService } from "../../../src/service/html/DomService"
 
 
-
 describe("DomService", () => {
   const underTest = new DomService()
 

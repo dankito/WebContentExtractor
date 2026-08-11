@@ -10,6 +10,7 @@ import type { Result } from "../model/Result.ts"
 import { ErrorResult } from "../model/ErrorResult.ts"
 import { describeRoute, resolver, validator } from "hono-openapi"
 import { ErrorResponseSchema, ExtractFromHtmlSchema, ExtractFromUrlSchema, ExtractResponseSchema } from "../model/requestParameter/ValidationSchemas.ts"
+import { ResponseFormat } from "../model/responses/ResponseFormat.ts"
 
 
 export const pageContentExtractionRouter = new Hono()
@@ -18,6 +19,8 @@ export const pageContentExtractionRouter = new Hono()
 const extractionService = DI.pageContentExtractionService
 
 const requestValidator = DI.requestValidator
+
+const httpUtil = DI.httpUtil
 
 const tags: string[] = [ "Extract" ]
 
@@ -172,11 +175,11 @@ function mapToResponse(params: ExtractParamsBase, result: Result<ExtractedConten
     return context.json<ErrorResponse>(ErrorResponse.from(result), result.details.isBadRequest ? 400 : 500)
   } else {
     const content = result.data
-    const acceptHeaders = (context.req.header("Accept") ?? "").split(",").map(format => format.trim().toLowerCase())
+    const format = httpUtil.getPreferredResponseFormat(context.req)
 
-    if (acceptHeaders.includes("text/html")) {
+    if (format === ResponseFormat.Json) {
       return context.html(content.pageContentHtml)
-    } else if (acceptHeaders.includes("text/plain")) {
+    } else if (format === ResponseFormat.Text) {
       return context.text(extractionService.convertToPlainText(content, params.convertToPlainTextOptions))
     } else {
       return context.json(new ExtractResponse(content.url, content.pageContentHtml, params.includeMetadata ? content.metadata : undefined))
