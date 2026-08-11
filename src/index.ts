@@ -1,9 +1,8 @@
 import { Hono } from "hono"
 import { logger } from "hono/logger"
-import { openAPIRouteHandler } from "hono-openapi"
 import { pageContentExtractionRouter } from "./routes/pageContentExtractionRouter.ts"
 import * as process from "bun"
-import { swaggerUI } from "@hono/swagger-ui"
+import { OpenApiRouter } from "./routes/OpenApiRouter.ts"
 
 const app = new Hono()
 
@@ -15,25 +14,7 @@ app.get("/health", (c) => {
 
 app.route("/extract", pageContentExtractionRouter)
 
-app.get(
-  "/openapi.json",
-  openAPIRouteHandler(app, {
-    documentation: {
-      info: {
-        title: "Readability Server",
-        version: "1.0.0",
-        description: "A high-performance, Hono-based web service wrapper for Mozilla's Readability.js, which powers Firefox's Reader View. " +
-          "Extract clean, readable content from any webpage with lightning speed.",
-      },
-    },
-  }),
-)
-
-app.get("/swagger-ui", swaggerUI({
-  url: "/openapi.json",
-  tryItOutEnabled: true,
-  displayRequestDuration: true,
-}))
+app.route("/", new OpenApiRouter().createOpenApiAndSwaggerUiEndpoints(app))
 
 
 const host = process.env.HOST ?? "localhost"
