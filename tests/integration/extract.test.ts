@@ -183,6 +183,22 @@ describe("/extract", () => {
       expect(text).toBe("## Title\n\nContent with a [link](http://example.com).")
     })
 
+    it("Should respect Markdown options (includeImages)", async () => {
+      const response = await app.request("/extract/html", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "text/plain;q=0.5, text/markdown;q=0.8"
+        },
+        body: JSON.stringify({ html: `<img alt="Description" src="https://example.com">Test</img>`, includeImages: true })
+      })
+
+      expect(response.status).toBe(200)
+      expect(response.headers.get("Content-Type")).toInclude("text/markdown")
+      const text = await response.text()
+      expect(text).toBe("![Description](https://example.com)Test")
+    })
+
 
     it("Should respect plain text options (preserveLinkUrlsInPlainText)", async () => {
       const response = await app.request("/extract/html", {
