@@ -72,3 +72,25 @@ export const ExtractFromHtmlSchema = z.object({
   preserveLinkUrlsInPlainText: booleanSchema.optional(),
   preserveImageUrlsInPlainText: booleanSchema.optional(),
 })
+
+export const ExtractedMetadataSchema = z.object({
+  title: z.string().optional(),
+  length: z.number().optional(),
+  excerpt: z.string().optional(),
+  byline: z.string().optional(),
+  contentDirection: z.string().optional(),
+  siteName: z.string().optional(),
+  contentLanguage: z.string().optional(),
+  publishedTime: z.string().optional(),
+})
+
+export const ExtractResponseSchema = z.object({
+  url: z.string().optional(),
+  pageContentHtml: z.string(),
+  metadata: ExtractedMetadataSchema.optional(),
+})
+
+export const ErrorResponseSchema = z.object({
+  error: z.string(),
+  details: z.string().optional(),
+})
