@@ -7,7 +7,7 @@ import type { ContentConverter } from "./ContentConverter.ts"
 import type { HtmlCleaner } from "./html/HtmlCleaner.ts"
 import { ConvertToPlainTextOptions } from "./converter/ConvertToPlainTextOptions.ts"
 import { ErrorResult } from "../model/ErrorResult.ts"
-import type { UrlVerificationService } from "./UrlVerificationService.ts"
+import type { UrlVerificationService } from "./utils/UrlVerificationService.ts"
 
 export class PageContentExtractionService {
 

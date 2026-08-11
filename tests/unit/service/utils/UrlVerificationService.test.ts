@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test"
-import { UrlVerificationService } from "../../../src/service/UrlVerificationService"
+import { UrlVerificationService } from "../../../../src/service/utils/UrlVerificationService"
 
 
 describe("UrlVerificationService", () => {

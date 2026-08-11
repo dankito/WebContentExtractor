@@ -1,12 +1,12 @@
 import { PageContentExtractionService } from "./PageContentExtractionService.ts"
-import { RequestValidator } from "./RequestValidator.ts"
+import { RequestValidator } from "./utils/RequestValidator.ts"
 import { DomService } from "./html/DomService.ts"
 import { ReadabilityContentExtractor } from "./ReadabilityContentExtractor.ts"
 import { HtmlCleaner } from "./html/HtmlCleaner.ts"
 import type { WebFetcher } from "../webFetcher/WebFetcher.ts"
 import { FetchApiWebFetcher } from "../webFetcher/FetchApiWebFetcher.ts"
 import { ContentConverter } from "./ContentConverter.ts"
-import { UrlVerificationService } from "./UrlVerificationService.ts"
+import { UrlVerificationService } from "./utils/UrlVerificationService.ts"
 import { HttpUtil } from "./utils/HttpUtil.ts"
 
 export class DI {
