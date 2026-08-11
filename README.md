@@ -1,33 +1,34 @@
-# Readability Server
+# Web Content Extractor
 
-A high-performance, Hono-based web service wrapper for Mozilla's [Readability.js](https://github.com/mozilla/readability), which powers Firefox's Reader View. 
-Extract clean, readable content from any webpage with lightning speed.
+A web content extraction service combining stealth fetching (anti-bot detection bypass), 
+Readability-based content extraction, HTML-to-Markdown/text conversion, and 
+sanitization against prompt-injection payloads hidden in HTML.
 
-## Overview
-The goal of Readability Server is to provide a simple, containerized API that leverages the industry-standard Readability algorithm to strip away clutter (ads, sidebars, popups) and return only the essential content of a webpage.
 
 ## Features
 - **Fast & Lightweight**: Built with [Hono](https://hono.dev/) and powered by [Bun](https://bun.sh/) for minimal overhead and high throughput.
-- **Production Ready**: Easily deployable via Docker and Docker Compose.
-- **Mozilla Readability**: Uses the same battle-tested extraction logic as Firefox's Reader View.
-- **Flexible Output**: Configure the response format via headers to get JSON, clean HTML, or plain text.
+- **Mozilla Readability**: Pulls the main article content from any webpage, stripping ads, navs, and clutter by using the same battle-tested extraction logic as Firefox's Reader View.
+- **Stealth Fetching**: Chainable bot detection bypassing with [web-fetcher](https://github.com/dankito/web-fetcher), mimicking real browser behavior (fingerprinting, headers, timing).
+- **Flexible Output**: Converts extracted HTML into clean Markdown or plain text.
+- **Prompt Injection Defense**: Sanitizes HTML by removing invisible Unicode characters, hidden text, and other prompt-injection vectors before content reaches downstream LLMs.
 - **Rich Metadata**: Optionally extract title, author, site name, excerpt, and more.
+- **Production Ready**: Easily deployable via Docker and Docker Compose.
 
 ## How to Run
 
 ### Docker Run
 You can run the server directly using Docker:
 ```shell
-docker run -p 3030:3030 ghcr.io/dankito/readability-server
+docker run -p 3030:3030 ghcr.io/dankito/web-content-extractor
 ```
 
 ### Docker Compose
 Create a `docker-compose.yml` file:
 ```yaml
 services:
-  readability:
-    image: ghcr.io/dankito/readability-server:latest
-    container_name: readability
+  web-extractor:
+    image: ghcr.io/dankito/web-content-extractor:latest
+    container_name: web-extractor
     restart: unless-stopped
     ports:
       - "3030:3030"
@@ -68,7 +69,7 @@ Quickly extract content from a URL using query parameters.
 
 **Example**:
 ```shell
-curl "http://localhost:3030/extract?url=https://github.com/dankito/ReadabilityServer/blob/main/README.md&includeMetadata=true"
+curl "http://localhost:3030/extract?url=https://github.com/dankito/WebContentExtractor/blob/main/README.md&includeMetadata=true"
 ```
 
 #### 2. `POST /extract`
@@ -84,7 +85,7 @@ Preferred for long URLs or when passing multiple options.
 ```shell
 curl -X POST http://localhost:3030/extract \
   -H "Content-Type: application/json" \
-  -d '{"url": "https://github.com/dankito/ReadabilityServer/blob/main/README.md", "includeMetadata": true}'
+  -d '{"url": "https://github.com/dankito/WebContentExtractor/blob/main/README.md", "includeMetadata": true}'
 ```
 
 #### 3. `POST /extract/html`
@@ -113,7 +114,7 @@ The response format can be configured using the `Accept` header:
 
 **Example** (HTML response):
 ```shell
-curl -H "Accept: text/html" "http://localhost:3030/extract?url=https://github.com/dankito/ReadabilityServer/blob/main/README.md"
+curl -H "Accept: text/html" "http://localhost:3030/extract?url=https://github.com/dankito/WebContentExtractor/blob/main/README.md"
 ```
 
 #### Plain Text Configuration
@@ -124,7 +125,7 @@ When using `text/plain`, you can pass these additional parameters in your reques
 **Example**:
 ```shell
 curl -H "Accept: text/plain" \
-  "http://localhost:3030/extract?url=https://github.com/dankito/ReadabilityServer/blob/main/README.md&preserveLinkUrlsInPlainText=true&preserveImageUrlsInPlainText=true"
+  "http://localhost:3030/extract?url=https://github.com/dankito/WebContentExtractor/blob/main/README.md&preserveLinkUrlsInPlainText=true&preserveImageUrlsInPlainText=true"
 ```
 
 

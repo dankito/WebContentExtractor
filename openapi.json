@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Readability Server",
-    "description": "A high-performance, Hono-based web service wrapper for Mozilla's Readability.js, which powers Firefox's Reader View. Extract clean, readable content from any webpage with lightning speed.",
-    "version": "0.9.0"
+    "title": "Web Content Extractor",
+    "description": "A web content extraction service combining stealth fetching (anti-bot detection bypass), Readability-based content extraction, HTML-to-Markdown/text conversion, and sanitization against prompt-injection payloads hidden in HTML.",
+    "version": "0.5.0"
   },
   "paths": {
     "/extract": {

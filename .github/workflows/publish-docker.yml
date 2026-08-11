@@ -16,7 +16,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/readability-server
+  IMAGE_NAME: ${{ github.repository_owner }}/web-content-extractor
 
 jobs:
   build-and-push:
