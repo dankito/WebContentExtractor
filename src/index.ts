@@ -11,7 +11,8 @@ app.get("/health", (c) => {
   return c.json({ status: "ok", timestamp: new Date().toISOString() })
 })
 
-app.route("/", pageContentExtractionRouter)
+app.route("/extract", pageContentExtractionRouter)
+
 
 const host = process.env.HOST ?? "localhost"
 const port = parseInt(process.env.PORT ?? "3030")

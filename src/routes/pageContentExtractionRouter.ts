@@ -24,7 +24,7 @@ const requestValidator = DI.requestValidator
  *
  * Quick, cacheable single-call extraction via query params.
  */
-pageContentExtractionRouter.get("/extract", async (context) => {
+pageContentExtractionRouter.get("/", async (context) => {
   return await extractFromUrl(context, false)
 })
 
@@ -34,7 +34,7 @@ pageContentExtractionRouter.get("/extract", async (context) => {
  *
  * Preferred when passing long URLs or additional options.
  */
-pageContentExtractionRouter.post("/extract", async (context) => {
+pageContentExtractionRouter.post("/", async (context) => {
   return await extractFromUrl(context, true)
 })
 
@@ -45,7 +45,7 @@ pageContentExtractionRouter.post("/extract", async (context) => {
  *
  * Extract content from provided HTML.
  */
-pageContentExtractionRouter.post("/extract/html", async (context) => {
+pageContentExtractionRouter.post("/html", async (context) => {
   const validationResult = await requestValidator.parseExtractFromHtmlParams(context.req)
 
   if (validationResult.success === false) {
