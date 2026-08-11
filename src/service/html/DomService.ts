@@ -32,7 +32,7 @@ export class DomService {
     const hasBody = /<body[\s>]/i.test(rest)
 
     let shell
-    if (hasHtml) {
+    if (hasHtml && hasBody) {
       // already has <html>, leave structure alone
       shell = rest
     } else if (hasBody) {
@@ -40,6 +40,20 @@ export class DomService {
       console.log("No body found in html, wrapping DOM nodes in body")
 
       shell = `<html><head></head>${rest}</html>`
+    } else if (hasHtml) {
+      console.log("<html> is available but <body> is missing, adding body element")
+
+      // TODO: this is not easily handled with string operations, find a better solution
+      const htmlStartTagEnd = rest.indexOf(">")
+      const htmlCloseTag = rest.indexOf("</html>")
+      const withoutHtmlCloseTag = rest.substring(0, htmlCloseTag)
+      const headCloseTag = rest.indexOf("</head>")
+
+      if (headCloseTag != -1) {
+        shell = `${rest.substring(0, headCloseTag)}</head><body>${withoutHtmlCloseTag}</body></html>`
+      } else {
+        shell = `<html><head></head><body>${withoutHtmlCloseTag.substring(htmlStartTagEnd + 1)}</body></html>`
+      }
     } else {
       // has neither — wrap fully
       console.log("Neither <html> nor <body> found in html, wrapping DOM nodes in html and body")
