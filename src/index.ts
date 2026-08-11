@@ -3,6 +3,7 @@ import { logger } from "hono/logger"
 import { openAPIRouteHandler } from "hono-openapi"
 import { pageContentExtractionRouter } from "./routes/pageContentExtractionRouter.ts"
 import * as process from "bun"
+import { swaggerUI } from "@hono/swagger-ui"
 
 const app = new Hono()
 
@@ -27,6 +28,12 @@ app.get(
     },
   }),
 )
+
+app.get("/swagger-ui", swaggerUI({
+  url: "/openapi.json",
+  tryItOutEnabled: true,
+  displayRequestDuration: true,
+}))
 
 
 const host = process.env.HOST ?? "localhost"

@@ -19,6 +19,8 @@ const extractionService = DI.pageContentExtractionService
 
 const requestValidator = DI.requestValidator
 
+const tags: string[] = [ "Extract" ]
+
 
 
 const validationHook = (result: any, context: Context) => {
@@ -37,6 +39,7 @@ pageContentExtractionRouter.get("/",
   describeRoute({
     summary: "Extract web page content from URL via query parameters",
     description: "Quick, cacheable single-call extraction via query params.",
+    tags: tags,
     responses: {
       200: {
         description: "Successful extraction",
@@ -71,6 +74,7 @@ pageContentExtractionRouter.post("/",
   describeRoute({
     summary: "Extract web page content from URL via JSON body",
     description: "Preferred when passing long URLs or additional options.",
+    tags: tags,
     responses: {
       200: {
         description: "Successful extraction",
@@ -107,6 +111,7 @@ pageContentExtractionRouter.post("/html",
   describeRoute({
     summary: "Extract web page content from provided HTML",
     description: "Extract web page content from provided HTML code.",
+    tags: tags,
     responses: {
       200: {
         description: "Successful extraction",
