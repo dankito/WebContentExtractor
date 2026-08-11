@@ -139,14 +139,14 @@ export class HtmlCleaner {
   isStyleHidden(style: string): boolean {
     for (const [prop, pattern] of HtmlCleaner.HIDDEN_STYLE_PATTERNS) {
       const escapedProp = prop.replace(/-/g, "\\-")
-      const match = style.match(new RegExp(`(?:^|)\\s*${escapedProp}\\s*:\\s*([^]+)`, "i"))
+      const match = style.match(new RegExp(`(?:^|;)\\s*${escapedProp}\\s*:\\s*([^;]+)`, "i"))
       if (match && pattern.test(match[1])) {
         return true
       }
     }
 
     // clip-path: none is not hidden, but positive percentage inset() clipping hides content.
-    const clipPath = style.match(/(?:^|)\s*clip-path\s*:\s*([^]+)/i)
+    const clipPath = style.match(/(?:^|;)\s*clip-path\s*:\s*([^;]+)/i)
     if (clipPath && !/^\s*none\s*$/i.test(clipPath[1])) {
       if (/inset\s*\(\s*(?:0*\.\d+|[1-9]\d*(?:\.\d+)?)%/i.test(clipPath[1])) {
         return true
@@ -154,7 +154,7 @@ export class HtmlCleaner {
     }
 
     // transform: scale(0)
-    const transform = style.match(/(?:^|)\s*transform\s*:\s*([^]+)/i)
+    const transform = style.match(/(?:^|;)\s*transform\s*:\s*([^;]+)/i)
     if (transform) {
       if (/scale\s*\(\s*0\s*\)/i.test(transform[1])) {
         return true
@@ -168,9 +168,9 @@ export class HtmlCleaner {
     }
 
     // width:0 + height:0 + overflow:hidden
-    const width = style.match(/(?:^|)\s*width\s*:\s*([^]+)/i)
-    const height = style.match(/(?:^|)\s*height\s*:\s*([^]+)/i)
-    const overflow = style.match(/(?:^|)\s*overflow\s*:\s*([^]+)/i)
+    const width = style.match(/(?:^|;)\s*width\s*:\s*([^;]+)/i)
+    const height = style.match(/(?:^|;)\s*height\s*:\s*([^;]+)/i)
+    const overflow = style.match(/(?:^|;)\s*overflow\s*:\s*([^;]+)/i)
     if (
       width &&
       /^\s*0(px)?\s*$/i.test(width[1]) &&
@@ -183,8 +183,8 @@ export class HtmlCleaner {
     }
 
     // Offscreen positioning: left/top far negative
-    const left = style.match(/(?:^|)\s*left\s*:\s*([^]+)/i)
-    const top = style.match(/(?:^|)\s*top\s*:\s*([^]+)/i)
+    const left = style.match(/(?:^|;)\s*left\s*:\s*([^;]+)/i)
+    const top = style.match(/(?:^|;)\s*top\s*:\s*([^;]+)/i)
     if (left && /^\s*-\d{4,}px\s*$/i.test(left[1])) {
       return true
     }
