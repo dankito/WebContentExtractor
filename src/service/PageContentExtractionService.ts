@@ -6,6 +6,7 @@ import type { WebFetcher } from "../webFetcher/WebFetcher.ts"
 import type { ContentConverter } from "./ContentConverter.ts"
 import type { HtmlCleaner } from "./html/HtmlCleaner.ts"
 import { ConvertToPlainTextOptions } from "./converter/ConvertToPlainTextOptions.ts"
+import { ErrorResult } from "../model/ErrorResult.ts"
 
 export class PageContentExtractionService {
 
@@ -22,6 +23,10 @@ export class PageContentExtractionService {
    */
   async extractContentFromUrl(params: ExtractFromUrlParams): Promise<Result<ExtractedContent>> {
     const { url } = params
+    const urlObj = new URL(url!)
+    if (urlObj.protocol !== "http:" && urlObj.protocol !== "https:") { // Actually already done by RequestValidator, but to be on the safe side
+      return ErrorResult.for(`Only http and https protocols are supported, but ${url} has protocol ${urlObj.protocol}`)
+    }
 
     const fetchHtmlResult = await this.webFetcher.fetchHtml(url!, params.webFetcherOptions)
 
