@@ -1,7 +1,7 @@
 import { convert } from "html-to-text"
 import { ConvertToPlainTextOptions } from "./ConvertToPlainTextOptions.ts"
 
-export class ContentConverter {
+export class ContentConverterService {
 
   convertToPlainText(html: string, options?: ConvertToPlainTextOptions): string {
     const preserveLinkUrls = options?.preserveLinkUrls ?? false

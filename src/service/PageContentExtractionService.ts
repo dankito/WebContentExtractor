@@ -3,7 +3,7 @@ import type { ReadabilityContentExtractor } from "./ReadabilityContentExtractor.
 import type { Result } from "../model/Result.ts"
 import type { ExtractFromUrlParams } from "../model/requestParameter/ExtractFromUrlParams.ts"
 import type { WebFetcher } from "../webFetcher/WebFetcher.ts"
-import type { ContentConverter } from "./contentConverter/ContentConverter.ts"
+import type { ContentConverterService } from "./contentConverter/ContentConverterService.ts"
 import type { HtmlCleaner } from "./html/HtmlCleaner.ts"
 import { ConvertToPlainTextOptions } from "./contentConverter/ConvertToPlainTextOptions.ts"
 import { ErrorResult } from "../model/ErrorResult.ts"
@@ -14,7 +14,7 @@ export class PageContentExtractionService {
   constructor(
     private readonly readability: ReadabilityContentExtractor,
     private readonly htmlCleaner: HtmlCleaner,
-    private readonly contentConverter: ContentConverter,
+    private readonly contentConverter: ContentConverterService,
     private readonly webFetcher: WebFetcher,
     private readonly urlVerificationService: UrlVerificationService,
   ) { }
