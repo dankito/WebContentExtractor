@@ -50,7 +50,7 @@ export class ReadabilityContentExtractor {
       }
     } catch (error) {
       console.error(`Extracting content failed for ${url}`, error)
-      return ErrorResult.for(error instanceof Error ? error.message : `Extracting content failed for ${url} with error: ${error}`, error instanceof Error ? error : undefined)
+      return ErrorResult.for(error instanceof Error ? error.message : `Extracting content failed for ${url} with error: ${error}`, false, error instanceof Error ? error : undefined)
     }
   }
 
