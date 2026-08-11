@@ -25,6 +25,74 @@ describe("/extract", () => {
     expect(body.error).toInclude("Calling local URL is not permitted for security reasons")
   })
 
+  describe("POST /extract", () => {
+    it("Should return unsupported protocol for 'ftp://'", async () => {
+      // We can't easily test success without mocking fetch, but we can test validation
+      const response = await app.request("/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: "ftp://invalid" })
+      })
+      expect(response.status).toBe(400)
+    })
+
+    it("Should return 400 for missing URL", async () => {
+      const response = await app.request("/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
+      })
+      expect(response.status).toBe(400)
+    })
+  })
+
+  describe("POST /extract/html", () => {
+    const validHtml = `
+      <html>
+        <head><title>Test Page</title></head>
+        <body>
+          <h1>Main Title</h1>
+          <p>This is a test paragraph that should be extracted.</p>
+        </body>
+      </html>
+    `
+
+    it("Should extract from HTML body", async () => {
+      const response = await app.request("/extract/html", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ html: validHtml })
+      })
+
+      expect(response.status).toBe(200)
+      const body = await response.json()
+      expect(body.pageContentHtml).toInclude("Main Title")
+      expect(body.pageContentHtml).toInclude("This is a test paragraph")
+    })
+
+    it("Should include metadata when requested", async () => {
+      const response = await app.request("/extract/html", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ html: validHtml, includeMetadata: true })
+      })
+
+      expect(response.status).toBe(200)
+      const body = await response.json()
+      expect(body.metadata).toBeDefined()
+      expect(body.metadata.title).toBe("Test Page")
+    })
+
+    it("Should return 400 for missing HTML", async () => {
+      const response = await app.request("/extract/html", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
+      })
+      expect(response.status).toBe(400)
+    })
+  })
+
   describe("Content Negotiation", () => {
     const validHtml = `
       <html>
