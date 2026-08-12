@@ -3,10 +3,13 @@ import { logger } from "hono/logger"
 import { pageContentExtractionRouter } from "./routes/pageContentExtractionRouter.ts"
 import * as process from "bun"
 import { OpenApiRouter } from "./routes/OpenApiRouter.ts"
+import { CorsRouter } from "./routes/CorsRouter.ts"
 
 export const app = new Hono()
 
 app.use("*", logger())
+
+new CorsRouter().configureCors(app)
 
 app.get("/health", (c) => {
   return c.json({ status: "ok", timestamp: new Date().toISOString() })
