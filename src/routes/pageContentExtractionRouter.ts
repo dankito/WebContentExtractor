@@ -8,10 +8,11 @@ import type { ExtractFromUrlRequest } from "../model/requestParameter/ExtractFro
 import { ExtractRequestBase } from "../model/requestParameter/ExtractRequestBase.ts"
 import type { Result } from "../model/Result.ts"
 import { ErrorResult } from "../model/ErrorResult.ts"
-import { describeRoute, resolver, validator } from "hono-openapi"
-import { ErrorResponseSchema, ExtractFromHtmlSchema, ExtractFromUrlSchema, ExtractResponseSchema } from "../model/requestParameter/ValidationSchemas.ts"
+import { validator } from "hono-openapi"
+import { ExtractFromHtmlSchema, ExtractFromUrlSchema, MultiFormatRequestSchema } from "../model/requestParameter/ValidationSchemas.ts"
 import { ResponseFormat } from "../model/responses/ResponseFormat.ts"
 import { type StandardSchemaV1 } from "@standard-schema/spec"
+import { ExtractRoutesOpenApiDescriptions } from "./openApi/ExtractRoutesOpenApiDescriptions.ts"
 
 
 export const pageContentExtractionRouter = new Hono()
@@ -22,8 +23,6 @@ const extractionService = DI.pageContentExtractionService
 const requestValidator = DI.requestValidator
 
 const httpUtil = DI.httpUtil
-
-const tags: string[] = [ "Extract" ]
 
 
 
@@ -42,30 +41,7 @@ const validationHook = (result: any, context: Context) => {
  * Quick, cacheable single-call extraction via query params.
  */
 pageContentExtractionRouter.get("/",
-  describeRoute({
-    summary: "Extract web page content from URL via query parameters",
-    description: "Quick, cacheable single-call extraction via query params.",
-    tags: tags,
-    responses: {
-      200: {
-        description: "Successful extraction",
-        content: {
-          "application/json": { schema: resolver(ExtractResponseSchema) },
-          "text/html": { schema: { type: "string" } },
-          "text/markdown": { schema: { type: "string" } },
-          "text/plain": { schema: { type: "string" } },
-        },
-      },
-      400: {
-        description: "Invalid request parameters",
-        content: { "application/json": { schema: resolver(ErrorResponseSchema) } },
-      },
-      500: {
-        description: "Extraction failed",
-        content: { "application/json": { schema: resolver(ErrorResponseSchema) } },
-      },
-    },
-  }),
+  ExtractRoutesOpenApiDescriptions.ExtractGet,
   validator("query", ExtractFromUrlSchema, validationHook),
   async (context) => {
   return await extractFromUrl(context, false)
@@ -78,30 +54,7 @@ pageContentExtractionRouter.get("/",
  * Preferred when passing long URLs or additional options.
  */
 pageContentExtractionRouter.post("/",
-  describeRoute({
-    summary: "Extract web page content from URL via JSON body",
-    description: "Preferred when passing long URLs or additional options.",
-    tags: tags,
-    responses: {
-      200: {
-        description: "Successful extraction",
-        content: {
-          "application/json": { schema: resolver(ExtractResponseSchema) },
-          "text/html": { schema: { type: "string" } },
-          "text/markdown": { schema: { type: "string" } },
-          "text/plain": { schema: { type: "string" } },
-        },
-      },
-      400: {
-        description: "Invalid request body",
-        content: { "application/json": { schema: resolver(ErrorResponseSchema) } },
-      },
-      500: {
-        description: "Extraction failed",
-        content: { "application/json": { schema: resolver(ErrorResponseSchema) } },
-      },
-    },
-  }),
+  ExtractRoutesOpenApiDescriptions.ExtractPost,
   validator("json", ExtractFromUrlSchema, validationHook),
   async (context) => {
     return await extractFromUrl(context, true)
@@ -116,30 +69,7 @@ pageContentExtractionRouter.post("/",
  * Extract content from provided HTML.
  */
 pageContentExtractionRouter.post("/html",
-  describeRoute({
-    summary: "Extract web page content from provided HTML",
-    description: "Extract web page content from provided HTML code.",
-    tags: tags,
-    responses: {
-      200: {
-        description: "Successful extraction",
-        content: {
-          "application/json": { schema: resolver(ExtractResponseSchema) },
-          "text/html": { schema: { type: "string" } },
-          "text/markdown": { schema: { type: "string" } },
-          "text/plain": { schema: { type: "string" } },
-        },
-      },
-      400: {
-        description: "Invalid request body",
-        content: { "application/json": { schema: resolver(ErrorResponseSchema) } },
-      },
-      500: {
-        description: "Extraction failed",
-        content: { "application/json": { schema: resolver(ErrorResponseSchema) } },
-      },
-    },
-  }),
+  ExtractRoutesOpenApiDescriptions.ExtractHtmlPost,
   validator("json", ExtractFromHtmlSchema, validationHook),
   async (context) => {
   return await extractFromHtml(context)
