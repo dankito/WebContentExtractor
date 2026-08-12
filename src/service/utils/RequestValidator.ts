@@ -6,9 +6,17 @@ import { ErrorResult } from "../../model/ErrorResult"
 import { SuccessResult } from "../../model/SuccessResult"
 import { WebRequestOptions } from "@shared/model/WebRequestOptions"
 import { TextConversionOptions } from "@shared/model/TextConversionOptions"
-import { ExtractFromHtmlSchema, ExtractFromUrlSchema } from "../../model/requestParameter/ValidationSchemas"
+import {
+  ExtractFromHtmlSchema,
+  ExtractFromUrlSchema,
+  MultiFormatRequestSchema,
+  OutputSelectionSchema,
+  WebRequestOptionsSchema
+} from "../../model/requestParameter/ValidationSchemas"
 import { z } from "zod"
 import { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
+import { MultiFormatRequest } from "@shared/model/requests/MultiFormatRequest.ts"
+import { OutputSelection } from "@shared/model/requests/OutputSelection.ts"
 
 export class RequestValidator {
 
@@ -86,6 +94,25 @@ export class RequestValidator {
   }
 
 
+  mapToMultiFormatRequest(data: z.infer<typeof MultiFormatRequestSchema>): MultiFormatRequest {
+    return new MultiFormatRequest(
+      data.url,
+      this.mapToOutputSelection(data.include),
+      this.mapToWebRequestOptions(data),
+      this.mapToConvertToMarkdownOptions(data),
+      this.mapToConvertToPlainTextOptions(data)
+    )
+  }
+
+  mapToOutputSelection(data: z.infer<typeof OutputSelectionSchema>): OutputSelection {
+    return new OutputSelection(
+      data.rawHtml, data.rawMarkdown, data.rawText,
+      data.contentHtml, data.contentMarkdown, data.contentText,
+      data.pageMetadata
+    )
+  }
+
+
   private mapToConvertToMarkdownOptions(data: z.infer<typeof ExtractFromUrlSchema> | z.infer<typeof ExtractFromHtmlSchema>): MarkdownConversionOptions | undefined {
     if (data.includeImages === undefined) {
       return undefined
@@ -102,7 +129,7 @@ export class RequestValidator {
     return new TextConversionOptions(data.preserveLinkUrlsInPlainText, data.preserveImageUrlsInPlainText)
   }
 
-  private mapToWebRequestOptions(data: z.infer<typeof ExtractFromUrlSchema>): WebRequestOptions | undefined {
+  private mapToWebRequestOptions(data: z.infer<typeof WebRequestOptionsSchema> | z.infer<typeof ExtractFromUrlSchema>): WebRequestOptions | undefined {
     if (data.timeout === undefined && data.userAgent === undefined && data.followRedirects === undefined) {
       return undefined
     }

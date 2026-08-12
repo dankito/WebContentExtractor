@@ -12,6 +12,7 @@ import { validator } from "hono-openapi"
 import { ExtractFromHtmlSchema, ExtractFromUrlSchema, MultiFormatRequestSchema } from "../model/requestParameter/ValidationSchemas.ts"
 import { ResponseFormat } from "../model/responses/ResponseFormat.ts"
 import { type StandardSchemaV1 } from "@standard-schema/spec"
+import type { MultiFormatRequest } from "@shared/model/requests/MultiFormatRequest.ts"
 import { ExtractRoutesOpenApiDescriptions } from "./openApi/ExtractRoutesOpenApiDescriptions.ts"
 
 
@@ -76,6 +77,13 @@ pageContentExtractionRouter.post("/html",
 })
 
 
+pageContentExtractionRouter.post("/multi-format",
+  ExtractRoutesOpenApiDescriptions.ExtractMultipleFormatsPost,
+  validator("json", MultiFormatRequestSchema, validationHook),
+  async (context: Context) => {
+  return await extractMultipleFormats(context)
+})
+
 
 async function extractFromUrl(context: Context, extractFromBody: boolean) {
   const target = extractFromBody ? "json" : "query"
@@ -101,6 +109,25 @@ async function extractFromHtml(context: Context) {
     const result = extractionService.extractContentFromHtml(params.html, params.url)
 
     return mapToResponse(params, result, context)
+  } catch (error) {
+    return createErrorResponseFromError(error, context)
+  }
+}
+
+async function extractMultipleFormats(context: Context) {
+  const data = (context.req as any).valid("json")
+
+  try {
+    const request: MultiFormatRequest = requestValidator.mapToMultiFormatRequest(data)
+    if (request.include.rawHtml !== true && request.include.rawMarkdown !== true && request.include.rawText !== true
+        && request.include.contentHtml !== true && request.include.contentMarkdown !== true && request.include.contentText !== true) {
+      return returnErrorResponse(ErrorResult.for("One of the output formats (rawHtml, rawMarkdown, rawText, " +
+        "contentHtml, contentMarkdown, or contentText) must be requested", true), context)
+    }
+
+    const result = await extractionService.extractMultipleFormats(request)
+
+    return context.json(result)
   } catch (error) {
     return createErrorResponseFromError(error, context)
   }
