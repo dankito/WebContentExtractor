@@ -104,7 +104,6 @@ export const OutputSelectionSchema = z.object({
   contentText: booleanSchema.optional(),
 
   metadata: booleanSchema.optional(),
-  contentExtractionMetadata: booleanSchema.optional(),
 })
 
 export const MultiFormatRequestSchema = z.object({
