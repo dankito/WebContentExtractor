@@ -22,10 +22,10 @@ export class ReadabilityContentExtractor {
     // Readability requires that html is wrapped in <html><body>...</body></html> so ensuring that the html shell is there
     const document = this.domService.ensureHtmlShellAndParseToDocument(html, url)
 
-    return this.extractReadableContent(document, url)
+    return this.extractReadableContent(html, document, url)
   }
 
-  extractReadableContent(document: Document, url?: string): Result<ExtractedContent> {
+  private extractReadableContent(html: string, document: Document, url?: string): Result<ExtractedContent> {
     try {
       this.htmlCleaner.sanitizeHtml(document)
       if (this.htmlCleaner.isTooLong(document)) {
@@ -37,7 +37,7 @@ export class ReadabilityContentExtractor {
       const parsed = reader.parse()
 
       if (!!parsed && parsed.content) {
-        return SuccessResult.for(new ExtractedContent(url, parsed.content, parsed.textContent ?? undefined, this.mapMetadata(parsed)))
+        return SuccessResult.for(new ExtractedContent(url, parsed.content, parsed.textContent ?? undefined, this.mapMetadata(html, parsed)))
       } else {
         return ErrorResult.for("No content found")
       }
@@ -48,7 +48,7 @@ export class ReadabilityContentExtractor {
   }
 
 
-  private mapMetadata(parsed: {
+  private mapMetadata(html: string, parsed: {
     title: string | null | undefined;
     content: string | null | undefined;
     textContent: string | null | undefined;
@@ -61,8 +61,11 @@ export class ReadabilityContentExtractor {
     publishedTime: string | null | undefined
   }): ExtractedMetadata {
     return new ExtractedMetadata(
-      parsed.title ?? undefined,
+      html.length,
+      parsed.content?.length ?? undefined,
       parsed.length ?? undefined,
+
+      parsed.title ?? undefined,
       parsed.excerpt ?? undefined,
       parsed.byline ?? undefined,
       parsed.dir ?? undefined,

@@ -1,11 +1,14 @@
 export class ExtractedMetadata {
 
   constructor(
-    /** article title */
-    public title?: string,
+    readonly rawHtmlLength: number,
+    readonly contentHtmlLength?: number,
 
     /** length of an article, in characters */
-    readonly length?: number,
+    readonly textLength?: number,
+
+    /** article title */
+    readonly title?: string,
 
     /** article description, or short excerpt from the content */
     readonly excerpt?: string,
