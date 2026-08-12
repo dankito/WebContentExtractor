@@ -126,8 +126,11 @@ async function extractMultipleFormats(context: Context) {
     }
 
     const result = await extractionService.extractMultipleFormats(request)
-
-    return context.json(result)
+    if (result.success === false) {
+      return returnErrorResponse(result, context)
+    } else {
+      return context.json(result.data)
+    }
   } catch (error) {
     return createErrorResponseFromError(error, context)
   }

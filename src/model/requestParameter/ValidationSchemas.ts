@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { MarkdownConverter } from "@shared/model/MarkdownConverter.ts"
 import { TextConverter } from "@shared/model/TextConverter.ts"
+import { WebFetcher } from "@shared/model/WebFetcher.ts"
 
 const booleanSchema = z.preprocess((val) => {
   if (typeof val === "string") {
@@ -118,6 +119,18 @@ export const MultiFormatRequestSchema = z.object({
   textConversionOptions: TextConversionOptionsSchema.optional()
 })
 
+export const WebResponseSchema = z.object({
+  fetcher: z.enum(WebFetcher),
+
+  error: z.string().optional(),
+
+  statusCode: z.number().optional(),
+  finalUrl: z.string().optional(),
+
+  headers: z.record(z.string(), z.string()).optional(),
+  cookies: z.array(z.string()).optional(),
+})
+
 export const MarkdownConversionResultSchema = z.object({
   converter: z.enum(MarkdownConverter),
   success: z.boolean(),
@@ -146,7 +159,7 @@ export const ExtractedMetadataSchema = z.object({
 })
 
 export const MultiFormatResponseSchema = z.object({
-  // webResponse: any, // TODO
+  webResponse: WebResponseSchema,
 
   rawHtml: z.string().optional(),
   rawMarkdown: MarkdownConversionResultSchema.optional(),

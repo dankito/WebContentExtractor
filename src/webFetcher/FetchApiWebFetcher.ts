@@ -1,12 +1,12 @@
 import { WebRequestOptions } from "@shared/model/WebRequestOptions"
 import type { WebFetcher } from "./WebFetcher"
-import type { Result } from "../model/Result"
-import { ErrorResult } from "../model/ErrorResult"
-import { SuccessResult } from "../model/SuccessResult"
+import { WebFetcher as WebFetcherEnum } from "@shared/model/WebFetcher.ts"
+import { ErrorUtil } from "../service/utils/ErrorUtil.ts"
+import { WebFetcherResponse } from "./WebFetcherResponse.ts"
 
 export class FetchApiWebFetcher implements WebFetcher {
 
-  async fetchHtml(url: string, options?: WebRequestOptions): Promise<Result<string>> {
+  async fetch(url: string, options?: WebRequestOptions): Promise<WebFetcherResponse> {
     try {
       const headers = new Headers();
       if (options?.userAgent) {
@@ -20,17 +20,28 @@ export class FetchApiWebFetcher implements WebFetcher {
         headers
       })
 
+      const responseBody = await response.text()
+
       if (!response.ok) {
-        const responseBody = await response.text()
         console.error(`Fetching ${url} failed with status: ${response.status}`, responseBody)
-        return ErrorResult.for(`Fetching ${url} failed with status: ${response.status}.${responseBody ? "Response body: " + responseBody : ""}`)
+        return WebFetcherResponse.error(WebFetcherEnum.JsFetchApi, `Fetching ${url} failed with status: ${response.status}.${responseBody ? "Response body: " + responseBody : ""}`)
       }
 
-      return SuccessResult.for(await response.text())
+      return WebFetcherResponse.success(WebFetcherEnum.JsFetchApi, responseBody, response.status, response.url,
+        this.headersToRecord(response.headers), response.headers.getSetCookie())
     } catch (error) {
       console.error(`Failed to fetch HTML from ${url}:`, error)
-      return ErrorResult.forError(error)
+      return WebFetcherResponse.error(WebFetcherEnum.JsFetchApi, ErrorUtil.errorMessageOfError(error))
     }
+  }
+
+
+  private headersToRecord(headers: Headers): Record<string, string> {
+    const result: Record<string, string> = {}
+    headers.forEach((value, key) => {
+      result[key] = value
+    })
+    return result
   }
 
 }

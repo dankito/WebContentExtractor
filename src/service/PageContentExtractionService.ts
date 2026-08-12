@@ -14,7 +14,9 @@ import { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse
 import type { WebRequestOptions } from "@shared/model/WebRequestOptions.ts"
 import { TextConversionResult } from "@shared/model/TextConversionResult.ts"
 import type { MarkdownConversionResult } from "@shared/model/MarkdownConversionResult.ts"
-import type { SuccessResult } from "../model/SuccessResult.ts"
+import { SuccessResult } from "../model/SuccessResult.ts"
+import { WebFetcherResponse } from "../webFetcher/WebFetcherResponse.ts"
+import { WebResponse } from "@shared/model/WebResponse.ts"
 
 export class PageContentExtractionService {
 
@@ -37,9 +39,11 @@ export class PageContentExtractionService {
 
     if (fetchHtmlResult.success == false) {
       return fetchHtmlResult
+    } else if (fetchHtmlResult.data.error) {
+      return ErrorResult.for(fetchHtmlResult.data.error)
     }
 
-    const rawHtml = fetchHtmlResult.data
+    const rawHtml = fetchHtmlResult.data.responseBody!
     return this.extractContentFromHtml(rawHtml, url)
   }
 
@@ -54,22 +58,29 @@ export class PageContentExtractionService {
   }
 
 
-  async extractMultipleFormats(request: MultiFormatRequest): Promise<MultiFormatResponse> {
-    // TODO: get web response details from WebRequester
+  async extractMultipleFormats(request: MultiFormatRequest): Promise<Result<MultiFormatResponse>> {
     const fetchHtmlResult = await this.fetchPageHtml(request.url, request.webRequestOptions)
     if (fetchHtmlResult.success == false) {
-      return new MultiFormatResponse()
+      return fetchHtmlResult
     }
 
-    const extractContentResult = request.include.requiresExtractingContent()
-      ? this.extractContentFromHtml(fetchHtmlResult.data, request.url) : undefined
+    const webFetcherResponse = fetchHtmlResult.data
+    const webResponse = new WebResponse(webFetcherResponse.fetcher, webFetcherResponse.error, webFetcherResponse.statusCode, webFetcherResponse.finalUrl,
+      webFetcherResponse.headers, webFetcherResponse.cookies)
+    if (webFetcherResponse.error) {
+      return SuccessResult.for(new MultiFormatResponse(webResponse))
+    }
 
-    return this.convertFormats(request, fetchHtmlResult, extractContentResult)
+    const rawHtml = webFetcherResponse.responseBody!
+
+    const extractContentResult = request.include.requiresExtractingContent()
+      ? this.extractContentFromHtml(rawHtml, request.url) : undefined
+
+    return SuccessResult.for(this.convertFormats(request, rawHtml, webResponse, extractContentResult))
   }
 
-  private convertFormats(request: MultiFormatRequest, fetchHtmlResult: SuccessResult<string>, extractContentResult: Result<ExtractedContent> | undefined): MultiFormatResponse {
+  private convertFormats(request: MultiFormatRequest, rawHtml: string, webResponse: WebResponse, extractContentResult: Result<ExtractedContent> | undefined): MultiFormatResponse {
     const include = request.include
-    const rawHtml = fetchHtmlResult.data
 
     const rawMarkdown = include.rawMarkdown ? this.convertToMarkdown(rawHtml, request.markdownConversionOptions) : undefined
     const rawText = include.rawText ? this.convertToPlainText(rawHtml, request.textConversionOptions) : undefined
@@ -83,12 +94,12 @@ export class PageContentExtractionService {
     }
 
     return new MultiFormatResponse(
-      undefined,
+      webResponse,
       include.rawHtml ? rawHtml : undefined,
       include.rawMarkdown ? rawMarkdown : undefined,
       include.rawText ? rawText : undefined,
 
-      extractContentResult,
+      undefined, // extractContentResult,
       include.contentHtml ? contentHtml : undefined,
       include.contentMarkdown ? contentMarkdown : undefined,
       include.contentText ? contentText : undefined,
@@ -98,7 +109,7 @@ export class PageContentExtractionService {
   }
 
 
-  private async fetchPageHtml(url: string, webRequestOptions?: WebRequestOptions): Promise<Result<string>> {
+  private async fetchPageHtml(url: string, webRequestOptions?: WebRequestOptions): Promise<Result<WebFetcherResponse>> {
     // for security reasons local urls and non-http urls get blocked.
     // An attacker could use the server to probe internal network resources, access cloud metadata services (e.g., 169.254.169.254), or bypass firewalls by making the request originate from the server itself.
     const urlVerificationError = await this.urlVerificationService.hasCorrectProtocolAndIsNonLocalUrl(url!)
@@ -106,7 +117,7 @@ export class PageContentExtractionService {
       return ErrorResult.for(urlVerificationError, true)
     }
 
-    return this.webFetcher.fetchHtml(url!, webRequestOptions)
+    return SuccessResult.for(await this.webFetcher.fetch(url!, webRequestOptions))
   }
 
 
