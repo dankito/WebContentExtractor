@@ -1,14 +1,14 @@
-import { ExtractFromHtmlRequest } from "../../model/requestParameter/ExtractFromHtmlRequest.ts"
-import { ExtractFromUrlRequest } from "../../model/requestParameter/ExtractFromUrlRequest.ts"
+import { ExtractFromHtmlRequest } from "../../model/requestParameter/ExtractFromHtmlRequest"
+import { ExtractFromUrlRequest } from "../../model/requestParameter/ExtractFromUrlRequest"
 import { type HonoRequest } from "hono"
-import type { Result } from "../../model/Result.ts"
-import { ErrorResult } from "../../model/ErrorResult.ts"
-import { SuccessResult } from "../../model/SuccessResult.ts"
-import { WebFetcherOptions } from "../../webFetcher/WebFetcherOptions.ts"
-import { ConvertToPlainTextOptions } from "../contentConverter/ConvertToPlainTextOptions.ts"
-import { ExtractFromHtmlSchema, ExtractFromUrlSchema } from "../../model/requestParameter/ValidationSchemas.ts"
+import type { Result } from "../../model/Result"
+import { ErrorResult } from "../../model/ErrorResult"
+import { SuccessResult } from "../../model/SuccessResult"
+import { WebRequestOptions } from "@shared/model/WebRequestOptions"
+import { TextConversionOptions } from "@shared/model/TextConversionOptions"
+import { ExtractFromHtmlSchema, ExtractFromUrlSchema } from "../../model/requestParameter/ValidationSchemas"
 import { z } from "zod"
-import { ConvertToMarkdownOptions } from "../contentConverter/ConvertToMarkdownOptions.ts"
+import { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
 
 export class RequestValidator {
 
@@ -33,7 +33,7 @@ export class RequestValidator {
       data.includeMetadata,
       this.mapToConvertToMarkdownOptions(data),
       this.mapToConvertToPlainTextOptions(data),
-      this.mapToWebFetcherOptions(data)
+      this.mapToWebRequestOptions(data)
     ))
   }
 
@@ -70,7 +70,7 @@ export class RequestValidator {
       data.includeMetadata,
       this.mapToConvertToMarkdownOptions(data),
       this.mapToConvertToPlainTextOptions(data),
-      this.mapToWebFetcherOptions(data)
+      this.mapToWebRequestOptions(data)
     )
   }
 
@@ -86,28 +86,28 @@ export class RequestValidator {
   }
 
 
-  private mapToConvertToMarkdownOptions(data: z.infer<typeof ExtractFromUrlSchema> | z.infer<typeof ExtractFromHtmlSchema>): ConvertToMarkdownOptions | undefined {
+  private mapToConvertToMarkdownOptions(data: z.infer<typeof ExtractFromUrlSchema> | z.infer<typeof ExtractFromHtmlSchema>): MarkdownConversionOptions | undefined {
     if (data.includeImages === undefined) {
       return undefined
     }
 
-    return new ConvertToMarkdownOptions(data.includeImages)
+    return new MarkdownConversionOptions(data.includeImages)
   }
 
-  private mapToConvertToPlainTextOptions(data: z.infer<typeof ExtractFromUrlSchema> | z.infer<typeof ExtractFromHtmlSchema>): ConvertToPlainTextOptions | undefined {
+  private mapToConvertToPlainTextOptions(data: z.infer<typeof ExtractFromUrlSchema> | z.infer<typeof ExtractFromHtmlSchema>): TextConversionOptions | undefined {
     if (data.preserveLinkUrlsInPlainText === undefined && data.preserveImageUrlsInPlainText === undefined) {
       return undefined
     }
 
-    return new ConvertToPlainTextOptions(data.preserveLinkUrlsInPlainText, data.preserveImageUrlsInPlainText)
+    return new TextConversionOptions(data.preserveLinkUrlsInPlainText, data.preserveImageUrlsInPlainText)
   }
 
-  private mapToWebFetcherOptions(data: z.infer<typeof ExtractFromUrlSchema>): WebFetcherOptions | undefined {
+  private mapToWebRequestOptions(data: z.infer<typeof ExtractFromUrlSchema>): WebRequestOptions | undefined {
     if (data.timeout === undefined && data.userAgent === undefined && data.followRedirects === undefined) {
       return undefined
     }
 
-    return new WebFetcherOptions(data.userAgent, data.timeout, data.followRedirects)
+    return new WebRequestOptions(data.userAgent, data.timeout, data.followRedirects)
   }
 
 }

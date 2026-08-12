@@ -3,7 +3,7 @@
 import { describe, expect, it } from "bun:test"
 import { TurndownHtmlToMarkdownConverter } from "../../../../src/service/contentConverter/TurndownHtmlToMarkdownConverter"
 import { SuccessResult } from "../../../../src/model/SuccessResult"
-import { ConvertToMarkdownOptions } from "../../../../src/service/contentConverter/ConvertToMarkdownOptions"
+import { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
 
 
 const inlineImageData = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
@@ -92,7 +92,7 @@ describe("TurndownHtmlToMarkdownConverter", () => {
     })
 
 
-    function assertConversion(html: string, expectedMarkdown: string, options?: ConvertToMarkdownOptions) {
+    function assertConversion(html: string, expectedMarkdown: string, options?: MarkdownConversionOptions) {
       const result = underTest.convertToMarkdown(html, options)
       expect(result.success).toBe(true)
 

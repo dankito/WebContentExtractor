@@ -1,8 +1,8 @@
-import { WebFetcherOptions } from "./WebFetcherOptions"
-import type { Result } from "../model/Result.ts"
+import { WebRequestOptions } from "@shared/model/WebRequestOptions"
+import type { Result } from "../model/Result"
 
 export interface WebFetcher {
 
-  fetchHtml(url: string, options?: WebFetcherOptions): Promise<Result<string>>
+  fetchHtml(url: string, options?: WebRequestOptions): Promise<Result<string>>
 
 }

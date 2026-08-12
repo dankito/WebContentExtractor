@@ -1,9 +1,9 @@
 import { CodeBlockStyle, type ConversionOptions, convert, HeadingStyle, HighlightStyle, LinkStyle, ListIndentType, NewlineStyle, OutputFormat } from "@kreuzberg/html-to-markdown"
-import type { HtmlToMarkdownConverter } from "./HtmlToMarkdownConverter.ts"
-import { ConvertToMarkdownOptions } from "./ConvertToMarkdownOptions.ts"
-import type { Result } from "../../model/Result.ts"
-import { SuccessResult } from "../../model/SuccessResult.ts"
-import { ErrorResult } from "../../model/ErrorResult.ts"
+import type { HtmlToMarkdownConverter } from "./HtmlToMarkdownConverter"
+import { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
+import type { Result } from "../../model/Result"
+import { SuccessResult } from "../../model/SuccessResult"
+import { ErrorResult } from "../../model/ErrorResult"
 import { WhitespaceMode } from "@kreuzberg/html-to-markdown-node"
 
 /**
@@ -12,7 +12,7 @@ import { WhitespaceMode } from "@kreuzberg/html-to-markdown-node"
  */
 export class KreuzbergHtmlToMarkdownConverter implements HtmlToMarkdownConverter {
 
-  convertToMarkdown(html: string, options?: ConvertToMarkdownOptions): Result<string> {
+  convertToMarkdown(html: string, options?: MarkdownConversionOptions): Result<string> {
     const result = convert(html, this.toConversionOptions(options))
 
     if (result.content !== undefined) { // keep empty output ("") which may be correct
@@ -25,7 +25,7 @@ export class KreuzbergHtmlToMarkdownConverter implements HtmlToMarkdownConverter
   }
 
 
-  private toConversionOptions(options: ConvertToMarkdownOptions | undefined,): ConversionOptions | undefined {
+  private toConversionOptions(options: MarkdownConversionOptions | undefined,): ConversionOptions | undefined {
     const conversionOptions: ConversionOptions = {
       outputFormat: OutputFormat.Markdown,
 

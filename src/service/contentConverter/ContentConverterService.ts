@@ -1,8 +1,8 @@
-import { ConvertToPlainTextOptions } from "./ConvertToPlainTextOptions.ts"
-import type { HtmlToTextConverter } from "./HtmlToTextConverter.ts"
-import type { ConvertToMarkdownOptions } from "./ConvertToMarkdownOptions.ts"
-import type { HtmlToMarkdownConverter } from "./HtmlToMarkdownConverter.ts"
-import type { Result } from "../../model/Result.ts"
+import { TextConversionOptions } from "@shared/model/TextConversionOptions"
+import type { HtmlToTextConverter } from "./HtmlToTextConverter"
+import type { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
+import type { HtmlToMarkdownConverter } from "./HtmlToMarkdownConverter"
+import type { Result } from "../../model/Result"
 
 export class ContentConverterService {
 
@@ -12,11 +12,11 @@ export class ContentConverterService {
   ) { }
 
 
-  convertToMarkdown(html: string, options?: ConvertToMarkdownOptions): Result<string> {
+  convertToMarkdown(html: string, options?: MarkdownConversionOptions): Result<string> {
     return this.htmlToMarkdownConverter.convertToMarkdown(html, options)
   }
 
-  convertToPlainText(html: string, options?: ConvertToPlainTextOptions): string {
+  convertToPlainText(html: string, options?: TextConversionOptions): string {
     return this.htmlToTextConverter.convertToPlainText(html, options)
   }
 

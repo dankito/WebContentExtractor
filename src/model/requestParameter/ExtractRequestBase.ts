@@ -1,5 +1,5 @@
-import { ConvertToPlainTextOptions } from "../../service/contentConverter/ConvertToPlainTextOptions.ts"
-import type { ConvertToMarkdownOptions } from "../../service/contentConverter/ConvertToMarkdownOptions.ts"
+import { TextConversionOptions } from "@shared/model/TextConversionOptions"
+import type { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
 
 export class ExtractRequestBase {
 
@@ -8,8 +8,8 @@ export class ExtractRequestBase {
 
     readonly includeMetadata?: boolean,
 
-    readonly convertToMarkdownOptions?: ConvertToMarkdownOptions,
-    readonly convertToPlainTextOptions?: ConvertToPlainTextOptions,
+    readonly convertToMarkdownOptions?: MarkdownConversionOptions,
+    readonly convertToPlainTextOptions?: TextConversionOptions,
   ) { }
 
 }

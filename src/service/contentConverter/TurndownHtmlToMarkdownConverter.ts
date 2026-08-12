@@ -1,11 +1,11 @@
 // Must be the first import: installs linkedom's DOMParser as the global
 // before Turndown's own module body runs and picks its parser.
-import "../html/dom-parser-polyfill.ts"
+import "../html/dom-parser-polyfill"
 
-import type { HtmlToMarkdownConverter } from "./HtmlToMarkdownConverter.ts"
-import type { ConvertToMarkdownOptions } from "./ConvertToMarkdownOptions.ts"
-import type { Result } from "../../model/Result.ts"
-import { SuccessResult } from "../../model/SuccessResult.ts"
+import type { HtmlToMarkdownConverter } from "./HtmlToMarkdownConverter"
+import type { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
+import type { Result } from "../../model/Result"
+import { SuccessResult } from "../../model/SuccessResult"
 
 import TurndownService from "turndown"; // import after patching the global
 import { gfm } from "@joplin/turndown-plugin-gfm"
@@ -36,7 +36,7 @@ interface TurndownOptions {
  */
 export class TurndownHtmlToMarkdownConverter implements HtmlToMarkdownConverter {
 
-  convertToMarkdown(html: string, options?: ConvertToMarkdownOptions): Result<string> {
+  convertToMarkdown(html: string, options?: MarkdownConversionOptions): Result<string> {
     const turndownService = this.createTurndownService(options)
 
     const result = turndownService.turndown(html)
@@ -44,7 +44,7 @@ export class TurndownHtmlToMarkdownConverter implements HtmlToMarkdownConverter 
   }
 
 
-  private createTurndownService(options?: ConvertToMarkdownOptions): TurndownService {
+  private createTurndownService(options?: MarkdownConversionOptions): TurndownService {
     const turndownService = new TurndownService(this.toTurndownOptions(options))
     turndownService.use(gfm)
 
@@ -96,7 +96,7 @@ export class TurndownHtmlToMarkdownConverter implements HtmlToMarkdownConverter 
 
 
   private toTurndownOptions(
-    options: ConvertToMarkdownOptions | undefined,
+    options: MarkdownConversionOptions | undefined,
   ): Partial<TurndownOptions> {
     const turndownOptions: TurndownOptions = {
       // Sensible defaults — chosen to line up with the Kreuzberg converter's

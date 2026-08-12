@@ -1,4 +1,4 @@
-export class ConvertToPlainTextOptions {
+export class TextConversionOptions {
 
   constructor(
     readonly preserveLinkUrls?: boolean,

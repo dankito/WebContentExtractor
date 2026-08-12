@@ -26,7 +26,7 @@ export const ConvertToPlainTextOptionsSchema = z.object({
   preserveImageUrlsInPlainText: booleanSchema.optional(),
 })
 
-export const WebFetcherOptionsSchema = z.object({
+export const WebRequestOptionsSchema = z.object({
   timeout: numberSchema,
   userAgent: z.string().optional(),
   followRedirects: booleanSchema.optional(),

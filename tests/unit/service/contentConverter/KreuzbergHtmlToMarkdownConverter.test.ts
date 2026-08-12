@@ -91,7 +91,7 @@ describe("KreuzbergHtmlToMarkdownConverter", () => {
     })
 
 
-    function assertConversion(html: string, expectedMarkdown: string, options?: ConvertToMarkdownOptions) {
+    function assertConversion(html: string, expectedMarkdown: string, options?: MarkdownConversionOptions) {
       const result = underTest.convertToMarkdown(html, options)
       expect(result.success).toBe(true)
 

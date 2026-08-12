@@ -1,6 +1,6 @@
-import { ExtractRequestBase } from "./ExtractRequestBase.ts"
-import { ConvertToPlainTextOptions } from "../../service/contentConverter/ConvertToPlainTextOptions.ts"
-import type { ConvertToMarkdownOptions } from "../../service/contentConverter/ConvertToMarkdownOptions.ts"
+import { ExtractRequestBase } from "./ExtractRequestBase"
+import { TextConversionOptions } from "@shared/model/TextConversionOptions"
+import type { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
 
 export class ExtractFromHtmlRequest extends ExtractRequestBase {
 
@@ -10,8 +10,8 @@ export class ExtractFromHtmlRequest extends ExtractRequestBase {
 
     includeMetadata?: boolean,
 
-    convertToMarkdownOptions?: ConvertToMarkdownOptions,
-    convertToPlainTextOptions?: ConvertToPlainTextOptions,
+    convertToMarkdownOptions?: MarkdownConversionOptions,
+    convertToPlainTextOptions?: TextConversionOptions,
   ) {
     super(url, includeMetadata, convertToMarkdownOptions, convertToPlainTextOptions)
   }

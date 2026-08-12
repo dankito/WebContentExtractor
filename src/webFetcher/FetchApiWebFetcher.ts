@@ -1,12 +1,12 @@
-import { WebFetcherOptions } from "./WebFetcherOptions"
-import type { WebFetcher } from "./WebFetcher.ts"
-import type { Result } from "../model/Result.ts"
-import { ErrorResult } from "../model/ErrorResult.ts"
-import { SuccessResult } from "../model/SuccessResult.ts"
+import { WebRequestOptions } from "@shared/model/WebRequestOptions"
+import type { WebFetcher } from "./WebFetcher"
+import type { Result } from "../model/Result"
+import { ErrorResult } from "../model/ErrorResult"
+import { SuccessResult } from "../model/SuccessResult"
 
 export class FetchApiWebFetcher implements WebFetcher {
 
-  async fetchHtml(url: string, options?: WebFetcherOptions): Promise<Result<string>> {
+  async fetchHtml(url: string, options?: WebRequestOptions): Promise<Result<string>> {
     try {
       const headers = new Headers();
       if (options?.userAgent) {

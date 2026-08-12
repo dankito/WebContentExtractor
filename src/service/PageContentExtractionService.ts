@@ -1,15 +1,15 @@
-import { ExtractedContent } from "../model/ExtractedContent.ts"
-import type { ReadabilityContentExtractor } from "./ReadabilityContentExtractor.ts"
-import type { Result } from "../model/Result.ts"
-import type { ExtractFromUrlRequest } from "../model/requestParameter/ExtractFromUrlRequest.ts"
-import type { WebFetcher } from "../webFetcher/WebFetcher.ts"
-import type { ContentConverterService } from "./contentConverter/ContentConverterService.ts"
-import type { HtmlCleaner } from "./html/HtmlCleaner.ts"
-import { ConvertToPlainTextOptions } from "./contentConverter/ConvertToPlainTextOptions.ts"
-import { ErrorResult } from "../model/ErrorResult.ts"
-import type { UrlVerificationService } from "./utils/UrlVerificationService.ts"
-import type { ConvertToMarkdownOptions } from "./contentConverter/ConvertToMarkdownOptions.ts"
-import { SuccessResult } from "../model/SuccessResult.ts"
+import { ExtractedContent } from "../model/ExtractedContent"
+import type { ReadabilityContentExtractor } from "./ReadabilityContentExtractor"
+import type { Result } from "../model/Result"
+import type { ExtractFromUrlRequest } from "../model/requestParameter/ExtractFromUrlRequest"
+import type { WebFetcher } from "../webFetcher/WebFetcher"
+import type { ContentConverterService } from "./contentConverter/ContentConverterService"
+import type { HtmlCleaner } from "./html/HtmlCleaner"
+import { TextConversionOptions } from "@shared/model/TextConversionOptions"
+import { ErrorResult } from "../model/ErrorResult"
+import type { UrlVerificationService } from "./utils/UrlVerificationService"
+import type { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
+import { SuccessResult } from "../model/SuccessResult"
 
 export class PageContentExtractionService {
 
@@ -35,7 +35,7 @@ export class PageContentExtractionService {
       return ErrorResult.for(urlVerificationError, true)
     }
 
-    const fetchHtmlResult = await this.webFetcher.fetchHtml(url!, params.webFetcherOptions)
+    const fetchHtmlResult = await this.webFetcher.fetchHtml(url!, params.webRequestOptions)
 
     if (fetchHtmlResult.success == false) {
       return fetchHtmlResult
@@ -56,7 +56,7 @@ export class PageContentExtractionService {
   }
 
 
-  convertToMarkdown(content: ExtractedContent, options?: ConvertToMarkdownOptions): Result<string> {
+  convertToMarkdown(content: ExtractedContent, options?: MarkdownConversionOptions): Result<string> {
     const result = this.contentConverter.convertToMarkdown(content.pageContentHtml, options)
 
     if (result.success) {
@@ -67,7 +67,7 @@ export class PageContentExtractionService {
     }
   }
 
-  convertToPlainText(content: ExtractedContent, options?: ConvertToPlainTextOptions): string {
+  convertToPlainText(content: ExtractedContent, options?: TextConversionOptions): string {
     // Readability strips all new lines from text content, so prefer html-to-text in favor of content.pageContentAsText
     const text = this.contentConverter.convertToPlainText(content.pageContentHtml, options)
 

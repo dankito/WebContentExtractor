@@ -1,9 +1,9 @@
 import { convert } from "html-to-text"
-import { ConvertToPlainTextOptions } from "./ConvertToPlainTextOptions.ts"
+import { TextConversionOptions } from "@shared/model/TextConversionOptions"
 
 export class HtmlToTextConverter {
 
-  convertToPlainText(html: string, options?: ConvertToPlainTextOptions): string {
+  convertToPlainText(html: string, options?: TextConversionOptions): string {
     const preserveLinkUrls = options?.preserveLinkUrls ?? false
     const preserveImageUrls = options?.preserveImageUrls ?? false
 

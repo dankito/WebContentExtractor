@@ -1,7 +1,7 @@
-import { ExtractRequestBase } from "./ExtractRequestBase.ts"
-import { WebFetcherOptions } from "../../webFetcher/WebFetcherOptions.ts"
-import { ConvertToPlainTextOptions } from "../../service/contentConverter/ConvertToPlainTextOptions.ts"
-import type { ConvertToMarkdownOptions } from "../../service/contentConverter/ConvertToMarkdownOptions.ts"
+import { ExtractRequestBase } from "./ExtractRequestBase"
+import { WebRequestOptions } from "@shared/model/WebRequestOptions"
+import { TextConversionOptions } from "@shared/model/TextConversionOptions"
+import type { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
 
 export class ExtractFromUrlRequest extends ExtractRequestBase {
 
@@ -10,10 +10,10 @@ export class ExtractFromUrlRequest extends ExtractRequestBase {
 
     includeMetadata?: boolean,
 
-    convertToMarkdownOptions?: ConvertToMarkdownOptions,
-    convertToPlainTextOptions?: ConvertToPlainTextOptions,
+    convertToMarkdownOptions?: MarkdownConversionOptions,
+    convertToPlainTextOptions?: TextConversionOptions,
 
-    readonly webFetcherOptions?: WebFetcherOptions,
+    readonly webRequestOptions?: WebRequestOptions,
   ) {
     super(url, includeMetadata, convertToMarkdownOptions, convertToPlainTextOptions)
   }

@@ -1,4 +1,4 @@
-export class ConvertToMarkdownOptions {
+export class MarkdownConversionOptions {
 
   constructor(
     readonly includeImages: boolean = false,
