@@ -1,4 +1,4 @@
-import type { ExtractedMetadata } from "./ExtractedMetadata.ts"
+import type { ExtractedMetadata } from "@shared/model/ExtractedMetadata.ts"
 
 export class ExtractedContent {
 

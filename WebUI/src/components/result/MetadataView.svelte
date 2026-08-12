@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ExtractedMetadata } from "../../ts/model/ExtractedMetadata"
+  import type { ExtractedMetadata } from "@shared/model/ExtractedMetadata"
   import Card from "../common/form/Card.svelte"
   import { ChevronDown, Info } from "@lucide/svelte"
 

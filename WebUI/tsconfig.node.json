@@ -4,7 +4,10 @@
     "target": "es2023",
     "lib": ["ES2023"],
     "module": "esnext",
-    "types": ["node"],
+    "types": ["node", "bun"],
+    "paths": {
+      "@shared/*": ["../shared/*"]
+    },
     "skipLibCheck": true,
 
     /* Bundler mode */

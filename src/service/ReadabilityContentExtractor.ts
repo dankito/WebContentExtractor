@@ -6,7 +6,7 @@ import type { Result } from "../model/Result.ts"
 import { ErrorResult } from "../model/ErrorResult.ts"
 import { SuccessResult } from "../model/SuccessResult.ts"
 import type { HtmlCleaner } from "./html/HtmlCleaner.ts"
-import { ExtractedMetadata } from "../model/ExtractedMetadata.ts"
+import { ExtractedMetadata } from "@shared/model/ExtractedMetadata.ts"
 
 export class ReadabilityContentExtractor {
 

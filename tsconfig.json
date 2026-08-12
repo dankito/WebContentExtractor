@@ -3,6 +3,9 @@
     "target": "es2023",
     "module": "esnext",
     "lib": ["ES2023", "DOM"],
+    "paths": {
+      "@shared/*": ["./shared/*"]
+    },
     "types": ["bun"],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,

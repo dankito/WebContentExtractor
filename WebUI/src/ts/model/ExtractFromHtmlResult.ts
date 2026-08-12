@@ -1,5 +1,5 @@
 import type { OutputFormat } from "./OutputFormat"
-import type { ExtractedMetadata } from "./ExtractedMetadata"
+import type { ExtractedMetadata } from "@shared/model/ExtractedMetadata"
 import type { WebContentExtractionResult } from "./WebContentExtractionResult"
 import type { MarkdownConversionResult } from "./MarkdownConversionResult"
 

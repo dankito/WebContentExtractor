@@ -1,4 +1,4 @@
-import type { ExtractedMetadata } from "../../../../src/model/ExtractedMetadata"
+import type { ExtractedMetadata } from "@shared/model/ExtractedMetadata"
 
 export interface ExtractResponse {
   readonly pageContentHtml: string
