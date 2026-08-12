@@ -6,10 +6,10 @@ import type { WebFetcher } from "../webFetcher/WebFetcher"
 import type { ContentConverterService } from "./contentConverter/ContentConverterService"
 import type { HtmlCleaner } from "./html/HtmlCleaner"
 import { TextConversionOptions } from "@shared/model/TextConversionOptions"
-import { ErrorResult } from "../model/ErrorResult"
 import type { UrlVerificationService } from "./utils/UrlVerificationService"
 import type { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
-import { SuccessResult } from "../model/SuccessResult"
+import { TextConversionResult } from "@shared/model/TextConversionResult.ts"
+import type { MarkdownConversionResult } from "@shared/model/MarkdownConversionResult.ts"
 
 export class PageContentExtractionService {
 
@@ -56,22 +56,19 @@ export class PageContentExtractionService {
   }
 
 
-  convertToMarkdown(content: ExtractedContent, options?: MarkdownConversionOptions): Result<string> {
-    const result = this.contentConverter.convertToMarkdown(content.pageContentHtml, options)
+  convertToMarkdown(html: string, options?: MarkdownConversionOptions): MarkdownConversionResult {
+    const result = this.contentConverter.convertToMarkdown(html, options)
 
-    if (result.success) {
-      const markdown = result.data
-      return SuccessResult.for(this.htmlCleaner.normalizeWhitespace(this.htmlCleaner.stripInvisibleUnicode(markdown)))
-    } else {
-      return result
-    }
+    return result.mapMarkdownOnSuccess(markdown =>
+      this.htmlCleaner.normalizeWhitespace(this.htmlCleaner.stripInvisibleUnicode(markdown)))
   }
 
-  convertToPlainText(content: ExtractedContent, options?: TextConversionOptions): string {
+  convertToPlainText(html: string, options?: TextConversionOptions): TextConversionResult {
     // Readability strips all new lines from text content, so prefer html-to-text in favor of content.pageContentAsText
-    const text = this.contentConverter.convertToPlainText(content.pageContentHtml, options)
+    const textConversionResult = this.contentConverter.convertToPlainText(html, options)
 
-    return this.htmlCleaner.normalizeWhitespace(this.htmlCleaner.stripInvisibleUnicode(text))
+    return textConversionResult.mapTextOnSuccess(text =>
+      this.htmlCleaner.normalizeWhitespace(this.htmlCleaner.stripInvisibleUnicode(text)))
   }
 
 }

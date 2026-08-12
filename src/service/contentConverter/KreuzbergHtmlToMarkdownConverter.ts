@@ -1,10 +1,9 @@
 import { CodeBlockStyle, type ConversionOptions, convert, HeadingStyle, HighlightStyle, LinkStyle, ListIndentType, NewlineStyle, OutputFormat } from "@kreuzberg/html-to-markdown"
 import type { HtmlToMarkdownConverter } from "./HtmlToMarkdownConverter"
 import { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
-import type { Result } from "../../model/Result"
-import { SuccessResult } from "../../model/SuccessResult"
-import { ErrorResult } from "../../model/ErrorResult"
 import { WhitespaceMode } from "@kreuzberg/html-to-markdown-node"
+import { MarkdownConversionResult } from "@shared/model/MarkdownConversionResult.ts"
+import { MarkdownConverter } from "@shared/model/MarkdownConverter.ts"
 
 /**
  * HtmlToMarkdownConverter backed by the Rust-core `@kreuzberg/html-to-markdown`
@@ -12,15 +11,15 @@ import { WhitespaceMode } from "@kreuzberg/html-to-markdown-node"
  */
 export class KreuzbergHtmlToMarkdownConverter implements HtmlToMarkdownConverter {
 
-  convertToMarkdown(html: string, options?: MarkdownConversionOptions): Result<string> {
+  convertToMarkdown(html: string, options?: MarkdownConversionOptions): MarkdownConversionResult {
     const result = convert(html, this.toConversionOptions(options))
 
     if (result.content !== undefined) { // keep empty output ("") which may be correct
-      return SuccessResult.for(result.content)
+      return MarkdownConversionResult.success(MarkdownConverter.Kreuzberg, result.content)
     } else {
       console.log("HTML to Markdown conversion failed", result.warnings, result)
 
-      return ErrorResult.for("Could not convert HTML to Markdown" + (result.warnings && result.warnings.length ? ": " + result.warnings.join(", ") : ""))
+      return MarkdownConversionResult.error(MarkdownConverter.Kreuzberg, "Could not convert HTML to Markdown" + (result.warnings && result.warnings.length ? ": " + result.warnings.join(", ") : ""))
     }
   }
 

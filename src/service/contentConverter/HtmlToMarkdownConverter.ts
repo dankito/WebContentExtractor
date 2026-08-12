@@ -1,8 +1,8 @@
 import type { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
-import type { Result } from "../../model/Result"
+import type { MarkdownConversionResult } from "@shared/model/MarkdownConversionResult.ts"
 
 export interface HtmlToMarkdownConverter {
 
-  convertToMarkdown(html: string, options?: MarkdownConversionOptions): Result<string>
+  convertToMarkdown(html: string, options?: MarkdownConversionOptions): MarkdownConversionResult
 
 }

@@ -2,13 +2,14 @@
 // before Turndown's own module body runs and picks its parser.
 import "../html/dom-parser-polyfill"
 
-import type { HtmlToMarkdownConverter } from "./HtmlToMarkdownConverter"
-import type { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
-import type { Result } from "../../model/Result"
-import { SuccessResult } from "../../model/SuccessResult"
-
 import TurndownService from "turndown"; // import after patching the global
 import { gfm } from "@joplin/turndown-plugin-gfm"
+
+import type { HtmlToMarkdownConverter } from "./HtmlToMarkdownConverter"
+import type { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
+import { MarkdownConversionResult } from "@shared/model/MarkdownConversionResult.ts"
+import { MarkdownConverter } from "@shared/model/MarkdownConverter.ts"
+import { ErrorUtil } from "../utils/ErrorUtil.ts"
 
 
 interface TurndownOptions {
@@ -36,11 +37,15 @@ interface TurndownOptions {
  */
 export class TurndownHtmlToMarkdownConverter implements HtmlToMarkdownConverter {
 
-  convertToMarkdown(html: string, options?: MarkdownConversionOptions): Result<string> {
+  convertToMarkdown(html: string, options?: MarkdownConversionOptions): MarkdownConversionResult {
     const turndownService = this.createTurndownService(options)
 
-    const result = turndownService.turndown(html)
-    return SuccessResult.for(result)
+    try {
+      const result = turndownService.turndown(html)
+      return MarkdownConversionResult.success(MarkdownConverter.Turndown, result)
+    } catch (error) {
+      return MarkdownConversionResult.error(MarkdownConverter.Turndown, ErrorUtil.errorMessageOfError(error))
+    }
   }
 
 

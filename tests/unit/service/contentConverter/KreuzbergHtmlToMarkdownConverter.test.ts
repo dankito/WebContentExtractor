@@ -2,8 +2,7 @@
 
 import { describe, expect, it } from "bun:test"
 import { KreuzbergHtmlToMarkdownConverter } from "../../../../src/service/contentConverter/KreuzbergHtmlToMarkdownConverter"
-import { SuccessResult } from "../../../../src/model/SuccessResult"
-import { ConvertToMarkdownOptions } from "../../../../src/service/contentConverter/ConvertToMarkdownOptions"
+import { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
 
 
 const inlineImageData = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
@@ -94,8 +93,9 @@ describe("KreuzbergHtmlToMarkdownConverter", () => {
     function assertConversion(html: string, expectedMarkdown: string, options?: MarkdownConversionOptions) {
       const result = underTest.convertToMarkdown(html, options)
       expect(result.success).toBe(true)
+      expect(result.error).toBeUndefined()
 
-      let markdown = (result as SuccessResult<string>).data
+      let markdown = result.markdown!
       if (markdown.endsWith("\n")) { // strip trailing newline for easier expectation tests
         markdown = markdown.slice(0, -1)
       }

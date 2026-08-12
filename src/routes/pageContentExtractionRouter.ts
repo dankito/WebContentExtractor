@@ -187,14 +187,19 @@ function mapToResponse(params: ExtractRequestBase, result: Result<ExtractedConte
     if (format === ResponseFormat.Html) {
       return context.html(content.pageContentHtml)
     } else if (format === ResponseFormat.Markdown) {
-      const conversionResult = extractionService.convertToMarkdown(content, params.convertToMarkdownOptions)
+      const conversionResult = extractionService.convertToMarkdown(content.pageContentHtml, params.convertToMarkdownOptions)
       if (conversionResult.success) {
-        return returnMarkdown(conversionResult.data, context)
+        return returnMarkdown(conversionResult.markdown!, context)
       } else {
-        return returnErrorResponse(conversionResult, context)
+        return returnErrorResponse(ErrorResult.for(conversionResult.error!), context)
       }
     } else if (format === ResponseFormat.Text) {
-      return context.text(extractionService.convertToPlainText(content, params.convertToPlainTextOptions))
+      const result = extractionService.convertToPlainText(content.pageContentHtml, params.convertToPlainTextOptions)
+      if (result.success === false) {
+        return returnErrorResponse(ErrorResult.for(result.error!), context)
+      } else {
+        return context.text(result.text!)
+      }
     } else {
       return context.json(new ExtractResponse(content.url, content.pageContentHtml, params.includeMetadata ? content.metadata : undefined))
     }
