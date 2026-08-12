@@ -8,8 +8,6 @@
   import { WebContentExtractor } from "../../ts/model/WebContentExtractor"
   import { MarkdownConverter } from "../../ts/model/MarkdownConverter"
   import { WebFetcherOptions } from "../../ts/model/WebFetcherOptions"
-  import { WebContentExtractorOptions } from "../../ts/model/WebContentExtractorOptions"
-  import { MarkdownConverterOptions } from "../../ts/model/MarkdownConverterOptions"
   import { DI } from "../../ts/service/DI"
   import { ExtractionAction } from "../../ts/ui/ExtractionAction"
   import SplitButton from "../common/form/SplitButton.svelte"
@@ -17,10 +15,10 @@
   import { SourceMode } from "../../ts/ui/SourceMode"
   import type { MarkdownConversionResult } from "../../ts/model/MarkdownConversionResult"
   import { ExtractFromHtmlRequest } from "../../ts/model/ExtractFromHtmlRequest"
-  import { RequestedFormat } from "../../ts/model/RequestedFormat"
-  import { MultiFormatExtractionRequest } from "../../ts/model/MultiFormatExtractionRequest"
   import type { MultiFormatExtractionResult } from "../../ts/model/MultiFormatExtractionResult"
   import MultiSelect from "../common/form/MultiSelect.svelte"
+  import { ExtractionRequest } from "../../ts/model/ExtractionRequest"
+  import type { ExtractResponse } from "../../ts/model/ExtractResponse"
 
 
   let { action = $bindable(), sourceMode = $bindable(), format = $bindable(), extractionResults = $bindable(), convertResults = $bindable({}), error = $bindable() } =
@@ -69,27 +67,33 @@
     error = undefined
     extractionResults = []
 
-    const formats = [ RequestedFormat.RawHtml, RequestedFormat.ContentHtml ]
-    if (format === OutputFormat.Markdown) {
-      formats.push(RequestedFormat.ContentMarkdown)
-    } else if (format === OutputFormat.Text) {
-      formats.push(RequestedFormat.ContentText, RequestedFormat.ContentMarkdown)
-    }
-    const request = new MultiFormatExtractionRequest(url.trim(), formats, includeMetadata ?? false,
-      new WebFetcherOptions(fetcher ? [ fetcher ] : undefined),
-      new WebContentExtractorOptions(extractors.length ? extractors : undefined),
-      new MarkdownConverterOptions(converters),
-    )
+    // const formats = [ RequestedFormat.RawHtml, RequestedFormat.ContentHtml ]
+    // if (format === OutputFormat.Markdown) {
+    //   formats.push(RequestedFormat.ContentMarkdown)
+    // } else if (format === OutputFormat.Text) {
+    //   formats.push(RequestedFormat.ContentText, RequestedFormat.ContentMarkdown)
+    // }
+    // const request = new MultiFormatExtractionRequest(url.trim(), formats, includeMetadata ?? false,
+    //   new WebFetcherOptions(fetcher ? [ fetcher ] : undefined),
+    //   new WebContentExtractorOptions(extractors.length ? extractors : undefined),
+    //   new MarkdownConverterOptions(converters),
+    // )
 
     try {
-      if (extractors.length == 0) {
-        const result = await service.extractMultipleResponseFormat(request)
-        extractionResults = [ result ]
-      } else {
-        extractors.forEach(async (extractor, index) => {
-          extractionResults[index] = await service.extractMultipleResponseFormat({ ...request, extractorOptions: new WebContentExtractorOptions([ extractor ]) })
-        })
-      }
+      // if (extractors.length == 0) {
+      //   const result = await service.extractMultipleResponseFormat(request)
+      //   extractionResults = [ result ]
+      // } else {
+      //   extractors.forEach(async (extractor, index) => {
+      //     extractionResults[index] = await service.extractMultipleResponseFormat({ ...request, extractorOptions: new WebContentExtractorOptions([ extractor ]) })
+      //   })
+      // }
+
+      const result = await service.extractFromUrl(new ExtractionRequest(url.trim(), format, includeMetadata ?? false,
+        new WebFetcherOptions(fetcher ? [ fetcher ] : undefined),
+      ))
+
+      extractionResults = [ mapToMultiFormatExtractionResult(result, format) ]
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     } finally {
@@ -106,26 +110,48 @@
     error = undefined
     extractionResults = []
 
-    const request = new ExtractFromHtmlRequest(rawHtml.trim(), format, includeMetadata ?? false,
-      new WebContentExtractorOptions(extractors),
-      new MarkdownConverterOptions(converters),
-    )
+    // const request = new ExtractFromHtmlRequest(rawHtml.trim(), format, includeMetadata ?? false,
+    //   new WebContentExtractorOptions(extractors),
+    //   new MarkdownConverterOptions(converters),
+    // )
 
     try {
-      if (extractors.length === 0) {
-        const result = await service.extractMultipleResponseFormatFromHtml(request)
-        extractionResults = [ result ]
-      } else {
-        extractors.forEach(async (extractor, index) => {
-          extractionResults[index] = await service.extractMultipleResponseFormatFromHtml({ ...request, extractorOptions: new WebContentExtractorOptions([ extractor ]) })
-        })
-      }
+      // if (extractors.length === 0) {
+      //   const result = await service.extractMultipleResponseFormatFromHtml(request)
+      //   extractionResults = [ result ]
+      // } else {
+      //   extractors.forEach(async (extractor, index) => {
+      //     extractionResults[index] = await service.extractMultipleResponseFormatFromHtml({ ...request, extractorOptions: new WebContentExtractorOptions([ extractor ]) })
+      //   })
+      // }
+
+      const result = await service.extractFromHtml(new ExtractFromHtmlRequest(rawHtml.trim(), format, includeMetadata ?? false))
+
+      extractionResults = [ mapToMultiFormatExtractionResult(result, format) ]
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     } finally {
       loading = false
     }
   }
+
+  function mapToMultiFormatExtractionResult(result: ExtractResponse, format: OutputFormat): MultiFormatExtractionResult {
+
+    return {
+      url: result.url ?? "",
+      // @ts-ignore
+      fetchResult: undefined, // should work
+
+      extractionResult: {
+        content: result.pageContentHtml
+      },
+      metadata: result.metadata,
+
+      contentMarkdown: format !== OutputFormat.Markdown ? undefined : { content: result.pageContentHtml },
+      contentText: format !== OutputFormat.Text ? undefined : { content: result.pageContentHtml },
+    }
+  }
+
 
   async function convert() {
     const html = rawHtml.trim()
@@ -138,14 +164,17 @@
     convertResults = {}
 
     try {
-      if (converters.length === 0) {
-        const result = await service.convertHtmlToMarkdown(html)
-        convertResults[result.converter!] = result
-      } else {
-        converters.forEach(async (converter) => {
-          convertResults[converter] = await service.convertHtmlToMarkdown(html, new MarkdownConverterOptions(converter ? [ converter ] : undefined))
-        })
-      }
+      // if (converters.length === 0) {
+      //   const result = await service.convertHtmlToMarkdown(html)
+      //   convertResults[result.converter!] = result
+      // } else {
+      //   converters.forEach(async (converter) => {
+      //     convertResults[converter] = await service.convertHtmlToMarkdown(html, new MarkdownConverterOptions(converter ? [ converter ] : undefined))
+      //   })
+      // }
+
+      const result = await service.extractFromHtml(new ExtractFromHtmlRequest(html, OutputFormat.Markdown))
+      convertResults[MarkdownConverter.Kreuzberg] = { converter: MarkdownConverter.Kreuzberg, content: result.pageContentHtml }
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     } finally {
@@ -156,8 +185,8 @@
   const extractOptions = [
     new Option(ExtractionAction.Extract, "Extract"),
     new Option(ExtractionAction.Convert, "Convert"),
-    new Option(ExtractionAction.CompareExtractors, "Compare Extractors"),
-    new Option(ExtractionAction.CompareConverters, "Compare Converters"),
+    // new Option(ExtractionAction.CompareExtractors, "Compare Extractors"),
+    // new Option(ExtractionAction.CompareConverters, "Compare Converters"),
   ]
 
   const formatOptions = [
@@ -167,23 +196,22 @@
   ]
 
   const fetcherOptions = [
-    new Option(WebFetcher.CurlCffi, "curl-cffi"),
-    new Option(WebFetcher.Camoufox, "Camoufox"),
-    new Option(WebFetcher.Zendriver, "Zendriver"),
-    new Option(WebFetcher.PythonHttpx, "Python httpx"),
+    new Option(WebFetcher.JsFetchApi, "JS fetch-API"),
+    // new Option(WebFetcher.CurlCffi, "curl-cffi"),
+    // new Option(WebFetcher.Camoufox, "Camoufox"),
+    // new Option(WebFetcher.Zendriver, "Zendriver"),
   ]
 
   const extractorOptions = [
-    new Option(WebContentExtractor.Trafilatura, "Trafilatura"),
-    new Option(WebContentExtractor.ReadabilityLxml, "Readability Lxml"),
-    new Option(WebContentExtractor.Newspaper4k, "Newspaper4k"),
+    // new Option(WebContentExtractor.Trafilatura, "Trafilatura"),
+    // new Option(WebContentExtractor.ReadabilityLxml, "Readability Lxml"),
+    // new Option(WebContentExtractor.Newspaper4k, "Newspaper4k"),
     new Option(WebContentExtractor.ReadabilityJs, "ReadabilityJs"),
   ]
 
   const converterOptions = [
-    new Option(MarkdownConverter.Markdownify, "Markdownify"),
-    new Option(MarkdownConverter.Html2Text, "html2text"),
     new Option(MarkdownConverter.Kreuzberg, "Kreuzberg"),
+    new Option(MarkdownConverter.Turndown, "Turndown"),
   ]
 
   $effect(() => {

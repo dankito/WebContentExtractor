@@ -1,6 +1,6 @@
 import type { WebExtractionClient } from "../clients/webExtraction/WebExtractionClient"
 import type { ExtractionRequest } from "../model/ExtractionRequest"
-import type { ExtractionResult } from "../model/ExtractionResult"
+import type { ExtractResponse } from "../model/ExtractResponse"
 import type { MarkdownConversionResult } from "../model/MarkdownConversionResult"
 import { ExtractFromHtmlRequest } from "../model/ExtractFromHtmlRequest"
 import type { ExtractFromHtmlResult } from "../model/ExtractFromHtmlResult"
@@ -14,11 +14,11 @@ export class WebExtractionService {
   constructor(private readonly client: WebExtractionClient) { }
 
 
-  async extract(request: ExtractionRequest): Promise<ExtractionResult> {
-    return await this.client.extract(request)
+  async extractFromUrl(request: ExtractionRequest): Promise<ExtractResponse> {
+    return await this.client.extractFromUrl(request)
   }
 
-  async extractFromHtml(request: ExtractFromHtmlRequest): Promise<ExtractFromHtmlResult> {
+  async extractFromHtml(request: ExtractFromHtmlRequest): Promise<ExtractResponse> {
     return await this.client.extractFromHtml(request)
   }
 

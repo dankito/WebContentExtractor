@@ -1,5 +1,5 @@
 export enum WebFetcher {
-  PythonHttpx = "python_httpx",
+  JsFetchApi = "js_fetch-api",
   CurlCffi = "curl_cffi",
   Camoufox = "camoufox",
   Zendriver = "zendriver",

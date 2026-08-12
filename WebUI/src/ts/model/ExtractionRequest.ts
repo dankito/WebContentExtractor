@@ -8,11 +8,13 @@ export class ExtractionRequest extends ExtractRequestBase {
 
   constructor(
     readonly url: string,
-    readonly format?: OutputFormat,
-    readonly includeMetadata?: boolean,
+    format?: OutputFormat, // TODO: it does not work this way in backend
+    includeMetadata?: boolean,
+
+    // TODO: these are currently not available in backend
     readonly webFetcherOptions?: WebFetcherOptions,
-    readonly extractorOptions?: WebContentExtractorOptions,
-    readonly converterOptions?: MarkdownConverterOptions,
+    extractorOptions?: WebContentExtractorOptions,
+    converterOptions?: MarkdownConverterOptions,
   ) {
     super(format, includeMetadata, extractorOptions, converterOptions)
   }

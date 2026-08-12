@@ -121,7 +121,7 @@
       return "Camoufox"
     } else if (fetcher === WebFetcher.Zendriver) {
       return "Zendriver"
-    } else if (fetcher === WebFetcher.PythonHttpx) {
+    } else if (fetcher === WebFetcher.JsFetchApi) {
       return "httpx"
     } else {
       return fetcher
@@ -149,7 +149,7 @@
   }
 
   function getShortConverterName(converter: MarkdownConverter): string {
-    if (converter === MarkdownConverter.Markdownify) {
+    if (converter === MarkdownConverter.Turndown) {
       return "Markdownify"
     } else if (converter === MarkdownConverter.Html2Text) {
       return "html2text"

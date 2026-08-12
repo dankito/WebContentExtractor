@@ -5,8 +5,8 @@ export class WebFetcherOptions {
   constructor(
     readonly fetchers?: WebFetcher[],
     readonly timeout?: number,
-    readonly user_agent?: string,
-    readonly follow_redirects?: boolean,
+    readonly userAgent?: string,
+    readonly followRedirects?: boolean,
   ) { }
 
 }
