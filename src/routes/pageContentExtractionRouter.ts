@@ -179,7 +179,7 @@ async function extractFromHtml(context: Context) {
 function mapToResponse(params: ExtractRequestBase, result: Result<ExtractedContent>, context: Context) {
   if (result.success === false) {
     console.warn("Extracting content failed", result.details)
-    return createErrorResponseFromResult(result, context)
+    return returnErrorResponse(result, context)
   } else {
     const content = result.data
     const format = httpUtil.getPreferredResponseFormat(context.req)
@@ -191,7 +191,7 @@ function mapToResponse(params: ExtractRequestBase, result: Result<ExtractedConte
       if (conversionResult.success) {
         return returnMarkdown(conversionResult.data, context)
       } else {
-        return createErrorResponseFromResult(conversionResult, context)
+        return returnErrorResponse(conversionResult, context)
       }
     } else if (format === ResponseFormat.Text) {
       return context.text(extractionService.convertToPlainText(content, params.convertToPlainTextOptions))
@@ -208,12 +208,14 @@ function returnMarkdown(markdown: string, context: Context): Response {
 }
 
 
-function createErrorResponseFromResult(result: ErrorResult, context: Context): Response {
-  return context.json<ErrorResponse>(ErrorResponse.from(result), result.details.isBadRequest ? 400 : 500)
+function createErrorResponseFromError(error: unknown, context: Context): Response {
+  return returnErrorResponse(ErrorResult.forError(error), context)
 }
 
-function createErrorResponseFromError(error: unknown, context: Context): Response {
-  return context.json<ErrorResponse>(ErrorResponse.from(ErrorResult.forError(error)), 500)
+function returnErrorResponse(error: ErrorResult, context: Context): Response {
+  const response = new ErrorResponse(error.details.errorMessage, error.details.error?.cause?.toString())
+
+  return context.json<ErrorResponse>(response, error.details.isBadRequest ? 400 : 500)
 }
 
 
