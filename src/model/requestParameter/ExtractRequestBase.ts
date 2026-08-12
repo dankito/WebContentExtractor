@@ -1,7 +1,7 @@
 import { ConvertToPlainTextOptions } from "../../service/contentConverter/ConvertToPlainTextOptions.ts"
 import type { ConvertToMarkdownOptions } from "../../service/contentConverter/ConvertToMarkdownOptions.ts"
 
-export class ExtractParamsBase {
+export class ExtractRequestBase {
 
   constructor(
     readonly url?: string,

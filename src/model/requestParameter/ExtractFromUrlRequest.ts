@@ -1,17 +1,19 @@
-import { ExtractParamsBase } from "./ExtractParamsBase.ts"
+import { ExtractRequestBase } from "./ExtractRequestBase.ts"
+import { WebFetcherOptions } from "../../webFetcher/WebFetcherOptions.ts"
 import { ConvertToPlainTextOptions } from "../../service/contentConverter/ConvertToPlainTextOptions.ts"
 import type { ConvertToMarkdownOptions } from "../../service/contentConverter/ConvertToMarkdownOptions.ts"
 
-export class ExtractFromHtmlParams extends ExtractParamsBase {
+export class ExtractFromUrlRequest extends ExtractRequestBase {
 
   constructor(
-    readonly html: string,
-    url?: string,
+    url: string,
 
     includeMetadata?: boolean,
 
     convertToMarkdownOptions?: ConvertToMarkdownOptions,
     convertToPlainTextOptions?: ConvertToPlainTextOptions,
+
+    readonly webFetcherOptions?: WebFetcherOptions,
   ) {
     super(url, includeMetadata, convertToMarkdownOptions, convertToPlainTextOptions)
   }

@@ -2,10 +2,10 @@ import { Context, Hono } from "hono"
 import { DI } from "../service/DI.ts"
 import { ErrorResponse } from "../model/responses/ErrorResponse.ts"
 import { ExtractResponse } from "../model/responses/ExtractResponse.ts"
-import type { ExtractFromHtmlParams } from "../model/requestParameter/ExtractFromHtmlParams.ts"
+import type { ExtractFromHtmlRequest } from "../model/requestParameter/ExtractFromHtmlRequest.ts"
 import type { ExtractedContent } from "../model/ExtractedContent.ts"
-import type { ExtractFromUrlParams } from "../model/requestParameter/ExtractFromUrlParams.ts"
-import { ExtractParamsBase } from "../model/requestParameter/ExtractParamsBase.ts"
+import type { ExtractFromUrlRequest } from "../model/requestParameter/ExtractFromUrlRequest.ts"
+import { ExtractRequestBase } from "../model/requestParameter/ExtractRequestBase.ts"
 import type { Result } from "../model/Result.ts"
 import { ErrorResult } from "../model/ErrorResult.ts"
 import { describeRoute, resolver, validator } from "hono-openapi"
@@ -152,7 +152,7 @@ async function extractFromUrl(context: Context, extractFromBody: boolean) {
   const data = (context.req as any).valid(target)
 
   try {
-    const params: ExtractFromUrlParams = requestValidator.mapToExtractFromUrlParams(data)
+    const params: ExtractFromUrlRequest = requestValidator.mapToExtractFromUrlParams(data)
 
     const result = await extractionService.extractContentFromUrl(params)
 
@@ -166,7 +166,7 @@ async function extractFromHtml(context: Context) {
   const data = (context.req as any).valid("json")
 
   try {
-    const params: ExtractFromHtmlParams = requestValidator.mapToExtractFromHtmlParams(data)
+    const params: ExtractFromHtmlRequest = requestValidator.mapToExtractFromHtmlParams(data)
 
     const result = extractionService.extractContentFromHtml(params.html, params.url)
 
@@ -176,7 +176,7 @@ async function extractFromHtml(context: Context) {
   }
 }
 
-function mapToResponse(params: ExtractParamsBase, result: Result<ExtractedContent>, context: Context) {
+function mapToResponse(params: ExtractRequestBase, result: Result<ExtractedContent>, context: Context) {
   if (result.success === false) {
     console.warn("Extracting content failed", result.details)
     return context.json<ErrorResponse>(ErrorResponse.from(result), result.details.isBadRequest ? 400 : 500)

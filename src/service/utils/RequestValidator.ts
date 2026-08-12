@@ -1,5 +1,5 @@
-import { ExtractFromHtmlParams } from "../../model/requestParameter/ExtractFromHtmlParams.ts"
-import { ExtractFromUrlParams } from "../../model/requestParameter/ExtractFromUrlParams.ts"
+import { ExtractFromHtmlRequest } from "../../model/requestParameter/ExtractFromHtmlRequest.ts"
+import { ExtractFromUrlRequest } from "../../model/requestParameter/ExtractFromUrlRequest.ts"
 import { type HonoRequest } from "hono"
 import type { Result } from "../../model/Result.ts"
 import { ErrorResult } from "../../model/ErrorResult.ts"
@@ -12,7 +12,7 @@ import { ConvertToMarkdownOptions } from "../contentConverter/ConvertToMarkdownO
 
 export class RequestValidator {
 
-  async parseExtractFromUrlParams(request: HonoRequest, extractFromBody: boolean): Promise<Result<ExtractFromUrlParams>> {
+  async parseExtractFromUrlParams(request: HonoRequest, extractFromBody: boolean): Promise<Result<ExtractFromUrlRequest>> {
     let params: any
 
     try {
@@ -28,7 +28,7 @@ export class RequestValidator {
 
     const data = validation.data
 
-    return SuccessResult.for(new ExtractFromUrlParams(
+    return SuccessResult.for(new ExtractFromUrlRequest(
       data.url,
       data.includeMetadata,
       this.mapToConvertToMarkdownOptions(data),
@@ -38,7 +38,7 @@ export class RequestValidator {
   }
 
 
-  async parseExtractFromHtmlParams(request: HonoRequest): Promise<Result<ExtractFromHtmlParams>> {
+  async parseExtractFromHtmlParams(request: HonoRequest): Promise<Result<ExtractFromHtmlRequest>> {
     let body: any
 
     try {
@@ -54,7 +54,7 @@ export class RequestValidator {
 
     const data = validation.data
 
-    return SuccessResult.for(new ExtractFromHtmlParams(
+    return SuccessResult.for(new ExtractFromHtmlRequest(
       data.html,
       data.url || undefined,
       data.includeMetadata,
@@ -64,8 +64,8 @@ export class RequestValidator {
   }
 
 
-  mapToExtractFromUrlParams(data: z.infer<typeof ExtractFromUrlSchema>): ExtractFromUrlParams {
-    return new ExtractFromUrlParams(
+  mapToExtractFromUrlParams(data: z.infer<typeof ExtractFromUrlSchema>): ExtractFromUrlRequest {
+    return new ExtractFromUrlRequest(
       data.url,
       data.includeMetadata,
       this.mapToConvertToMarkdownOptions(data),
@@ -75,8 +75,8 @@ export class RequestValidator {
   }
 
 
-  mapToExtractFromHtmlParams(data: z.infer<typeof ExtractFromHtmlSchema>): ExtractFromHtmlParams {
-    return new ExtractFromHtmlParams(
+  mapToExtractFromHtmlParams(data: z.infer<typeof ExtractFromHtmlSchema>): ExtractFromHtmlRequest {
+    return new ExtractFromHtmlRequest(
       data.html,
       data.url || undefined,
       data.includeMetadata,

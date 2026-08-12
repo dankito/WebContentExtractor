@@ -1,7 +1,7 @@
 import { ExtractedContent } from "../model/ExtractedContent.ts"
 import type { ReadabilityContentExtractor } from "./ReadabilityContentExtractor.ts"
 import type { Result } from "../model/Result.ts"
-import type { ExtractFromUrlParams } from "../model/requestParameter/ExtractFromUrlParams.ts"
+import type { ExtractFromUrlRequest } from "../model/requestParameter/ExtractFromUrlRequest.ts"
 import type { WebFetcher } from "../webFetcher/WebFetcher.ts"
 import type { ContentConverterService } from "./contentConverter/ContentConverterService.ts"
 import type { HtmlCleaner } from "./html/HtmlCleaner.ts"
@@ -25,7 +25,7 @@ export class PageContentExtractionService {
   /**
    * Extracts readable content from a URL.
    */
-  async extractContentFromUrl(params: ExtractFromUrlParams): Promise<Result<ExtractedContent>> {
+  async extractContentFromUrl(params: ExtractFromUrlRequest): Promise<Result<ExtractedContent>> {
     const { url } = params
 
     // for security reasons local urls and non-http urls get blocked.
