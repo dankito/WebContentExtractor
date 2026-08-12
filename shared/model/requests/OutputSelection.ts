@@ -12,4 +12,9 @@ export class OutputSelection { // or ContentSelection
     readonly pageMetadata?: boolean,
   ) { }
 
+
+  requiresExtractingContent(): boolean {
+    return this.contentHtml === true || this.contentMarkdown === true || this.contentText === true
+  }
+
 }

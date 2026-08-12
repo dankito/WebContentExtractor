@@ -14,6 +14,7 @@ import { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse
 import type { WebRequestOptions } from "@shared/model/WebRequestOptions.ts"
 import { TextConversionResult } from "@shared/model/TextConversionResult.ts"
 import type { MarkdownConversionResult } from "@shared/model/MarkdownConversionResult.ts"
+import type { SuccessResult } from "../model/SuccessResult.ts"
 
 export class PageContentExtractionService {
 
@@ -60,13 +61,19 @@ export class PageContentExtractionService {
       return new MultiFormatResponse()
     }
 
+    const extractContentResult = request.include.requiresExtractingContent()
+      ? this.extractContentFromHtml(fetchHtmlResult.data, request.url) : undefined
+
+    return this.convertFormats(request, fetchHtmlResult, extractContentResult)
+  }
+
+  private convertFormats(request: MultiFormatRequest, fetchHtmlResult: SuccessResult<string>, extractContentResult: Result<ExtractedContent> | undefined): MultiFormatResponse {
     const include = request.include
     const rawHtml = fetchHtmlResult.data
+
     const rawMarkdown = include.rawMarkdown ? this.convertToMarkdown(rawHtml, request.markdownConversionOptions) : undefined
     const rawText = include.rawText ? this.convertToPlainText(rawHtml, request.textConversionOptions) : undefined
 
-    const extractContentResult = include.contentHtml || include.contentMarkdown || include.contentText
-      ? this.extractContentFromHtml(rawHtml, request.url) : undefined
     const contentHtml = extractContentResult?.success ? extractContentResult.data.pageContentHtml : undefined
     let contentMarkdown: MarkdownConversionResult | undefined = undefined
     let contentText: TextConversionResult | undefined = undefined
@@ -106,16 +113,19 @@ export class PageContentExtractionService {
   convertToMarkdown(html: string, options?: MarkdownConversionOptions): MarkdownConversionResult {
     const result = this.contentConverter.convertToMarkdown(html, options)
 
-    return result.mapMarkdownOnSuccess(markdown =>
-      this.htmlCleaner.normalizeWhitespace(this.htmlCleaner.stripInvisibleUnicode(markdown)))
+    return result.mapMarkdownOnSuccess(markdown => this.cleanText(markdown))
   }
 
   convertToPlainText(html: string, options?: TextConversionOptions): TextConversionResult {
     // Readability strips all new lines from text content, so prefer html-to-text in favor of content.pageContentAsText
     const textConversionResult = this.contentConverter.convertToPlainText(html, options)
 
-    return textConversionResult.mapTextOnSuccess(text =>
-      this.htmlCleaner.normalizeWhitespace(this.htmlCleaner.stripInvisibleUnicode(text)))
+    return textConversionResult.mapTextOnSuccess(text => this.cleanText(text))
+  }
+
+
+  cleanText(text: string): string {
+    return this.htmlCleaner.normalizeWhitespace(this.htmlCleaner.stripInvisibleUnicode(text))
   }
 
 }
