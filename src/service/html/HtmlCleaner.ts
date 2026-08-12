@@ -1,11 +1,6 @@
 
 export class HtmlCleaner {
 
-  private static MaxHtmlChars = 1_000_000
-
-  private static MaxEstimatedNestingDepth = 3_000
-
-
   // CSS property values that indicate an element is hidden
   private static HIDDEN_STYLE_PATTERNS: Array<[string, RegExp]> = [
     ["display", /^\s*none\s*$/i],
@@ -27,25 +22,6 @@ export class HtmlCleaner {
     "invisible",
     "screen-reader-only",
     "offscreen",
-  ])
-
-  // Cheap heuristic to skip Readability+DOM parsing on pathological HTML (deep nesting => stack/memory blowups).
-  // Not an HTML parser tuned to catch attacker-controlled "<div><div>..." cases.
-  private static VoidTags = new Set([
-    "area",
-    "base",
-    "br",
-    "col",
-    "embed",
-    "hr",
-    "img",
-    "input",
-    "link",
-    "meta",
-    "param",
-    "source",
-    "track",
-    "wbr",
   ])
 
   // Zero-width and invisible Unicode characters used in prompt injection attacks
@@ -192,101 +168,6 @@ export class HtmlCleaner {
       return true
     }
 
-    return false
-  }
-
-
-  isTooLong(document: Document): boolean {
-    const html = document.toString()
-    return html.length > HtmlCleaner.MaxHtmlChars ||
-      this.exceedsEstimatedHtmlNestingDepth(html, HtmlCleaner.MaxEstimatedNestingDepth)
-  }
-
-  exceedsEstimatedHtmlNestingDepth(html: string, maxDepth: number): boolean {
-    let depth = 0
-    const len = html.length
-    for (let i = 0; i < len; i++) {
-      if (html.charCodeAt(i) !== 60) {
-        continue // '<'
-      }
-      const next = html.charCodeAt(i + 1)
-      if (next === 33 || next === 63) {
-        continue // <! ...> or <? ...>
-      }
-
-      let j = i + 1
-      let closing = false
-      if (html.charCodeAt(j) === 47) {
-        closing = true
-        j += 1
-      }
-
-      while (j < len && html.charCodeAt(j) <= 32) {
-        j += 1
-      }
-
-      const nameStart = j
-      while (j < len) {
-        const c = html.charCodeAt(j)
-        const isNameChar =
-          (c >= 65 && c <= 90) || // A-Z
-          (c >= 97 && c <= 122) || // a-z
-          (c >= 48 && c <= 57) || // 0-9
-          c === 58 || // :
-          c === 45 // -
-        if (!isNameChar) {
-          break
-        }
-        j += 1
-      }
-
-      const tagName = html.slice(nameStart, j).toLowerCase()
-      if (!tagName) {
-        continue
-      }
-
-      if (closing) {
-        depth = Math.max(0, depth - 1)
-        continue
-      }
-
-      if (HtmlCleaner.VoidTags.has(tagName)) {
-        continue
-      }
-
-      // If an HTML attribute contains characters like > or /> (e.g., <div data-info="/>">), the parser will misidentify it as the end of a tag or a self-closing tag, leading to incorrect depth calculations or incorrect bypasses of the depth limit.
-      // Best-effort self-closing detection: scan a short window for "/>".
-      // We skip quoted attribute values to avoid false positives.
-      let selfClosing = false
-      let inQuote = 0 // 0: none, 34: ", 39: '
-      for (let k = j; k < len && k < j + 400; k++) {
-        const c = html.charCodeAt(k)
-        if (inQuote !== 0) {
-          if (c === inQuote) {
-            inQuote = 0
-          }
-          continue
-        }
-        if (c === 34 || c === 39) {
-          inQuote = c
-          continue
-        }
-        if (c === 62) { // '>'
-          if (html.charCodeAt(k - 1) === 47) { // '/'
-            selfClosing = true
-          }
-          break
-        }
-      }
-      if (selfClosing) {
-        continue
-      }
-
-      depth += 1
-      if (depth > maxDepth) {
-        return true
-      }
-    }
     return false
   }
 

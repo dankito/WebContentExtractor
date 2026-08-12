@@ -28,10 +28,6 @@ export class ReadabilityContentExtractor {
   private extractReadableContent(html: string, document: Document, url?: string): Result<ExtractedContent> {
     try {
       this.htmlCleaner.sanitizeHtml(document)
-      if (this.htmlCleaner.isTooLong(document)) {
-        console.error(`HTML was too long for ${url}`)
-        return ErrorResult.for(`HTML was too long for ${url}`)
-      }
 
       const reader = new Readability(document, { charThreshold: 0 })
       const parsed = reader.parse()
