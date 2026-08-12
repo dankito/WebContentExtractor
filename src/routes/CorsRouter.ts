@@ -4,7 +4,7 @@ import { cors } from "hono/cors"
 export class CorsRouter {
 
   configureCors(app: Hono) {
-    app.use('*', cors({
+    app.use("*", cors({
       origin: (origin) => {
         if (!origin) return origin // same-origin / non-browser requests
 
@@ -14,8 +14,8 @@ export class CorsRouter {
           return null // reject
         }
       },
-      allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowHeaders: ['Content-Type', 'Authorization'],
+      allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      allowHeaders: ["Content-Type", "Authorization"],
       credentials: true,
     }))
   }
@@ -29,7 +29,7 @@ export class CorsRouter {
       return false
     }
 
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    if (hostname === "localhost" || hostname === "127.0.0.1") {
       return true
     }
 

@@ -4,12 +4,15 @@ import { pageContentExtractionRouter } from "./routes/pageContentExtractionRoute
 import * as process from "bun"
 import { OpenApiRouter } from "./routes/OpenApiRouter.ts"
 import { CorsRouter } from "./routes/CorsRouter.ts"
+import { StaticFilesRouter } from "./routes/StaticFilesRouter.ts"
 
 export const app = new Hono()
 
 app.use("*", logger())
 
 new CorsRouter().configureCors(app)
+
+new StaticFilesRouter().configureStaticFilesRoutes(app)
 
 app.get("/health", (c) => {
   return c.json({ status: "ok", timestamp: new Date().toISOString() })
