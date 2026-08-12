@@ -158,7 +158,7 @@ async function extractFromUrl(context: Context, extractFromBody: boolean) {
 
     return mapToResponse(params, result, context)
   } catch (error) {
-    return context.json<ErrorResponse>(ErrorResponse.from(ErrorResult.forError(error)), 500)
+    return createErrorResponseFromError(error, context)
   }
 }
 
@@ -172,14 +172,14 @@ async function extractFromHtml(context: Context) {
 
     return mapToResponse(params, result, context)
   } catch (error) {
-    return context.json<ErrorResponse>(ErrorResponse.from(ErrorResult.forError(error)), 500)
+    return createErrorResponseFromError(error, context)
   }
 }
 
 function mapToResponse(params: ExtractRequestBase, result: Result<ExtractedContent>, context: Context) {
   if (result.success === false) {
     console.warn("Extracting content failed", result.details)
-    return context.json<ErrorResponse>(ErrorResponse.from(result), result.details.isBadRequest ? 400 : 500)
+    return createErrorResponseFromResult(result, context)
   } else {
     const content = result.data
     const format = httpUtil.getPreferredResponseFormat(context.req)
@@ -191,7 +191,7 @@ function mapToResponse(params: ExtractRequestBase, result: Result<ExtractedConte
       if (conversionResult.success) {
         return returnMarkdown(conversionResult.data, context)
       } else {
-        return context.json<ErrorResponse>(ErrorResponse.from(conversionResult), 500)
+        return createErrorResponseFromResult(conversionResult, context)
       }
     } else if (format === ResponseFormat.Text) {
       return context.text(extractionService.convertToPlainText(content, params.convertToPlainTextOptions))
@@ -205,6 +205,15 @@ function returnMarkdown(markdown: string, context: Context): Response {
   return context.body(markdown, 200, {
     "Content-Type": "text/markdown; charset=UTF-8",
   })
+}
+
+
+function createErrorResponseFromResult(result: ErrorResult, context: Context): Response {
+  return context.json<ErrorResponse>(ErrorResponse.from(result), result.details.isBadRequest ? 400 : 500)
+}
+
+function createErrorResponseFromError(error: unknown, context: Context): Response {
+  return context.json<ErrorResponse>(ErrorResponse.from(ErrorResult.forError(error)), 500)
 }
 
 
