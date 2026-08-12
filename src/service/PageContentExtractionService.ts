@@ -104,7 +104,7 @@ export class PageContentExtractionService {
       include.contentMarkdown ? contentMarkdown : undefined,
       include.contentText ? contentText : undefined,
 
-      include.pageMetadata && extractContentResult?.success ? extractContentResult.data.metadata : undefined,
+      include.metadata && extractContentResult?.success ? extractContentResult.data.metadata : undefined,
     )
   }
 

@@ -103,8 +103,7 @@ export const OutputSelectionSchema = z.object({
   contentMarkdown: booleanSchema.optional(),
   contentText: booleanSchema.optional(),
 
-  pageMetadata: booleanSchema.optional(),
-  requestMetadata: booleanSchema.optional(),
+  metadata: booleanSchema.optional(),
   contentExtractionMetadata: booleanSchema.optional(),
 })
 

@@ -108,7 +108,7 @@ export class RequestValidator {
     return new OutputSelection(
       data.rawHtml, data.rawMarkdown, data.rawText,
       data.contentHtml, data.contentMarkdown, data.contentText,
-      data.pageMetadata
+      data.metadata
     )
   }
 

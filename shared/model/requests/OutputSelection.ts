@@ -9,7 +9,7 @@ export class OutputSelection { // or ContentSelection
     readonly contentMarkdown?: boolean,
     readonly contentText?: boolean,
 
-    readonly pageMetadata?: boolean,
+    readonly metadata?: boolean,
   ) { }
 
 
