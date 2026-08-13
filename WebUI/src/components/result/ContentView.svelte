@@ -93,14 +93,9 @@
     ].filter(it => it !== "")
 
     const countChars = content.length.toLocaleString() + " chars"
-    const requestDuration = durations?.[MeasuredDuration.Total]
-    const countCharsAndDuration = requestDuration ? countChars + " · " + requestDuration.toString() : countChars
+    const requestDuration = durations?.[MeasuredDuration.Total]?.toString()
 
-    if (tools.length) {
-      return tools.join(" · ") + " · " + countCharsAndDuration
-    } else {
-      return countCharsAndDuration
-    }
+    return [ ...tools, countChars, requestDuration ].filter(it => !!it).join(" · ")
   }
 
   function getShortFetcherName(fetcher: WebFetcher): string {
