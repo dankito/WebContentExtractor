@@ -27,7 +27,7 @@ export class HtmlCleaner {
 
   // Zero-width and invisible Unicode characters used in prompt injection attacks
   private static INVISIBLE_UNICODE_RE =
-    /[\u200B-\u200F\u202A-\u202E\u2060-\u2064\u206A-\u206F\uFEFF\u{E0000}-\u{E007F}]/gu
+    /[\u200B-\u200F\u202A-\u202E\u2060-\u2064\u206A-\u206F\uFEFF\u{E0000}-\u{E007F}\u2066-\u2069\uFE00-\uFE0F\u{E0100}-\u{E01EF}]/gu
 
 
 
