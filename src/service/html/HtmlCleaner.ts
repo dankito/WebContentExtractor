@@ -85,7 +85,7 @@ export class HtmlCleaner {
 
     // Always-remove tags
     // original: ["meta", "template", "svg", "canvas", "iframe", "object", "embed"]
-    if (["template", "svg", "canvas", "style"].includes(tagName)) {
+    if (["template", "canvas", "style", "iframe"].includes(tagName)) {
       return true
     }
 
