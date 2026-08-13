@@ -49,11 +49,6 @@ export class HtmlCleaner {
 
   /*        Sanitize HTML before parsing with Readability       */
 
-  stripComments(html: string): string {
-    return html.replace(/<!--[\s\S]*?-->/g, "")
-  }
-
-
   sanitizeHtml(document: Document): Document {
     const root = document.body ?? document.documentElement
     this.walkAndClean(root)
@@ -65,6 +60,9 @@ export class HtmlCleaner {
     let child = node.firstChild
     while (child) {
       const next = child.nextSibling // capture before potential removal
+
+      // do not strip comments with regex, that's very error prone like unclosed comments
+      // (would strip everything after the comment) or `<div title="a --> b">
       if (child.nodeType === 8 /* COMMENT_NODE */) {
         child.parentNode?.removeChild(child)
       } else if (child.nodeType === 1 /* ELEMENT_NODE */) {
@@ -76,6 +74,7 @@ export class HtmlCleaner {
           this.walkAndClean(el)
         }
       }
+
       child = next
     }
   }

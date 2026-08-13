@@ -17,8 +17,6 @@ export class ReadabilityContentExtractor {
 
 
   cleanAndExtractReadableContent(html: string, url?: string): Result<ExtractedContent> {
-    html = this.htmlCleaner.stripComments(html)
-
     // Readability requires that html is wrapped in <html><body>...</body></html> so ensuring that the html shell is there
     const document = this.domService.ensureHtmlShellAndParseToDocument(html, url)
 
