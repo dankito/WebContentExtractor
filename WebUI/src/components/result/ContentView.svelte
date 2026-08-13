@@ -85,7 +85,7 @@
       .map(([name, duration]) => `${name}: ${duration.toString()}`).join("\n")
   }
 
-  function formatToolsAndChars(): string {
+  function formatToolsAndChars(includeRequestDuration: boolean): string {
     const tools = [
       fetcher ? getShortFetcherName(fetcher) : "",
       getShortExtractorInfo(),
@@ -93,7 +93,7 @@
     ].filter(it => it !== "")
 
     const countChars = content.length.toLocaleString() + " chars"
-    const requestDuration = durations?.[MeasuredDuration.Total]?.toString()
+    const requestDuration = includeRequestDuration ? durations?.[MeasuredDuration.Total]?.toString() : undefined
 
     return [ ...tools, countChars, requestDuration ].filter(it => !!it).join(" · ")
   }
@@ -178,8 +178,8 @@
     {/if}
 
     <div class="ml-auto flex items-center gap-1.5">
-      <span class="text-xs text-zinc-400" title={[ formatToolsAndChars(), formatExtractionMetrics() ].join("\nDurations:\n")}>
-        {formatToolsAndChars()}
+      <span class="text-xs text-zinc-400" title={[ formatToolsAndChars(false), formatExtractionMetrics() ].join("\nDurations:\n")}>
+        {formatToolsAndChars(true)}
       </span>
 
       <button onclick={copyToClipboard} aria-label="Copy displayed content to clipboard">
