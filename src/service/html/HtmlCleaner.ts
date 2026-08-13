@@ -5,7 +5,7 @@ export class HtmlCleaner {
   private static HIDDEN_STYLE_PATTERNS: Array<[string, RegExp]> = [
     ["display", /^\s*none\s*$/i],
     ["visibility", /^\s*hidden\s*$/i],
-    ["opacity", /^\s*0\s*$/],
+    ["opacity", /^\s*0(\.0+)?\s*$/],
     ["font-size", /^\s*0(px|em|rem|pt|%)?\s*$/i],
     ["text-indent", /^\s*-\d{4,}px\s*$/],
     ["color", /^\s*transparent\s*$/i],
@@ -17,11 +17,12 @@ export class HtmlCleaner {
   private static HIDDEN_CLASS_NAMES = new Set([
     "sr-only",
     "visually-hidden",
-    "d-none",
-    "hidden",
     "invisible",
     "screen-reader-only",
     "offscreen",
+    // often used as a toggle flag for break points (e.g. visible on desktops but not on mobile), so we cannot safely remove those elements
+    // "d-none",
+    // "hidden",
   ])
 
   // Zero-width and invisible Unicode characters used in prompt injection attacks
