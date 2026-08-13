@@ -11,7 +11,7 @@ export class PerformanceTestData {
   static readonly SpiegelArticleHtml = readFileSync(PerformanceTestData.SpiegelArticlePath, "utf-8")
 
 
-  static measureDurations<T>(countRuns: number, run: (args?: T) => any | undefined, setupRun?: () => T | undefined) {
+  static measureDurations<T>(countRuns: number, run: (args: T) => any | undefined, setupRun?: () => T) {
     const durations: number[] = []
     const overallStart = performance.now()
 
@@ -20,7 +20,8 @@ export class PerformanceTestData {
         const args = setupRun?.()
 
         const runStart = performance.now()
-        const result = run(args)
+        //@ts-ignore
+        const result = run(args ?? 0)
         const runEnd = performance.now()
 
         durations.push(runEnd - runStart)
@@ -38,12 +39,14 @@ export class PerformanceTestData {
     const min = Math.min(...durations)
     const max = Math.max(...durations)
     const avg = durations.reduce((sum, d) => sum + d, 0) / durations.length
+    const runsDuration = durations.reduce((sum, d) => sum + d, 0)
 
     console.log(`\nPerformance over ${countRuns} runs:`)
-    console.log(`  overall: ${overallMs.toFixed(2)} ms`)
-    console.log(`  min:     ${min.toFixed(3)} ms`)
-    console.log(`  max:     ${max.toFixed(3)} ms`)
-    console.log(`  avg:     ${avg.toFixed(3)} ms`)
+    console.log(`  overall:           ${overallMs.toFixed(2)} ms`)
+    console.log(`  overall runs only: ${runsDuration.toFixed(2)} ms`)
+    console.log(`  min:               ${min.toFixed(3)} ms`)
+    console.log(`  max:               ${max.toFixed(3)} ms`)
+    console.log(`  avg:               ${avg.toFixed(3)} ms`)
 
     expect(durations.length).toBe(countRuns)
   }

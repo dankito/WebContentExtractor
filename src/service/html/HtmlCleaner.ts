@@ -55,16 +55,29 @@ export class HtmlCleaner {
 
 
   sanitizeHtml(document: Document): Document {
-    // Walk all elements and remove hidden ones (bottom-up to avoid re-walking removed subtrees)
-    const all = Array.from(document.querySelectorAll("*"))
-    for (let i = all.length - 1; i >= 0; i--) {
-      const el = all[i]
-      if (this.shouldRemoveElement(el)) {
-        el.parentNode?.removeChild(el)
-      }
-    }
-
+    const root = document.body ?? document.documentElement
+    this.walkAndClean(root)
     return document
+  }
+
+  private walkAndClean(node: Node): void {
+    // Depth-first, but skip descending into removed nodes
+    let child = node.firstChild
+    while (child) {
+      const next = child.nextSibling // capture before potential removal
+      if (child.nodeType === 8 /* COMMENT_NODE */) {
+        child.parentNode?.removeChild(child)
+      } else if (child.nodeType === 1 /* ELEMENT_NODE */) {
+        const el = child as Element
+        if (this.shouldRemoveElement(el)) {
+          el.parentNode?.removeChild(el)
+          // don't recurse into removed subtree
+        } else {
+          this.walkAndClean(el)
+        }
+      }
+      child = next
+    }
   }
 
 

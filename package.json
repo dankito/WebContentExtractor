@@ -9,9 +9,9 @@
     "start": "bun src/index.ts",
     "buildFrontend": "cd WebUI && bun run buildDist",
     "typecheck": "tsc --noEmit",
-    "test:unit": "bun test tests/unit",
-    "test:api": "bun test tests/integration",
-    "test": "bun test",
+    "test:unit": "bun test ./tests/unit",
+    "test:api": "bun test ./tests/integration",
+    "test": "bun test ./tests/",
     "generate:openapi": "bun run scripts/generate-openapi.ts"
   },
   "dependencies": {
