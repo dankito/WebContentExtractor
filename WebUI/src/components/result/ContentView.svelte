@@ -10,10 +10,11 @@
   import ComboBox from "../common/form/ComboBox.svelte"
   import { Option } from "../../ts/ui/Option"
   import HtmlContent from "../common/controls/HtmlContent.svelte"
+  import type { Duration } from "@shared/service/utils/Duration"
 
-  let { content, format, fetcher = undefined, converter = undefined, returnedFormats = [], displayedFormat = $bindable() }:
+  let { content, format, fetcher = undefined, converter = undefined, returnedFormats = [], displayedFormat = $bindable(), requestDuration }:
     { content: string, format: OutputFormat, fetcher?: WebFetcher, converter?: MarkdownConverter | TextConverter,
-      returnedFormats?: RequestedFormat[], displayedFormat?: RequestedFormat } = $props()
+      returnedFormats?: RequestedFormat[], displayedFormat?: RequestedFormat, requestDuration?: Duration } = $props()
 
   let viewMode = $state<"source" | "rendered">("rendered")
 
@@ -90,11 +91,12 @@
     ].filter(it => it !== "")
 
     const countChars = content.length.toLocaleString() + " chars"
+    const countCharsAndDuration = requestDuration ? countChars + " · " + requestDuration.toString() : countChars
 
     if (tools.length) {
-      return tools.join(" · ") + " · " + countChars
+      return tools.join(" · ") + " · " + countCharsAndDuration
     } else {
-      return countChars
+      return countCharsAndDuration
     }
   }
 

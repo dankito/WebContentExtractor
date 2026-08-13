@@ -3,7 +3,7 @@ import { TextConversionOptions } from "@shared/model/TextConversionOptions"
 import { TextConversionResult } from "@shared/model/TextConversionResult.ts"
 import { TextConverter } from "@shared/model/TextConverter.ts"
 import { ErrorUtil } from "../utils/ErrorUtil.ts"
-import { Stopwatch } from "../utils/Stopwatch.ts"
+import { Stopwatch } from "@shared/service/utils/Stopwatch.ts"
 
 export class HtmlToTextConverter {
 

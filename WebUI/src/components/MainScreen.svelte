@@ -9,6 +9,7 @@
   import { OutputFormat } from "../ts/model/OutputFormat"
   import { MarkdownConverter } from "../ts/model/MarkdownConverter"
   import type { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse"
+  import type { Duration } from "@shared/service/utils/Duration"
 
   let action = $state<ExtractionAction>(ExtractionAction.Extract)
   let sourceMode = $state<SourceMode>(SourceMode.Url)
@@ -16,6 +17,7 @@
 
   let extractionResults = $state<MultiFormatResponse[]>([])
   let convertResults = $state<Record<MarkdownConverter, MarkdownConversionResult>>({})
+  let requestDuration = $state<Duration | undefined>(undefined)
   let error = $state<string | undefined>(undefined)
 
   let singleResult = $derived( action === ExtractionAction.Extract && extractionResults.filter(it => !!it.contentHtml).length < 2
@@ -26,7 +28,7 @@
   <div class="flex flex-col gap-4 w-full h-full min-h-0">
 
     <div class="flex flex-col gap-4 w-full max-w-100 lg:max-w-200 mx-auto">
-      <InputAndOptionsPanel bind:action bind:sourceMode bind:format bind:extractionResults bind:convertResults bind:error />
+      <InputAndOptionsPanel bind:action bind:sourceMode bind:format bind:extractionResults bind:convertResults bind:requestDuration bind:error />
 
       <!-- Extraction response -->
       <!-- TODO -->
@@ -36,7 +38,7 @@
     <!-- Result -->
     <div class={[ "flex flex-col gap-4 w-full h-full min-h-0 mx-auto", singleResult ? "max-w-100 lg:max-w-200" : "" ]}>
       {#if action === ExtractionAction.Extract}
-        <ExtractContentTab {extractionResults} requestedFormat={format} />
+        <ExtractContentTab {extractionResults} requestedFormat={format} {requestDuration} />
       {:else if action === ExtractionAction.Convert}
         <ConvertResult {convertResults} />
       {/if}

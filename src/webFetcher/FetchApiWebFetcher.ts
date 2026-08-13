@@ -3,7 +3,7 @@ import type { WebFetcher } from "./WebFetcher"
 import { WebFetcher as WebFetcherEnum } from "@shared/model/WebFetcher.ts"
 import { ErrorUtil } from "../service/utils/ErrorUtil.ts"
 import { WebFetcherResponse } from "./WebFetcherResponse.ts"
-import { Stopwatch } from "../service/utils/Stopwatch.ts"
+import { Stopwatch } from "@shared/service/utils/Stopwatch.ts"
 
 export class FetchApiWebFetcher implements WebFetcher {
 

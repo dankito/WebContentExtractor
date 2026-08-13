@@ -5,8 +5,10 @@
   import { RequestedFormat } from "../../ts/model/RequestedFormat"
   import { untrack } from "svelte"
   import type { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse"
+  import type { Duration } from "@shared/service/utils/Duration"
 
-  let { extractionResult, requestedFormat }: { extractionResult?: MultiFormatResponse, requestedFormat: OutputFormat } = $props()
+  let { extractionResult, requestedFormat, requestDuration }:
+    { extractionResult?: MultiFormatResponse, requestedFormat: OutputFormat, requestDuration?: Duration } = $props()
 
   let returnedFormats = $derived<RequestedFormat[]>(getReturnedFormats(extractionResult))
   let displayedFormat = $state<RequestedFormat | undefined>(undefined)
@@ -77,7 +79,7 @@
   {#if content}
     <ContentView content={content} format={requestedFormat} fetcher={extractionResult.webResponse?.fetcher}
                  converter={extractionResult.contentMarkdown?.converter ?? extractionResult?.contentText?.converter}
-                 {returnedFormats} bind:displayedFormat
+                 {returnedFormats} bind:displayedFormat {requestDuration}
     />
   {/if}
 {/if}

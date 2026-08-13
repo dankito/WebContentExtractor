@@ -17,7 +17,7 @@ import type { MarkdownConversionResult } from "@shared/model/MarkdownConversionR
 import { SuccessResult } from "../model/SuccessResult.ts"
 import { WebFetcherResponse } from "../webFetcher/WebFetcherResponse.ts"
 import { WebResponse } from "@shared/model/WebResponse.ts"
-import { Stopwatch } from "./utils/Stopwatch.ts"
+import { Stopwatch } from "@shared/service/utils/Stopwatch.ts"
 
 export class PageContentExtractionService {
 

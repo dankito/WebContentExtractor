@@ -21,17 +21,17 @@ export class Duration {
     const ms = this.milliseconds;
 
     if (ms < 1000) {
-      return `${this.round(ms, 2)}ms`;
+      return `${this.round(ms, 2)} ms`;
     }
 
     const totalSeconds = ms / 1000;
     if (totalSeconds < 60) {
-      return `${this.round(totalSeconds, 2)}s`;
+      return `${this.round(totalSeconds, 2)} s`;
     }
 
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = this.round(totalSeconds - minutes * 60, 2);
-    return `${minutes}m ${seconds}s`;
+    return `${minutes} m ${seconds} s`;
   }
 
   round(value: number, decimals: number): number {

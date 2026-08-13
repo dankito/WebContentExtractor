@@ -20,10 +20,13 @@
   import { MultiFormatRequest } from "@shared/model/requests/MultiFormatRequest"
   import { OutputSelection } from "@shared/model/requests/OutputSelection"
   import type { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse"
+  import { Stopwatch } from "@shared/service/utils/Stopwatch"
+  import { Duration } from "@shared/service/utils/Duration"
 
 
-  let { action = $bindable(), sourceMode = $bindable(), format = $bindable(), extractionResults = $bindable(), convertResults = $bindable({}), error = $bindable() } =
-    $props<{ action: ExtractionAction, sourceMode: SourceMode, format: OutputFormat, extractionResults?: MultiFormatResponse[], convertResults?: Record<MarkdownConverter, MarkdownConversionResult>, error?: string }>()
+  let { action = $bindable(), sourceMode = $bindable(), format = $bindable(), extractionResults = $bindable(), convertResults = $bindable({}), requestDuration = $bindable(), error = $bindable() } =
+    $props<{ action: ExtractionAction, sourceMode: SourceMode, format: OutputFormat, extractionResults?: MultiFormatResponse[],
+      convertResults?: Record<MarkdownConverter, MarkdownConversionResult>, requestDuration?: Duration, error?: string }>()
 
   let url = $state("")
   let rawHtml = $state("")
@@ -68,6 +71,8 @@
     loading = true
     error = undefined
     extractionResults = []
+    requestDuration = undefined
+    const stopwatch = new Stopwatch()
 
     const include = new OutputSelection(true, false, false, true, format === OutputFormat.Markdown || format == OutputFormat.Markdown,
       format === OutputFormat.Text, includeMetadata ?? false)
@@ -85,6 +90,8 @@
       //     extractionResults[index] = await service.extractMultipleResponseFormat({ ...request, extractorOptions: new WebContentExtractorOptions([ extractor ]) })
       //   })
       // }
+
+      requestDuration = stopwatch.stop()
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     } finally {

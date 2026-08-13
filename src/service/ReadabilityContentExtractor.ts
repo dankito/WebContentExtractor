@@ -7,7 +7,7 @@ import { ErrorResult } from "../model/ErrorResult.ts"
 import { SuccessResult } from "../model/SuccessResult.ts"
 import type { HtmlCleaner } from "./html/HtmlCleaner.ts"
 import { ExtractedMetadata } from "@shared/model/ExtractedMetadata.ts"
-import { Stopwatch } from "./utils/Stopwatch.ts"
+import { Stopwatch } from "@shared/service/utils/Stopwatch.ts"
 
 export class ReadabilityContentExtractor {
 
