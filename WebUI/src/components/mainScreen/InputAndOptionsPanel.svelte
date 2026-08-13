@@ -74,8 +74,13 @@
     requestDuration = undefined
     const stopwatch = new Stopwatch()
 
-    const include = new OutputSelection(true, false, false, true, format === OutputFormat.Markdown || format == OutputFormat.Markdown,
-      format === OutputFormat.Text, includeMetadata ?? false)
+    const include = new OutputSelection(true, false, false,
+      true, // contentHtml
+      format === OutputFormat.Markdown || format == OutputFormat.Text, // contentMarkdown
+      format === OutputFormat.Text,
+
+      includeMetadata ?? false
+    )
 
     // TODO: add WebRequestOptions, MarkdownConversionOptions and TextConversionOptions
     const request = new MultiFormatRequest(urlStr, include)
