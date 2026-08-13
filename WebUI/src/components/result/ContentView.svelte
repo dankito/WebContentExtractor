@@ -2,19 +2,17 @@
   import { marked } from "marked"
   import { Code, Eye } from "@lucide/svelte"
   import { OutputFormat } from "../../ts/model/OutputFormat"
-  import { WebContentExtractor } from "../../ts/model/WebContentExtractor"
   import Card from "../common/form/Card.svelte"
-  import { MarkdownConverter } from "../../ts/model/MarkdownConverter"
-  import { WebFetcher } from "../../ts/model/WebFetcher"
+  import { MarkdownConverter } from "@shared/model/MarkdownConverter"
+  import { TextConverter } from "@shared/model/TextConverter"
+  import { WebFetcher } from "@shared/model/WebFetcher"
   import { RequestedFormat } from "../../ts/model/RequestedFormat"
   import ComboBox from "../common/form/ComboBox.svelte"
-  import type { WebContentExtractionResult } from "../../ts/model/WebContentExtractionResult"
-  import type { ExtractionMetrics } from "../../ts/model/ExtractionMetrics"
   import { Option } from "../../ts/ui/Option"
   import HtmlContent from "../common/controls/HtmlContent.svelte"
 
-  let { content, format, fetcher = undefined, extractionResult = undefined, converter = undefined, returnedFormats = [], displayedFormat = $bindable() }:
-    { content: string, format: OutputFormat, fetcher?: WebFetcher, extractionResult?: WebContentExtractionResult, converter?: MarkdownConverter,
+  let { content, format, fetcher = undefined, converter = undefined, returnedFormats = [], displayedFormat = $bindable() }:
+    { content: string, format: OutputFormat, fetcher?: WebFetcher, converter?: MarkdownConverter | TextConverter,
       returnedFormats?: RequestedFormat[], displayedFormat?: RequestedFormat } = $props()
 
   let viewMode = $state<"source" | "rendered">("rendered")
@@ -77,31 +75,17 @@
 
 
   function formatExtractionMetrics(): string {
-    if (!extractionResult?.allMetrics && !extractionResult?.metrics) {
-      return ""
-    }
+    const durations: string[] = []
 
-    const extractorMetrics: Record<WebContentExtractor, ExtractionMetrics> = { }
-    extractorMetrics[extractionResult.extractor!] = extractionResult.metrics!
-    const metrics = extractionResult.allMetrics ?? extractorMetrics
-    const extractors = Object.keys(metrics) as WebContentExtractor[]
-    const col_w = 16
-    const metric_name_w = 30
+    // if (extractionResult)
 
-    return [
-      "\n".padEnd(metric_name_w) + extractors.map(e => e.padEnd(col_w)).join(" "),
-      "Link density:".padEnd(metric_name_w) + extractors.map(e => metrics[e].linkDensity.toFixed(2).padEnd(col_w)).join(" "),
-      "Avg. sentence length:".padEnd(metric_name_w) + extractors.map(e => metrics[e].avgSentenceLength.toFixed(2).padEnd(col_w)).join(" "),
-      "Compression ratio:".padEnd(metric_name_w) + extractors.map(e => metrics[e].compressionRatio.toFixed(2).padEnd(col_w)).join(" "),
-      "Readability score:".padEnd(metric_name_w) + extractors.map(e => metrics[e].readabilityScore.toFixed(2).padEnd(col_w)).join(" "),
-      "Total score:".padEnd(metric_name_w) + extractors.map(e => metrics[e].score.toFixed(2).padEnd(col_w)).join(" "),
-    ].join("\n")
+    return durations.join("\n")
   }
 
   function formatToolsAndChars(): string {
     const tools = [
       fetcher ? getShortFetcherName(fetcher) : "",
-      extractionResult ? getShortExtractorInfo(extractionResult) : "",
+      getShortExtractorInfo(),
       converter ? getShortConverterName(converter) : "",
     ].filter(it => it !== "")
 
@@ -115,46 +99,32 @@
   }
 
   function getShortFetcherName(fetcher: WebFetcher): string {
-    if (fetcher === WebFetcher.CurlCffi) {
-      return "curl"
-    } else if (fetcher === WebFetcher.Camoufox) {
-      return "Camoufox"
-    } else if (fetcher === WebFetcher.Zendriver) {
-      return "Zendriver"
-    } else if (fetcher === WebFetcher.JsFetchApi) {
-      return "httpx"
-    } else {
+    if (fetcher === WebFetcher.JsFetchApi) {
+      return "JS fetch"
+    }
+    // else if (fetcher === WebFetcher.CurlCffi) {
+    //   return "curl"
+    // } else if (fetcher === WebFetcher.Camoufox) {
+    //   return "Camoufox"
+    // } else if (fetcher === WebFetcher.Zendriver) {
+    //   return "Zendriver"
+    // }
+    else  {
       return fetcher
     }
   }
 
-  function getShortExtractorInfo(result: WebContentExtractionResult): string {
-    const name = result.extractor ? getShortExtractorName(result.extractor) : ""
-    const score = result.metrics ? `(${result.metrics.score.toFixed(2)})` : ""
-    return [name + score].filter(it => it != "").join("  ")
+  function getShortExtractorInfo(): string {
+    return "Readability.js"
   }
 
-  function getShortExtractorName(extractor: WebContentExtractor): string {
-    if (extractor === WebContentExtractor.Trafilatura) {
-      return "Trafilatura"
-    } else if (extractor === WebContentExtractor.ReadabilityLxml) {
-      return "ReadabilityPy"
-    } else if (extractor === WebContentExtractor.Newspaper4k) {
-      return "Newspaper4k"
-    } else if (extractor === WebContentExtractor.ReadabilityJs) {
-      return "ReadabilityJs"
-    } else {
-      return extractor
-    }
-  }
-
-  function getShortConverterName(converter: MarkdownConverter): string {
+  function getShortConverterName(converter: MarkdownConverter | TextConverter): string {
     if (converter === MarkdownConverter.Turndown) {
-      return "Markdownify"
-    } else if (converter === MarkdownConverter.Html2Text) {
-      return "html2text"
+      return "Turndown"
     } else if (converter === MarkdownConverter.Kreuzberg) {
       return "Kreuzberg"
+    } else if (converter === TextConverter.HtmlToText) {
+      return "html-to-text"
     } else {
       return converter
     }

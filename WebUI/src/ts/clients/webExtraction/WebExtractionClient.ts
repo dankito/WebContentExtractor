@@ -5,8 +5,8 @@ import { WebRequest } from "../web/WebRequest"
 import type { MarkdownConversionResult } from "../../model/MarkdownConversionResult"
 import { ExtractFromHtmlRequest } from "../../model/ExtractFromHtmlRequest"
 import type { MarkdownConverterOptions } from "../../model/MarkdownConverterOptions"
-import type { MultiFormatExtractionRequest } from "../../model/MultiFormatExtractionRequest"
-import type { MultiFormatExtractionResult } from "../../model/MultiFormatExtractionResult"
+import type { MultiFormatRequest } from "@shared/model/requests/MultiFormatRequest"
+import type { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse"
 import { OutputFormat } from "../../model/OutputFormat"
 
 export class WebExtractionClient {
@@ -46,36 +46,13 @@ export class WebExtractionClient {
   }
 
 
-  async extractMultipleResponseFormat(request: MultiFormatExtractionRequest): Promise<MultiFormatExtractionResult> {
-    return this.webClient.post(new WebRequest("/extract/multiple", request))
+  async extractMultipleResponseFormat(request: MultiFormatRequest): Promise<MultiFormatResponse> {
+    return this.webClient.post(new WebRequest("/extract/multi-format", request))
   }
 
   async convertHtmlToMarkdown(html: string, options?: MarkdownConverterOptions): Promise<MarkdownConversionResult> {
     return this.webClient.post(new WebRequest(`/convert${options?.converters?.length ? "?converter=" + options.converters[0] : ""}`,
       html, "text/html", "text/markdown"))
-  }
-
-
-  private createQueryParameters(request: ExtractFromHtmlRequest): string {
-    const params = new URLSearchParams()
-    if (request.format) {
-      params.append("format", request.format)
-    }
-    if (request.includeMetadata) {
-      params.append("include_metadata", request.includeMetadata.toString())
-    }
-    if (request.extractorOptions?.extractors?.length) {
-      params.append("extractor", request.extractorOptions?.extractors[0])
-    }
-    if (request.converterOptions?.converters?.length) {
-      params.append("converter", request.converterOptions?.converters[0])
-    }
-
-    if (params.size) {
-      return "?" + params.toString()
-    } else {
-      return ""
-    }
   }
 
 }

@@ -7,7 +7,6 @@
   import { WebFetcher } from "../../ts/model/WebFetcher"
   import { WebContentExtractor } from "../../ts/model/WebContentExtractor"
   import { MarkdownConverter } from "../../ts/model/MarkdownConverter"
-  import { WebFetcherOptions } from "../../ts/model/WebFetcherOptions"
   import { DI } from "../../ts/service/DI"
   import { ExtractionAction } from "../../ts/ui/ExtractionAction"
   import SplitButton from "../common/form/SplitButton.svelte"
@@ -17,12 +16,14 @@
   import { ExtractFromHtmlRequest } from "../../ts/model/ExtractFromHtmlRequest"
   import type { MultiFormatExtractionResult } from "../../ts/model/MultiFormatExtractionResult"
   import MultiSelect from "../common/form/MultiSelect.svelte"
-  import { ExtractionRequest } from "../../ts/model/ExtractionRequest"
   import type { ExtractResponse } from "../../ts/model/ExtractResponse"
+  import { MultiFormatRequest } from "@shared/model/requests/MultiFormatRequest"
+  import { OutputSelection } from "@shared/model/requests/OutputSelection"
+  import type { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse"
 
 
   let { action = $bindable(), sourceMode = $bindable(), format = $bindable(), extractionResults = $bindable(), convertResults = $bindable({}), error = $bindable() } =
-    $props<{ action: ExtractionAction, sourceMode: SourceMode, format: OutputFormat, extractionResults?: MultiFormatExtractionResult[], convertResults?: Record<MarkdownConverter, MarkdownConversionResult>, error?: string }>()
+    $props<{ action: ExtractionAction, sourceMode: SourceMode, format: OutputFormat, extractionResults?: MultiFormatResponse[], convertResults?: Record<MarkdownConverter, MarkdownConversionResult>, error?: string }>()
 
   let url = $state("")
   let rawHtml = $state("")
@@ -59,7 +60,8 @@
   }
 
   async function extractFromUrl() {
-    if (!url.trim()) {
+    const urlStr = url.trim()
+    if (!urlStr) {
       return
     }
 
@@ -67,33 +69,22 @@
     error = undefined
     extractionResults = []
 
-    // const formats = [ RequestedFormat.RawHtml, RequestedFormat.ContentHtml ]
-    // if (format === OutputFormat.Markdown) {
-    //   formats.push(RequestedFormat.ContentMarkdown)
-    // } else if (format === OutputFormat.Text) {
-    //   formats.push(RequestedFormat.ContentText, RequestedFormat.ContentMarkdown)
-    // }
-    // const request = new MultiFormatExtractionRequest(url.trim(), formats, includeMetadata ?? false,
-    //   new WebFetcherOptions(fetcher ? [ fetcher ] : undefined),
-    //   new WebContentExtractorOptions(extractors.length ? extractors : undefined),
-    //   new MarkdownConverterOptions(converters),
-    // )
+    const include = new OutputSelection(true, false, false, true, format === OutputFormat.Markdown || format == OutputFormat.Markdown,
+      format === OutputFormat.Text, includeMetadata ?? false)
+
+    // TODO: add WebRequestOptions, MarkdownConversionOptions and TextConversionOptions
+    const request = new MultiFormatRequest(urlStr, include)
 
     try {
+      // TODO: support multiple content converters
       // if (extractors.length == 0) {
-      //   const result = await service.extractMultipleResponseFormat(request)
-      //   extractionResults = [ result ]
+        const result = await service.extractMultipleResponseFormat(request)
+        extractionResults = [ result ]
       // } else {
       //   extractors.forEach(async (extractor, index) => {
       //     extractionResults[index] = await service.extractMultipleResponseFormat({ ...request, extractorOptions: new WebContentExtractorOptions([ extractor ]) })
       //   })
       // }
-
-      const result = await service.extractFromUrl(new ExtractionRequest(url.trim(), format, includeMetadata ?? false,
-        new WebFetcherOptions(fetcher ? [ fetcher ] : undefined),
-      ))
-
-      extractionResults = [ mapToMultiFormatExtractionResult(result, format) ]
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     } finally {

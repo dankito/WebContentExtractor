@@ -1,6 +1,7 @@
 import { defineConfig } from "vite"
 import { svelte } from "@sveltejs/vite-plugin-svelte"
 import tailwindcss from "@tailwindcss/vite"
+import * as path from "node:path"
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -9,6 +10,11 @@ export default defineConfig({
     svelte(),
     tailwindcss(),
   ],
+  resolve: {
+    alias: {
+      "@shared": path.resolve(__dirname, "../shared"),
+    },
+  },
   server: {
     host: "0.0.0.0",
 

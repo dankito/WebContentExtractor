@@ -6,19 +6,19 @@
   import { ExtractionAction } from "../ts/ui/ExtractionAction"
   import { SourceMode } from "../ts/ui/SourceMode"
   import ConvertResult from "./result/ConvertResult.svelte"
-  import type { MultiFormatExtractionResult } from "../ts/model/MultiFormatExtractionResult"
   import { OutputFormat } from "../ts/model/OutputFormat"
   import { MarkdownConverter } from "../ts/model/MarkdownConverter"
+  import type { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse"
 
   let action = $state<ExtractionAction>(ExtractionAction.Extract)
   let sourceMode = $state<SourceMode>(SourceMode.Url)
   let format = $state<OutputFormat>(OutputFormat.Markdown)
 
-  let extractionResults = $state<MultiFormatExtractionResult[]>([])
+  let extractionResults = $state<MultiFormatResponse[]>([])
   let convertResults = $state<Record<MarkdownConverter, MarkdownConversionResult>>({})
   let error = $state<string | undefined>(undefined)
 
-  let singleResult = $derived( action === ExtractionAction.Extract && extractionResults.filter(it => !!it.extractionResult?.content).length < 2
+  let singleResult = $derived( action === ExtractionAction.Extract && extractionResults.filter(it => !!it.contentHtml).length < 2
     || action === ExtractionAction.Convert && Object.keys(convertResults).length < 2)
 </script>
 

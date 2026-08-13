@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { MultiFormatExtractionResult } from "../../ts/model/MultiFormatExtractionResult"
   import { OutputFormat } from "../../ts/model/OutputFormat"
   import ExtractionResultView from "./ExtractionResultView.svelte"
+  import type { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse"
 
-  let { extractionResults, requestedFormat }: { extractionResults: MultiFormatExtractionResult[], requestedFormat: OutputFormat } = $props()
+  let { extractionResults, requestedFormat }: { extractionResults: MultiFormatResponse[], requestedFormat: OutputFormat } = $props()
 
 </script>
 
