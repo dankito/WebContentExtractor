@@ -29,6 +29,11 @@ export class ReadabilityContentExtractor {
     try {
       this.htmlCleaner.sanitizeHtml(document)
 
+      // took a look at the code, Readability will only ever throw if:
+      // - an undefined Document or a Document without a document element gets passed to it,
+      // - maxElemsToParse is set and this number gets exceeded,
+      // - if JsDom is used and a live list is passed to _removeNodes().
+      // So practically it should never throw
       const reader = new Readability(document, { charThreshold: 0 })
       const parsed = reader.parse()
 

@@ -163,9 +163,9 @@ export const MultiFormatResponseSchema = z.object({
   rawMarkdown: MarkdownConversionResultSchema.optional(),
   rawText: TextConversionResultSchema.optional(),
 
-  // contentExtractionResult: any // TODO
-
+  contentExtractionError: z.string().optional(),
   contentHtml: z.string().optional(),
+
   contentMarkdown: MarkdownConversionResultSchema.optional(),
   contentText: TextConversionResultSchema.optional(),
 

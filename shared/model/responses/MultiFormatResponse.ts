@@ -12,7 +12,7 @@ export class MultiFormatResponse {
     readonly rawMarkdown?: MarkdownConversionResult,
     readonly rawText?: TextConversionResult,
 
-    readonly contentExtractionResult?: any, // TODO
+    readonly contentExtractionError?: string,
     readonly contentHtml?: string,
 
     readonly contentMarkdown?: MarkdownConversionResult,

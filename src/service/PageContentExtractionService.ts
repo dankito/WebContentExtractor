@@ -99,7 +99,7 @@ export class PageContentExtractionService {
       include.rawMarkdown ? rawMarkdown : undefined,
       include.rawText ? rawText : undefined,
 
-      undefined, // extractContentResult,
+      extractContentResult && extractContentResult.success === false ? extractContentResult.details.errorMessage : undefined,
       include.contentHtml ? contentHtml : undefined,
       include.contentMarkdown ? contentMarkdown : undefined,
       include.contentText ? contentText : undefined,
