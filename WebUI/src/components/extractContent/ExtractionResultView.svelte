@@ -5,7 +5,8 @@
   import { RequestedFormat } from "../../ts/model/RequestedFormat"
   import { untrack } from "svelte"
   import type { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse"
-  import type { Duration } from "@shared/service/utils/Duration"
+  import { Duration } from "@shared/service/utils/Duration"
+  import { MeasuredDuration } from "../../ts/model/MeasuredDuration"
 
   let { extractionResult, requestedFormat, requestDuration }:
     { extractionResult?: MultiFormatResponse, requestedFormat: OutputFormat, requestDuration?: Duration } = $props()
@@ -13,6 +14,9 @@
   let returnedFormats = $derived<RequestedFormat[]>(getReturnedFormats(extractionResult))
   let displayedFormat = $state<RequestedFormat | undefined>(undefined)
   let content = $state<string | undefined>(undefined)
+
+  const durations = $derived(getDurations(requestDuration, extractionResult))
+
 
   $effect(() => {
     const result = extractionResult
@@ -68,6 +72,34 @@
 
     return returnedFormats
   }
+
+  function getDurations(requestDuration?: Duration, extractionResult?: MultiFormatResponse): Partial<Record<MeasuredDuration, Duration>> {
+    const durations: Partial<Record<MeasuredDuration, Duration>> = {}
+
+    if (requestDuration) {
+      durations[MeasuredDuration.Total] = requestDuration
+    }
+
+    if (extractionResult?.webResponse?.durationMs != undefined) {
+      durations[MeasuredDuration.RequestingHtml] = Duration.ofMilliseconds(extractionResult.webResponse.durationMs)
+    }
+
+    if (extractionResult?.rawMarkdown?.durationMs != undefined) {
+      durations[MeasuredDuration.ConvertRawMarkdown] = Duration.ofMilliseconds(extractionResult.rawMarkdown.durationMs)
+    }
+    if (extractionResult?.rawText?.durationMs != undefined) {
+      durations[MeasuredDuration.ConvertRawText] = Duration.ofMilliseconds(extractionResult.rawText.durationMs)
+    }
+
+    if (extractionResult?.contentMarkdown?.durationMs != undefined) {
+      durations[MeasuredDuration.ConvertContentMarkdown] = Duration.ofMilliseconds(extractionResult.contentMarkdown.durationMs)
+    }
+    if (extractionResult?.contentText?.durationMs != undefined) {
+      durations[MeasuredDuration.ConvertContentText] = Duration.ofMilliseconds(extractionResult.contentText.durationMs)
+    }
+
+    return durations
+  }
 </script>
 
 
@@ -79,7 +111,7 @@
   {#if content}
     <ContentView content={content} format={requestedFormat} fetcher={extractionResult.webResponse?.fetcher}
                  converter={extractionResult.contentMarkdown?.converter ?? extractionResult?.contentText?.converter}
-                 {returnedFormats} bind:displayedFormat {requestDuration}
+                 {returnedFormats} bind:displayedFormat {durations}
     />
   {/if}
 {/if}

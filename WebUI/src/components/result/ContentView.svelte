@@ -11,10 +11,11 @@
   import { Option } from "../../ts/ui/Option"
   import HtmlContent from "../common/controls/HtmlContent.svelte"
   import type { Duration } from "@shared/service/utils/Duration"
+  import { MeasuredDuration } from "../../ts/model/MeasuredDuration"
 
-  let { content, format, fetcher = undefined, converter = undefined, returnedFormats = [], displayedFormat = $bindable(), requestDuration }:
+  let { content, format, fetcher = undefined, converter = undefined, returnedFormats = [], displayedFormat = $bindable(), durations }:
     { content: string, format: OutputFormat, fetcher?: WebFetcher, converter?: MarkdownConverter | TextConverter,
-      returnedFormats?: RequestedFormat[], displayedFormat?: RequestedFormat, requestDuration?: Duration } = $props()
+      returnedFormats?: RequestedFormat[], displayedFormat?: RequestedFormat, durations?: Partial<Record<MeasuredDuration, Duration>> } = $props()
 
   let viewMode = $state<"source" | "rendered">("rendered")
 
@@ -76,11 +77,12 @@
 
 
   function formatExtractionMetrics(): string {
-    const durations: string[] = []
+    if (!!!durations) {
+      return ""
+    }
 
-    // if (extractionResult)
-
-    return durations.join("\n")
+    return (Object.entries(durations) as [MeasuredDuration, Duration][])
+      .map(([name, duration]) => `${name}: ${duration.toString()}`).join("\n")
   }
 
   function formatToolsAndChars(): string {
@@ -91,6 +93,7 @@
     ].filter(it => it !== "")
 
     const countChars = content.length.toLocaleString() + " chars"
+    const requestDuration = durations?.[MeasuredDuration.Total]
     const countCharsAndDuration = requestDuration ? countChars + " · " + requestDuration.toString() : countChars
 
     if (tools.length) {
@@ -180,7 +183,7 @@
     {/if}
 
     <div class="ml-auto flex items-center gap-1.5">
-      <span class="text-xs text-zinc-400" title={formatToolsAndChars() + formatExtractionMetrics()}>
+      <span class="text-xs text-zinc-400" title={[ formatToolsAndChars(), formatExtractionMetrics() ].join("\nDurations:\n")}>
         {formatToolsAndChars()}
       </span>
 
