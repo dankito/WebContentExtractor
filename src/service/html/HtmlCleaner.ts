@@ -42,7 +42,7 @@ export class HtmlCleaner {
       .replace(/\r/g, "")
       .replace(/[ \t]+\n/g, "\n")
       .replace(/\n{3,}/g, "\n\n")
-      .replace(/[ \t]{2,}/g, " ")
+      //.replace(/[ \t]{2,}/g, " ") // cannot distinguish between whitespaces in prose and legitimate ones in <pre> and <code> tags -> we skip it
       .trim();
   }
 
