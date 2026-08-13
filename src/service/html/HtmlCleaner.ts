@@ -73,7 +73,21 @@ export class HtmlCleaner {
 
     // Always-remove tags
     // original: ["meta", "template", "svg", "canvas", "iframe", "object", "embed"]
-    if (["template", "svg", "canvas"].includes(tagName)) {
+    if (["template", "svg", "canvas", "style"].includes(tagName)) {
+      return true
+    }
+
+    // Remove scripts, except JSON-LD structured data
+    if (tagName === "script") {
+      const type = element.getAttribute("type")?.toLowerCase().trim() ?? ""
+      if (type !== "application/ld+json") {
+        return true
+      }
+      return false // keep JSON-LD, skip remaining checks
+    }
+
+    // Tracking pixels: 1x1 (or effectively 0-2px) images
+    if (tagName === "img" && this.isTrackingPixel(element)) {
       return true
     }
 
@@ -101,6 +115,36 @@ export class HtmlCleaner {
     // inline style-based hiding
     const style = element.getAttribute("style") ?? ""
     if (style && this.isStyleHidden(style)) {
+      return true
+    }
+
+    return false
+  }
+
+  private isTrackingPixel(element: Element): boolean {
+    const parseDim = (val: string | null): number | null => {
+      if (!val) return null
+      const n = parseFloat(val)
+      return Number.isNaN(n) ? null : n
+    }
+
+    // width/height attributes (unitless or px)
+    const attrWidth = parseDim(element.getAttribute("width"))
+    const attrHeight = parseDim(element.getAttribute("height"))
+
+    // inline style width/height, if present, take precedence
+    const style = element.getAttribute("style") ?? ""
+    const styleWidthMatch = style.match(/(?:^|;)\s*width\s*:\s*([\d.]+)px/i)
+    const styleHeightMatch = style.match(/(?:^|;)\s*height\s*:\s*([\d.]+)px/i)
+    const styleWidth = styleWidthMatch ? parseFloat(styleWidthMatch[1]) : null
+    const styleHeight = styleHeightMatch ? parseFloat(styleHeightMatch[1]) : null
+
+    const w = styleWidth ?? attrWidth
+    const h = styleHeight ?? attrHeight
+
+    // Only treat as tracking pixel if both dimensions are known and tiny.
+    // Avoid false positives on images missing explicit size (w or h null).
+    if (w !== null && h !== null && w <= 1 && h <= 1) {
       return true
     }
 
