@@ -7,6 +7,7 @@ import { ErrorResult } from "../model/ErrorResult.ts"
 import { SuccessResult } from "../model/SuccessResult.ts"
 import type { HtmlCleaner } from "./html/HtmlCleaner.ts"
 import { ExtractedMetadata } from "@shared/model/ExtractedMetadata.ts"
+import { Stopwatch } from "./utils/Stopwatch.ts"
 
 export class ReadabilityContentExtractor {
 
@@ -25,6 +26,8 @@ export class ReadabilityContentExtractor {
 
   private extractReadableContent(html: string, document: Document, url?: string): Result<ExtractedContent> {
     try {
+      const stopwatch = new Stopwatch()
+
       this.htmlCleaner.sanitizeHtml(document)
 
       // took a look at the code, Readability will only ever throw if:
@@ -36,7 +39,8 @@ export class ReadabilityContentExtractor {
       const parsed = reader.parse()
 
       if (!!parsed && parsed.content) {
-        return SuccessResult.for(new ExtractedContent(url, parsed.content, parsed.textContent ?? undefined, this.mapMetadata(html, parsed)))
+        const duration = stopwatch.stopToMillis()
+        return SuccessResult.for(new ExtractedContent(url, parsed.content, parsed.textContent ?? undefined, this.mapMetadata(html, parsed, duration), duration))
       } else {
         return ErrorResult.for("No content found")
       }
@@ -58,7 +62,7 @@ export class ReadabilityContentExtractor {
     siteName: string | null | undefined;
     lang: string | null | undefined;
     publishedTime: string | null | undefined
-  }): ExtractedMetadata {
+  }, durationMs?: number): ExtractedMetadata {
     return new ExtractedMetadata(
       html.length,
       parsed.content?.length ?? undefined,
@@ -71,6 +75,8 @@ export class ReadabilityContentExtractor {
       parsed.siteName ?? undefined,
       parsed.lang ?? undefined,
       parsed.publishedTime ?? undefined,
+
+      durationMs,
     )
   }
 

@@ -2,12 +2,12 @@ import { WebFetcher } from "@shared/model/WebFetcher.ts"
 
 export class WebFetcherResponse {
 
-  static success(fetcher: WebFetcher, response: string, statusCode: number, finalUrl: string, headers: Record<string, string>, cookies: string[]): WebFetcherResponse {
-    return new WebFetcherResponse(fetcher, undefined, response, statusCode, finalUrl, headers, cookies)
+  static success(fetcher: WebFetcher, response: string, statusCode: number, finalUrl: string, headers: Record<string, string>, cookies: string[], durationMs?: number): WebFetcherResponse {
+    return new WebFetcherResponse(fetcher, undefined, response, statusCode, finalUrl, headers, cookies, durationMs)
   }
 
-  static error(fetcher: WebFetcher, error: string, statusCode?: number, finalUrl?: string, headers?: Record<string, string>, cookies?: string[]): WebFetcherResponse {
-    return new WebFetcherResponse(fetcher, error, undefined, statusCode, finalUrl, headers, cookies)
+  static error(fetcher: WebFetcher, error: string, statusCode?: number, finalUrl?: string, headers?: Record<string, string>, cookies?: string[], durationMs?: number): WebFetcherResponse {
+    return new WebFetcherResponse(fetcher, error, undefined, statusCode, finalUrl, headers, cookies, durationMs)
   }
 
 
@@ -23,6 +23,8 @@ export class WebFetcherResponse {
 
     readonly headers?: Record<string, string>,
     readonly cookies?: string[],
+
+    readonly durationMs?: number,
   ) { }
 
 }

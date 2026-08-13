@@ -9,6 +9,8 @@ export class ExtractedContent {
     readonly pageContentAsText?: string,
 
     readonly metadata?: ExtractedMetadata,
+
+    readonly durationMs?: number,
   ) { }
 
 

@@ -27,6 +27,8 @@ export class ExtractedMetadata {
 
     /** published time */
     readonly publishedTime?: string,
+
+    readonly extractionDurationMs?: number, // does not really fit here, but to have a place for this to transport it to the caller
   ) { }
 
 }

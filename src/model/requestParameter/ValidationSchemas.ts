@@ -127,6 +127,8 @@ export const WebResponseSchema = z.object({
 
   headers: z.record(z.string(), z.string()).optional(),
   cookies: z.array(z.string()).optional(),
+
+  durationMs: z.int32().optional(),
 })
 
 export const MarkdownConversionResultSchema = z.object({
@@ -135,6 +137,8 @@ export const MarkdownConversionResultSchema = z.object({
 
   markdown: z.string().optional(),
   error: z.string().optional(),
+
+  durationMs: z.int32().optional(),
 })
 
 export const TextConversionResultSchema = z.object({
@@ -143,6 +147,8 @@ export const TextConversionResultSchema = z.object({
 
   text: z.string().optional(),
   error: z.string().optional(),
+
+  durationMs: z.int32().optional(),
 })
 
 export const ExtractedMetadataSchema = z.object({

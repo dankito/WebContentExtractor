@@ -3,12 +3,14 @@ import { TextConversionOptions } from "@shared/model/TextConversionOptions"
 import { TextConversionResult } from "@shared/model/TextConversionResult.ts"
 import { TextConverter } from "@shared/model/TextConverter.ts"
 import { ErrorUtil } from "../utils/ErrorUtil.ts"
+import { Stopwatch } from "../utils/Stopwatch.ts"
 
 export class HtmlToTextConverter {
 
   convertToPlainText(html: string, options?: TextConversionOptions): TextConversionResult {
     const preserveLinkUrls = options?.preserveLinkUrls ?? false
     const preserveImageUrls = options?.preserveImageUrls ?? false
+    const stopwatch = new Stopwatch()
 
     try {
       const text = convert(html, {
@@ -30,9 +32,9 @@ export class HtmlToTextConverter {
         ],
       })
 
-      return TextConversionResult.success(TextConverter.HtmlToText, text)
+      return TextConversionResult.success(TextConverter.HtmlToText, text, stopwatch.stopToMillis())
     } catch (error) {
-      return TextConversionResult.error(TextConverter.HtmlToText, ErrorUtil.errorMessageOfError(error))
+      return TextConversionResult.error(TextConverter.HtmlToText, ErrorUtil.errorMessageOfError(error), stopwatch.stopToMillis())
     }
   }
 

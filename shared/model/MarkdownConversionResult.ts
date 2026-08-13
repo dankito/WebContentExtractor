@@ -18,12 +18,14 @@ export class MarkdownConversionResult {
     // either markdown or error is set
     readonly markdown?: string, // or output
     readonly error?: string, // or ConversionError { code: string, message: string }
+
+    public durationMs?: number,
   ) { }
 
 
   mapMarkdownOnSuccess(mapper: (markdown: string) => string): MarkdownConversionResult {
     if (this.markdown != undefined) {
-      return new MarkdownConversionResult(this.converter, this.success, mapper(this.markdown!), this.error)
+      return new MarkdownConversionResult(this.converter, this.success, mapper(this.markdown!), this.error, this.durationMs)
     } else {
       return this
     }

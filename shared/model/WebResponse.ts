@@ -12,6 +12,8 @@ export class WebResponse {
 
     readonly headers?: Record<string, string>,
     readonly cookies?: string[],
+
+    readonly durationMs?: number,
   ) { }
 
 }

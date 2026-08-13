@@ -17,6 +17,7 @@ import type { MarkdownConversionResult } from "@shared/model/MarkdownConversionR
 import { SuccessResult } from "../model/SuccessResult.ts"
 import { WebFetcherResponse } from "../webFetcher/WebFetcherResponse.ts"
 import { WebResponse } from "@shared/model/WebResponse.ts"
+import { Stopwatch } from "./utils/Stopwatch.ts"
 
 export class PageContentExtractionService {
 
@@ -66,7 +67,7 @@ export class PageContentExtractionService {
 
     const webFetcherResponse = fetchHtmlResult.data
     const webResponse = new WebResponse(webFetcherResponse.fetcher, webFetcherResponse.error, webFetcherResponse.statusCode, webFetcherResponse.finalUrl,
-      webFetcherResponse.headers, webFetcherResponse.cookies)
+      webFetcherResponse.headers, webFetcherResponse.cookies, webFetcherResponse.durationMs)
     if (webFetcherResponse.error) {
       return SuccessResult.for(new MultiFormatResponse(webResponse))
     }
@@ -122,7 +123,9 @@ export class PageContentExtractionService {
 
 
   convertToMarkdown(html: string, options?: MarkdownConversionOptions): MarkdownConversionResult {
+    const stopwatch = new Stopwatch()
     const result = this.contentConverter.convertToMarkdown(html, options)
+    result.durationMs = stopwatch.stopToMillis()
 
     return result.mapMarkdownOnSuccess(markdown => this.cleanText(markdown))
   }

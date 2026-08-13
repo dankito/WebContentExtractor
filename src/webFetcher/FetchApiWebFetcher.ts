@@ -3,6 +3,7 @@ import type { WebFetcher } from "./WebFetcher"
 import { WebFetcher as WebFetcherEnum } from "@shared/model/WebFetcher.ts"
 import { ErrorUtil } from "../service/utils/ErrorUtil.ts"
 import { WebFetcherResponse } from "./WebFetcherResponse.ts"
+import { Stopwatch } from "../service/utils/Stopwatch.ts"
 
 export class FetchApiWebFetcher implements WebFetcher {
 
@@ -12,6 +13,7 @@ export class FetchApiWebFetcher implements WebFetcher {
       if (options?.userAgent) {
         headers.set("User-Agent", options.userAgent);
       }
+      const stopwatch = new Stopwatch()
 
       const response = await fetch(url, {
         method: "GET",
@@ -21,14 +23,16 @@ export class FetchApiWebFetcher implements WebFetcher {
       })
 
       const responseBody = await response.text()
+      const duration = stopwatch.stopToMillis()
 
       if (!response.ok) {
         console.error(`Fetching ${url} failed with status: ${response.status}`, responseBody)
-        return WebFetcherResponse.error(WebFetcherEnum.JsFetchApi, `Fetching ${url} failed with status: ${response.status}.${responseBody ? "Response body: " + responseBody : ""}`)
+        return WebFetcherResponse.error(WebFetcherEnum.JsFetchApi, `Fetching ${url} failed with status: ${response.status}.${responseBody ? "Response body: " + responseBody : ""}`,
+          response.status, response.url, this.headersToRecord(response.headers), response.headers.getSetCookie(), duration)
       }
 
       return WebFetcherResponse.success(WebFetcherEnum.JsFetchApi, responseBody, response.status, response.url,
-        this.headersToRecord(response.headers), response.headers.getSetCookie())
+        this.headersToRecord(response.headers), response.headers.getSetCookie(), duration)
     } catch (error) {
       console.error(`Failed to fetch HTML from ${url}:`, error)
       return WebFetcherResponse.error(WebFetcherEnum.JsFetchApi, ErrorUtil.errorMessageOfError(error))
