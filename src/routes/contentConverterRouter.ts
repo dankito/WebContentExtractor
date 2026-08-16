@@ -75,8 +75,6 @@ function convertHtml(context: Context) {
     const request: ConvertHtmlRequest = requestValidator.mapToConvertHtmlRequest(data)
     const format = httpUtil.getPreferredResponseFormat(context.req)
 
-    console.log("request", request.textConversionOptions, !!!request.markdownConversionOptions, request.textConversionOptions && !!!request.markdownConversionOptions, request)
-
     if (format === ResponseFormat.Text) {
       return convertHtmlToText(request, context, false)
     } else if (format === ResponseFormat.Markdown) {

@@ -115,7 +115,11 @@
   }
 
   function getShortExtractorInfo(): string {
-    return "Readability.js"
+    if (returnedFormats === undefined || returnedFormats.length === 0) { // convert
+      return ""
+    } else { // extract
+      return "Readability.js"
+    }
   }
 
   function getShortConverterName(converter: MarkdownConverter | TextConverter): string {

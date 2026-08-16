@@ -202,7 +202,9 @@
         <ComboBox label="Output" options={formatOptions} selectedOption={format} selectionChanged={value => format = value} />
       {/if}
 
-      <SwitchInput label="Include metadata" bind:value={includeMetadata} disabled={loading} />
+      {#if action == ExtractionAction.Extract || action == ExtractionAction.CompareExtractors}
+        <SwitchInput label="Include metadata" bind:value={includeMetadata} disabled={loading} />
+      {/if}
 
       {#if actionRequiresFetcher}
         <ComboBox label="Fetcher" options={fetcherOptions} selectedOption={fetcher} selectionChanged={value => fetcher = value} />
