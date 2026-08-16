@@ -5,6 +5,7 @@ import * as process from "bun"
 import { OpenApiRouter } from "./routes/OpenApiRouter.ts"
 import { CorsRouter } from "./routes/CorsRouter.ts"
 import { StaticFilesRouter } from "./routes/StaticFilesRouter.ts"
+import { contentConverterRouter } from "./routes/contentConverterRouter.ts"
 
 export const app = new Hono()
 
@@ -19,6 +20,8 @@ app.get("/health", (c) => {
 })
 
 app.route("/extract", pageContentExtractionRouter)
+
+app.route("/", contentConverterRouter)
 
 app.route("/", new OpenApiRouter().createOpenApiAndSwaggerUiEndpoints(app))
 

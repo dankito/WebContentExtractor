@@ -6,14 +6,13 @@
   import { OutputFormat } from "../../ts/model/OutputFormat"
   import { WebFetcher } from "../../ts/model/WebFetcher"
   import { WebContentExtractor } from "../../ts/model/WebContentExtractor"
-  import { MarkdownConverter } from "../../ts/model/MarkdownConverter"
+  import { MarkdownConverter } from "@shared/model/MarkdownConverter"
   import { DI } from "../../ts/service/DI"
   import { ExtractionAction } from "../../ts/ui/ExtractionAction"
   import SplitButton from "../common/form/SplitButton.svelte"
   import SourceInput from "../common/form/SourceInput.svelte"
   import { SourceMode } from "../../ts/ui/SourceMode"
-  import type { MarkdownConversionResult } from "../../ts/model/MarkdownConversionResult"
-  import { ExtractFromHtmlRequest } from "../../ts/model/ExtractFromHtmlRequest"
+  import type { MarkdownConversionResult } from "@shared/model/MarkdownConversionResult"
   import MultiSelect from "../common/form/MultiSelect.svelte"
   import { MultiFormatFromUrlRequest } from "@shared/model/requests/MultiFormatFromUrlRequest"
   import { OutputSelection } from "@shared/model/requests/OutputSelection"
@@ -133,17 +132,16 @@
     convertResults = {}
 
     try {
+      // TODO: add MarkdownConversionOptions
+      // TODO: support multiple content converters
       // if (converters.length === 0) {
-      //   const result = await service.convertHtmlToMarkdown(html)
-      //   convertResults[result.converter!] = result
+        const result = await service.convertHtmlToMarkdown(html)
+        convertResults[result.converter] = result
       // } else {
       //   converters.forEach(async (converter) => {
       //     convertResults[converter] = await service.convertHtmlToMarkdown(html, new MarkdownConverterOptions(converter ? [ converter ] : undefined))
       //   })
       // }
-
-      const result = await service.extractFromHtml(new ExtractFromHtmlRequest(html, OutputFormat.Markdown))
-      convertResults[MarkdownConverter.Kreuzberg] = { converter: MarkdownConverter.Kreuzberg, content: result.pageContentHtml }
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     } finally {

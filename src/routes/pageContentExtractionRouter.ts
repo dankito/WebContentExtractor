@@ -9,7 +9,12 @@ import { ExtractRequestBase } from "../model/requestParameter/ExtractRequestBase
 import type { Result } from "../model/Result.ts"
 import { ErrorResult } from "../model/ErrorResult.ts"
 import { validator } from "hono-openapi"
-import { ExtractFromHtmlSchema, ExtractFromUrlSchema, MultiFormatFromHtmlRequestSchema, MultiFormatFromUrlRequestSchema } from "../model/requestParameter/ValidationSchemas.ts"
+import {
+  ExtractFromHtmlSchema,
+  ExtractFromUrlSchema,
+  MultiFormatFromHtmlRequestSchema,
+  MultiFormatFromUrlRequestSchema
+} from "../model/requestParameter/ValidationSchemas.ts"
 import { ResponseFormat } from "../model/responses/ResponseFormat.ts"
 import { type StandardSchemaV1 } from "@standard-schema/spec"
 import type { MultiFormatFromUrlRequest } from "@shared/model/requests/MultiFormatFromUrlRequest.ts"
@@ -177,6 +182,7 @@ function isOutputSelectionValid(include: OutputSelection): ErrorResult | undefin
   }
 }
 
+
 function mapToResponse(params: ExtractRequestBase, result: Result<ExtractedContent>, context: Context) {
   if (result.success === false) {
     console.warn("Extracting content failed", result.details)
@@ -188,18 +194,18 @@ function mapToResponse(params: ExtractRequestBase, result: Result<ExtractedConte
     if (format === ResponseFormat.Html) {
       return context.html(content.pageContentHtml)
     } else if (format === ResponseFormat.Markdown) {
-      const conversionResult = extractionService.convertToMarkdown(content.pageContentHtml, params.convertToMarkdownOptions)
+      const conversionResult = extractionService.convertHtmlToMarkdown(content.pageContentHtml, params.convertToMarkdownOptions)
       if (conversionResult.success) {
         return returnMarkdown(conversionResult.markdown!, context)
       } else {
         return returnErrorResponse(ErrorResult.for(conversionResult.error!), context)
       }
     } else if (format === ResponseFormat.Text) {
-      const result = extractionService.convertToPlainText(content.pageContentHtml, params.convertToPlainTextOptions)
+      const result = extractionService.convertHtmlToText(content.pageContentHtml, params.convertToPlainTextOptions)
       if (result.success === false) {
         return returnErrorResponse(ErrorResult.for(result.error!), context)
       } else {
-        return context.text(result.text!)
+        return returnText(result.text!, context)
       }
     } else {
       return context.json(new ExtractResponse(content.url, content.pageContentHtml, params.includeMetadata ? content.metadata : undefined))
@@ -211,6 +217,10 @@ function returnMarkdown(markdown: string, context: Context): Response {
   return context.body(markdown, 200, {
     "Content-Type": "text/markdown; charset=UTF-8",
   })
+}
+
+function returnText(text: string, context: Context): Response {
+  return context.text(text)
 }
 
 

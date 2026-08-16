@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { MarkdownConversionResult } from "../../ts/model/MarkdownConversionResult"
+  import type { MarkdownConversionResult } from "@shared/model/MarkdownConversionResult"
   import { OutputFormat } from "../../ts/model/OutputFormat"
   import ContentView from "./ContentView.svelte"
-  import { MarkdownConverter } from "../../ts/model/MarkdownConverter"
+  import { MarkdownConverter } from "@shared/model/MarkdownConverter"
   import { RequestedFormat } from "../../ts/model/RequestedFormat"
 
   let { convertResults }: { convertResults?: Record<MarkdownConverter, MarkdownConversionResult> } = $props()
@@ -12,8 +12,8 @@
 
 <div class="flex flex-row justify-evenly gap-2 min-h-0">
   {#each singleResults as [converter, result]}
-    {#if convertResults && result.content}
-      <ContentView content={result.content} converter={result.converter} format={OutputFormat.Markdown} displayedFormat={RequestedFormat.ContentMarkdown} />
+    {#if convertResults && result.markdown}
+      <ContentView content={result.markdown} converter={result.converter} format={OutputFormat.Markdown} displayedFormat={RequestedFormat.ContentMarkdown} />
     {/if}
   {/each}
 </div>

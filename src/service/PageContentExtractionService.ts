@@ -93,15 +93,15 @@ export class PageContentExtractionService {
   private convertFormats(request: MultiFormatRequestCommon, rawHtml: string, webResponse?: WebResponse, extractContentResult?: Result<ExtractedContent>): MultiFormatResponse {
     const include = request.include
 
-    const rawMarkdown = include.rawMarkdown ? this.convertToMarkdown(rawHtml, request.markdownConversionOptions) : undefined
-    const rawText = include.rawText ? this.convertToPlainText(rawHtml, request.textConversionOptions) : undefined
+    const rawMarkdown = include.rawMarkdown ? this.convertHtmlToMarkdown(rawHtml, request.markdownConversionOptions) : undefined
+    const rawText = include.rawText ? this.convertHtmlToText(rawHtml, request.textConversionOptions) : undefined
 
     const contentHtml = extractContentResult?.success ? extractContentResult.data.pageContentHtml : undefined
     let contentMarkdown: MarkdownConversionResult | undefined = undefined
     let contentText: TextConversionResult | undefined = undefined
     if (contentHtml) {
-      contentMarkdown = include.contentMarkdown ? this.convertToMarkdown(contentHtml, request.markdownConversionOptions) : undefined
-      contentText = include.contentText ? this.convertToPlainText(contentHtml, request.textConversionOptions) : undefined
+      contentMarkdown = include.contentMarkdown ? this.convertHtmlToMarkdown(contentHtml, request.markdownConversionOptions) : undefined
+      contentText = include.contentText ? this.convertHtmlToText(contentHtml, request.textConversionOptions) : undefined
     }
 
     return new MultiFormatResponse(
@@ -132,7 +132,7 @@ export class PageContentExtractionService {
   }
 
 
-  convertToMarkdown(html: string, options?: MarkdownConversionOptions): MarkdownConversionResult {
+  convertHtmlToMarkdown(html: string, options?: MarkdownConversionOptions): MarkdownConversionResult {
     const stopwatch = new Stopwatch()
     const result = this.contentConverter.convertToMarkdown(html, options)
     result.durationMs = stopwatch.stopToMillis()
@@ -140,7 +140,7 @@ export class PageContentExtractionService {
     return result.mapMarkdownOnSuccess(markdown => this.cleanText(markdown))
   }
 
-  convertToPlainText(html: string, options?: TextConversionOptions): TextConversionResult {
+  convertHtmlToText(html: string, options?: TextConversionOptions): TextConversionResult {
     // Readability strips all new lines from text content, so prefer html-to-text in favor of content.pageContentAsText
     const textConversionResult = this.contentConverter.convertToPlainText(html, options)
 
