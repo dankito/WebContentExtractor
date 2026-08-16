@@ -4,7 +4,7 @@ import { MarkdownConversionOptions } from "../MarkdownConversionOptions"
 import { TextConversionOptions } from "../TextConversionOptions"
 import { MultiFormatRequestBase } from "@shared/model/requests/MultiFormatRequestBase.ts"
 
-export class MultiFormatRequest extends MultiFormatRequestBase {
+export class MultiFormatFromUrlRequest extends MultiFormatRequestBase {
 
   constructor(
     readonly url: string,

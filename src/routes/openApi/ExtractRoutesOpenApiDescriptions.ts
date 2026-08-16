@@ -82,7 +82,7 @@ export class ExtractRoutesOpenApiDescriptions {
   })
 
 
-  static ExtractMultipleFormatsPost = describeRoute({
+  static ExtractMultipleFormatsFromUrlPost = describeRoute({
     summary: "Retrieve multiple output formats like raw HTML and content Markdown with a single call",
     description: "Choose between raw HTML, raw Markdown, raw text, content HTML, content Markdown, and content text which formats you like to retrieve.",
     tags: [ "Multiple formats" ],

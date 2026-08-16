@@ -9,10 +9,10 @@ import { ExtractRequestBase } from "../model/requestParameter/ExtractRequestBase
 import type { Result } from "../model/Result.ts"
 import { ErrorResult } from "../model/ErrorResult.ts"
 import { validator } from "hono-openapi"
-import { ExtractFromHtmlSchema, ExtractFromUrlSchema, MultiFormatFromHtmlRequestSchema, MultiFormatRequestSchema } from "../model/requestParameter/ValidationSchemas.ts"
+import { ExtractFromHtmlSchema, ExtractFromUrlSchema, MultiFormatFromHtmlRequestSchema, MultiFormatFromUrlRequestSchema } from "../model/requestParameter/ValidationSchemas.ts"
 import { ResponseFormat } from "../model/responses/ResponseFormat.ts"
 import { type StandardSchemaV1 } from "@standard-schema/spec"
-import type { MultiFormatRequest } from "@shared/model/requests/MultiFormatRequest.ts"
+import type { MultiFormatFromUrlRequest } from "@shared/model/requests/MultiFormatFromUrlRequest.ts"
 import { ExtractRoutesOpenApiDescriptions } from "./openApi/ExtractRoutesOpenApiDescriptions.ts"
 import type { MultiFormatFromHtmlRequest } from "@shared/model/requests/MultiFormatFromHtmlRequest.ts"
 import type { OutputSelection } from "@shared/model/requests/OutputSelection.ts"
@@ -80,10 +80,10 @@ pageContentExtractionRouter.post("/html",
 
 
 pageContentExtractionRouter.post("/multi-format",
-  ExtractRoutesOpenApiDescriptions.ExtractMultipleFormatsPost,
-  validator("json", MultiFormatRequestSchema, validationHook),
+  ExtractRoutesOpenApiDescriptions.ExtractMultipleFormatsFromUrlPost,
+  validator("json", MultiFormatFromUrlRequestSchema, validationHook),
   async (context: Context) => {
-  return await extractMultipleFormats(context)
+  return await extractMultipleFormatsFromUrl(context)
 })
 
 pageContentExtractionRouter.post("/multi-format/html",
@@ -123,17 +123,17 @@ async function extractFromHtml(context: Context) {
   }
 }
 
-async function extractMultipleFormats(context: Context) {
+async function extractMultipleFormatsFromUrl(context: Context) {
   const data = (context.req as any).valid("json")
 
   try {
-    const request: MultiFormatRequest = requestValidator.mapToMultiFormatRequest(data)
+    const request: MultiFormatFromUrlRequest = requestValidator.mapToMultiFormatFromUrlRequest(data)
     const validationError = isOutputSelectionValid(request.include)
     if (validationError) {
       return returnErrorResponse(validationError, context)
     }
 
-    const result = await extractionService.extractMultipleFormats(request)
+    const result = await extractionService.extractMultipleFormatsFromUrl(request)
     if (result.success === false) {
       return returnErrorResponse(result, context)
     } else {

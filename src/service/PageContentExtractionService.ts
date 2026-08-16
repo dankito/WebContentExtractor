@@ -9,7 +9,7 @@ import { TextConversionOptions } from "@shared/model/TextConversionOptions"
 import { ErrorResult } from "../model/ErrorResult"
 import type { UrlVerificationService } from "./utils/UrlVerificationService"
 import type { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
-import type { MultiFormatRequest } from "@shared/model/requests/MultiFormatRequest.ts"
+import type { MultiFormatFromUrlRequest } from "@shared/model/requests/MultiFormatFromUrlRequest.ts"
 import { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse.ts"
 import type { WebRequestOptions } from "@shared/model/WebRequestOptions.ts"
 import { TextConversionResult } from "@shared/model/TextConversionResult.ts"
@@ -61,7 +61,7 @@ export class PageContentExtractionService {
   }
 
 
-  async extractMultipleFormats(request: MultiFormatRequest): Promise<Result<MultiFormatResponse>> {
+  async extractMultipleFormatsFromUrl(request: MultiFormatFromUrlRequest): Promise<Result<MultiFormatResponse>> {
     const fetchHtmlResult = await this.fetchPageHtml(request.url, request.webRequestOptions)
     if (fetchHtmlResult.success == false) {
       return fetchHtmlResult

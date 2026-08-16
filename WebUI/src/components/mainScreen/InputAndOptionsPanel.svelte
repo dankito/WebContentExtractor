@@ -14,10 +14,8 @@
   import { SourceMode } from "../../ts/ui/SourceMode"
   import type { MarkdownConversionResult } from "../../ts/model/MarkdownConversionResult"
   import { ExtractFromHtmlRequest } from "../../ts/model/ExtractFromHtmlRequest"
-  import type { MultiFormatExtractionResult } from "../../ts/model/MultiFormatExtractionResult"
   import MultiSelect from "../common/form/MultiSelect.svelte"
-  import type { ExtractResponse } from "../../ts/model/ExtractResponse"
-  import { MultiFormatRequest } from "@shared/model/requests/MultiFormatRequest"
+  import { MultiFormatFromUrlRequest } from "@shared/model/requests/MultiFormatFromUrlRequest"
   import { OutputSelection } from "@shared/model/requests/OutputSelection"
   import type { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse"
   import { Stopwatch } from "@shared/service/utils/Stopwatch"
@@ -71,7 +69,7 @@
 
     await extract(async include => {
       // TODO: add WebRequestOptions, MarkdownConversionOptions and TextConversionOptions
-      const request = new MultiFormatRequest(urlStr, include)
+      const request = new MultiFormatFromUrlRequest(urlStr, include)
       // TODO: support multiple content converters
       // if (extractors.length == 0) {
       const response = await service.extractMultipleFormatsFromUrl(request)

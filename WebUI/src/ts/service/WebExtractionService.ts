@@ -4,7 +4,7 @@ import type { ExtractResponse } from "../model/ExtractResponse"
 import type { MarkdownConversionResult } from "../model/MarkdownConversionResult"
 import { ExtractFromHtmlRequest } from "../model/ExtractFromHtmlRequest"
 import type { MarkdownConverterOptions } from "../model/MarkdownConverterOptions"
-import type { MultiFormatRequest } from "@shared/model/requests/MultiFormatRequest"
+import type { MultiFormatFromUrlRequest } from "@shared/model/requests/MultiFormatFromUrlRequest"
 import type { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse"
 import type { MultiFormatFromHtmlRequest } from "@shared/model/requests/MultiFormatFromHtmlRequest"
 
@@ -22,7 +22,7 @@ export class WebExtractionService {
   }
 
 
-  async extractMultipleFormatsFromUrl(request: MultiFormatRequest): Promise<MultiFormatResponse> {
+  async extractMultipleFormatsFromUrl(request: MultiFormatFromUrlRequest): Promise<MultiFormatResponse> {
     return await this.client.extractMultipleFormatsFromUrl(request)
   }
 

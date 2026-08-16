@@ -106,7 +106,7 @@ export const OutputSelectionSchema = z.object({
   metadata: booleanSchema.optional(),
 })
 
-export const MultiFormatRequestSchema = z.object({
+export const MultiFormatFromUrlRequestSchema = z.object({
   url: UrlSchema,
 
   include: OutputSelectionSchema,
