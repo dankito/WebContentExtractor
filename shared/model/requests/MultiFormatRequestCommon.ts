@@ -2,7 +2,7 @@ import { OutputSelection } from "./OutputSelection"
 import { MarkdownConversionOptions } from "../MarkdownConversionOptions"
 import { TextConversionOptions } from "../TextConversionOptions"
 
-export class MultiFormatRequestBase {
+export class MultiFormatRequestCommon {
 
   constructor(
     readonly include: OutputSelection,

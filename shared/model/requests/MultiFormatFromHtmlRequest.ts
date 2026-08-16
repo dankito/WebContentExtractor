@@ -1,9 +1,9 @@
 import { OutputSelection } from "./OutputSelection"
 import { MarkdownConversionOptions } from "../MarkdownConversionOptions"
 import { TextConversionOptions } from "../TextConversionOptions"
-import { MultiFormatRequestBase } from "@shared/model/requests/MultiFormatRequestBase.ts"
+import { MultiFormatRequestCommon } from "@shared/model/requests/MultiFormatRequestCommon.ts"
 
-export class MultiFormatFromHtmlRequest extends MultiFormatRequestBase {
+export class MultiFormatFromHtmlRequest extends MultiFormatRequestCommon {
 
   constructor(
     readonly html: string,
