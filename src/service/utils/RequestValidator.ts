@@ -8,7 +8,7 @@ import { WebRequestOptions } from "@shared/model/WebRequestOptions"
 import { TextConversionOptions } from "@shared/model/TextConversionOptions"
 import {
   ExtractFromHtmlSchema,
-  ExtractFromUrlSchema,
+  ExtractFromUrlSchema, MultiFormatFromHtmlRequestSchema,
   MultiFormatRequestSchema,
   OutputSelectionSchema,
   WebRequestOptionsSchema
@@ -17,6 +17,7 @@ import { z } from "zod"
 import { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
 import { MultiFormatRequest } from "@shared/model/requests/MultiFormatRequest.ts"
 import { OutputSelection } from "@shared/model/requests/OutputSelection.ts"
+import { MultiFormatFromHtmlRequest } from "@shared/model/requests/MultiFormatFromHtmlRequest.ts"
 
 export class RequestValidator {
 
@@ -99,6 +100,15 @@ export class RequestValidator {
       data.url,
       this.mapToOutputSelection(data.include),
       this.mapToWebRequestOptions(data),
+      this.mapToConvertToMarkdownOptions(data),
+      this.mapToConvertToPlainTextOptions(data)
+    )
+  }
+
+  mapToMultiFormatFromHtmlRequest(data: z.infer<typeof MultiFormatFromHtmlRequestSchema>): MultiFormatFromHtmlRequest {
+    return new MultiFormatFromHtmlRequest(
+      data.html,
+      this.mapToOutputSelection(data.include),
       this.mapToConvertToMarkdownOptions(data),
       this.mapToConvertToPlainTextOptions(data)
     )

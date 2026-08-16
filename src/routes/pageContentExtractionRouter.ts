@@ -9,11 +9,13 @@ import { ExtractRequestBase } from "../model/requestParameter/ExtractRequestBase
 import type { Result } from "../model/Result.ts"
 import { ErrorResult } from "../model/ErrorResult.ts"
 import { validator } from "hono-openapi"
-import { ExtractFromHtmlSchema, ExtractFromUrlSchema, MultiFormatRequestSchema } from "../model/requestParameter/ValidationSchemas.ts"
+import { ExtractFromHtmlSchema, ExtractFromUrlSchema, MultiFormatFromHtmlRequestSchema, MultiFormatRequestSchema } from "../model/requestParameter/ValidationSchemas.ts"
 import { ResponseFormat } from "../model/responses/ResponseFormat.ts"
 import { type StandardSchemaV1 } from "@standard-schema/spec"
 import type { MultiFormatRequest } from "@shared/model/requests/MultiFormatRequest.ts"
 import { ExtractRoutesOpenApiDescriptions } from "./openApi/ExtractRoutesOpenApiDescriptions.ts"
+import type { MultiFormatFromHtmlRequest } from "@shared/model/requests/MultiFormatFromHtmlRequest.ts"
+import type { OutputSelection } from "@shared/model/requests/OutputSelection.ts"
 
 
 export const pageContentExtractionRouter = new Hono()
@@ -84,6 +86,13 @@ pageContentExtractionRouter.post("/multi-format",
   return await extractMultipleFormats(context)
 })
 
+pageContentExtractionRouter.post("/multi-format/html",
+  ExtractRoutesOpenApiDescriptions.ExtractMultipleFormatsFromHtmlPost,
+  validator("json", MultiFormatFromHtmlRequestSchema, validationHook),
+  async (context: Context) => {
+    return await extractMultipleFormatsFromHtml(context)
+  })
+
 
 async function extractFromUrl(context: Context, extractFromBody: boolean) {
   const target = extractFromBody ? "json" : "query"
@@ -119,10 +128,9 @@ async function extractMultipleFormats(context: Context) {
 
   try {
     const request: MultiFormatRequest = requestValidator.mapToMultiFormatRequest(data)
-    if (request.include.rawHtml !== true && request.include.rawMarkdown !== true && request.include.rawText !== true
-        && request.include.contentHtml !== true && request.include.contentMarkdown !== true && request.include.contentText !== true) {
-      return returnErrorResponse(ErrorResult.for("One of the output formats (rawHtml, rawMarkdown, rawText, " +
-        "contentHtml, contentMarkdown, or contentText) must be requested", true), context)
+    const validationError = isOutputSelectionValid(request.include)
+    if (validationError) {
+      return returnErrorResponse(validationError, context)
     }
 
     const result = await extractionService.extractMultipleFormats(request)
@@ -133,6 +141,39 @@ async function extractMultipleFormats(context: Context) {
     }
   } catch (error) {
     return createErrorResponseFromError(error, context)
+  }
+}
+
+async function extractMultipleFormatsFromHtml(context: Context) {
+  const data = (context.req as any).valid("json")
+
+  try {
+    const request: MultiFormatFromHtmlRequest = requestValidator.mapToMultiFormatFromHtmlRequest(data)
+    const validationError = isOutputSelectionValid(request.include)
+    if (validationError) {
+      return returnErrorResponse(validationError, context)
+    }
+
+    const result = await extractionService.extractMultipleFormatsFromHtml(request)
+    if (result.success === false) {
+      return returnErrorResponse(result, context)
+    } else {
+      return context.json(result.data)
+    }
+  } catch (error) {
+    return createErrorResponseFromError(error, context)
+  }
+}
+
+function isOutputSelectionValid(include: OutputSelection): ErrorResult | undefined {
+  const isAtLeastOneOutputFormatRequested = include.rawHtml === true || include.rawMarkdown === true || include.rawText === true ||
+    include.contentHtml === true || include.contentMarkdown === true || include.contentText === true
+
+  if (isAtLeastOneOutputFormatRequested) {
+    return undefined
+  } else {
+    return ErrorResult.for("One of the output formats (rawHtml, rawMarkdown, rawText, " +
+      "contentHtml, contentMarkdown, or contentText) must be requested", true)
   }
 }
 

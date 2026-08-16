@@ -104,4 +104,26 @@ export class ExtractRoutesOpenApiDescriptions {
     },
   })
 
+  static ExtractMultipleFormatsFromHtmlPost = describeRoute({
+    summary: "Retrieve multiple output formats like raw Markdown and content HTML or Text with a single call",
+    description: "Choose between raw HTML, raw Markdown, raw text, content HTML, content Markdown, and content text which formats you like to retrieve.",
+    tags: [ "Multiple formats" ],
+    responses: {
+      200: {
+        description: "Successful extraction",
+        content: {
+          "application/json": { schema: resolver(MultiFormatResponseSchema) },
+        },
+      },
+      400: {
+        description: "Invalid request body",
+        content: { "application/json": { schema: resolver(ErrorResponseSchema) } },
+      },
+      500: {
+        description: "Extraction failed",
+        content: { "application/json": { schema: resolver(ErrorResponseSchema) } },
+      },
+    },
+  })
+
 }

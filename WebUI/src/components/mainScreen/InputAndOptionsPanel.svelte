@@ -22,6 +22,7 @@
   import type { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse"
   import { Stopwatch } from "@shared/service/utils/Stopwatch"
   import { Duration } from "@shared/service/utils/Duration"
+  import { MultiFormatFromHtmlRequest } from "@shared/model/requests/MultiFormatFromHtmlRequest"
 
 
   let { action = $bindable(), sourceMode = $bindable(), format = $bindable(), extractionResults = $bindable(), convertResults = $bindable({}), requestDuration = $bindable(), error = $bindable() } =
@@ -68,6 +69,35 @@
       return
     }
 
+    await extract(async include => {
+      // TODO: add WebRequestOptions, MarkdownConversionOptions and TextConversionOptions
+      const request = new MultiFormatRequest(urlStr, include)
+      // TODO: support multiple content converters
+      // if (extractors.length == 0) {
+      const response = await service.extractMultipleFormatsFromUrl(request)
+      return [ response ]
+      // } else {
+      //   extractors.forEach(async (extractor, index) => {
+      //     extractionResults[index] = await service.extractMultipleResponseFormat({ ...request, extractorOptions: new WebContentExtractorOptions([ extractor ]) })
+      //   })
+      // }
+    })
+  }
+
+  async function extractFromHtml() {
+    if (!rawHtml.trim()) {
+      return
+    }
+
+    await extract(async include => {
+      const request = new MultiFormatFromHtmlRequest(rawHtml.trim(), include)
+
+      const response = await service.extractMultipleFormatsFromHtml(request)
+      return [ response ]
+    })
+  }
+
+  async function extract(doRequest: (include: OutputSelection) => Promise<MultiFormatResponse[]>) {
     loading = true
     error = undefined
     extractionResults = []
@@ -82,76 +112,14 @@
       includeMetadata ?? false
     )
 
-    // TODO: add WebRequestOptions, MarkdownConversionOptions and TextConversionOptions
-    const request = new MultiFormatRequest(urlStr, include)
-
     try {
-      // TODO: support multiple content converters
-      // if (extractors.length == 0) {
-        const result = await service.extractMultipleResponseFormat(request)
-        extractionResults = [ result ]
-      // } else {
-      //   extractors.forEach(async (extractor, index) => {
-      //     extractionResults[index] = await service.extractMultipleResponseFormat({ ...request, extractorOptions: new WebContentExtractorOptions([ extractor ]) })
-      //   })
-      // }
+      extractionResults = await doRequest(include)
 
       requestDuration = stopwatch.stop()
     } catch (e) {
       error = e instanceof Error ? e.message : String(e)
     } finally {
       loading = false
-    }
-  }
-
-  async function extractFromHtml() {
-    if (!rawHtml.trim()) {
-      return
-    }
-
-    loading = true
-    error = undefined
-    extractionResults = []
-
-    // const request = new ExtractFromHtmlRequest(rawHtml.trim(), format, includeMetadata ?? false,
-    //   new WebContentExtractorOptions(extractors),
-    //   new MarkdownConverterOptions(converters),
-    // )
-
-    try {
-      // if (extractors.length === 0) {
-      //   const result = await service.extractMultipleResponseFormatFromHtml(request)
-      //   extractionResults = [ result ]
-      // } else {
-      //   extractors.forEach(async (extractor, index) => {
-      //     extractionResults[index] = await service.extractMultipleResponseFormatFromHtml({ ...request, extractorOptions: new WebContentExtractorOptions([ extractor ]) })
-      //   })
-      // }
-
-      const result = await service.extractFromHtml(new ExtractFromHtmlRequest(rawHtml.trim(), format, includeMetadata ?? false))
-
-      extractionResults = [ mapToMultiFormatExtractionResult(result, format) ]
-    } catch (e) {
-      error = e instanceof Error ? e.message : String(e)
-    } finally {
-      loading = false
-    }
-  }
-
-  function mapToMultiFormatExtractionResult(result: ExtractResponse, format: OutputFormat): MultiFormatExtractionResult {
-
-    return {
-      url: result.url ?? "",
-      // @ts-ignore
-      fetchResult: undefined, // should work
-
-      extractionResult: {
-        content: result.pageContentHtml
-      },
-      metadata: result.metadata,
-
-      contentMarkdown: format !== OutputFormat.Markdown ? undefined : { content: result.pageContentHtml },
-      contentText: format !== OutputFormat.Text ? undefined : { content: result.pageContentHtml },
     }
   }
 

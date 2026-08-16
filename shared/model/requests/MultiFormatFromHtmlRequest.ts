@@ -1,17 +1,14 @@
-import { WebRequestOptions } from "../WebRequestOptions"
 import { OutputSelection } from "./OutputSelection"
 import { MarkdownConversionOptions } from "../MarkdownConversionOptions"
 import { TextConversionOptions } from "../TextConversionOptions"
 import { MultiFormatRequestBase } from "@shared/model/requests/MultiFormatRequestBase.ts"
 
-export class MultiFormatRequest extends MultiFormatRequestBase {
+export class MultiFormatFromHtmlRequest extends MultiFormatRequestBase {
 
   constructor(
-    readonly url: string,
+    readonly html: string,
 
     include: OutputSelection,
-
-    readonly webRequestOptions?: WebRequestOptions,
 
     markdownConversionOptions?: MarkdownConversionOptions,
     textConversionOptions?: TextConversionOptions,

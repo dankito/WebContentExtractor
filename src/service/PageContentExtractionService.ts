@@ -18,6 +18,8 @@ import { SuccessResult } from "../model/SuccessResult.ts"
 import { WebFetcherResponse } from "../webFetcher/WebFetcherResponse.ts"
 import { WebResponse } from "@shared/model/WebResponse.ts"
 import { Stopwatch } from "@shared/service/utils/Stopwatch.ts"
+import type { MultiFormatFromHtmlRequest } from "@shared/model/requests/MultiFormatFromHtmlRequest.ts"
+import type { MultiFormatRequestBase } from "@shared/model/requests/MultiFormatRequestBase.ts"
 
 export class PageContentExtractionService {
 
@@ -74,13 +76,21 @@ export class PageContentExtractionService {
 
     const rawHtml = webFetcherResponse.responseBody!
 
+    return this.extractContentAndConvertFormats(request, rawHtml, request.url, webResponse)
+  }
+
+  async extractMultipleFormatsFromHtml(request: MultiFormatFromHtmlRequest): Promise<Result<MultiFormatResponse>> {
+    return this.extractContentAndConvertFormats(request, request.html)
+  }
+
+  async extractContentAndConvertFormats(request: MultiFormatRequestBase, rawHtml: string, url?: string, webResponse?: WebResponse): Promise<Result<MultiFormatResponse>> {
     const extractContentResult = request.include.requiresExtractingContent()
-      ? this.extractContentFromHtml(rawHtml, request.url) : undefined
+      ? this.extractContentFromHtml(rawHtml, url) : undefined
 
     return SuccessResult.for(this.convertFormats(request, rawHtml, webResponse, extractContentResult))
   }
 
-  private convertFormats(request: MultiFormatRequest, rawHtml: string, webResponse: WebResponse, extractContentResult: Result<ExtractedContent> | undefined): MultiFormatResponse {
+  private convertFormats(request: MultiFormatRequestBase, rawHtml: string, webResponse?: WebResponse, extractContentResult?: Result<ExtractedContent>): MultiFormatResponse {
     const include = request.include
 
     const rawMarkdown = include.rawMarkdown ? this.convertToMarkdown(rawHtml, request.markdownConversionOptions) : undefined

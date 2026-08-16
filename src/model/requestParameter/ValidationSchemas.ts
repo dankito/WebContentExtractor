@@ -117,6 +117,15 @@ export const MultiFormatRequestSchema = z.object({
   textConversionOptions: TextConversionOptionsSchema.optional()
 })
 
+export const MultiFormatFromHtmlRequestSchema = z.object({
+  html: z.string(),
+
+  include: OutputSelectionSchema,
+
+  markdownConversionOptions: MarkdownConversionOptionsSchema.optional(),
+  textConversionOptions: TextConversionOptionsSchema.optional()
+})
+
 export const WebResponseSchema = z.object({
   fetcher: z.enum(WebFetcher),
 
