@@ -23,11 +23,12 @@ router.get("/health", (c) => {
   return c.json({ status: "ok", timestamp: new Date().toISOString() })
 })
 
+
 router.route("/extract", pageContentExtractionRouter)
 
 router.route("/", contentConverterRouter)
 
-router.route("/", new OpenApiRouter().createOpenApiAndSwaggerUiEndpoints(router))
+router.route("/", new OpenApiRouter().createOpenApiAndSwaggerUiEndpoints(router, "/openapi.json", "/swagger-ui"))
 
 
 const host = process.env.HOST ?? "localhost"

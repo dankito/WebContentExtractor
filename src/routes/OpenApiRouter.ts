@@ -18,26 +18,26 @@ export class OpenApiRouter {
   }
 
 
-  createOpenApiAndSwaggerUiEndpoints(endpoints: Hono): Hono {
+  createOpenApiAndSwaggerUiEndpoints(endpoints: Hono, openApiPath: string = "/openapi.json", swaggerUiPath: string = "/swagger-ui"): Hono {
     const openApiRouter = new Hono()
 
-    this.createOpenApiEndpoint(openApiRouter, endpoints)
+    this.createOpenApiEndpoint(openApiRouter, endpoints, openApiPath)
 
-    this.createSwaggerUiEndpoint(openApiRouter)
+    this.createSwaggerUiEndpoint(openApiRouter, swaggerUiPath, openApiPath)
 
     return openApiRouter
   }
 
-  private createOpenApiEndpoint(openApiRouter: Hono, endpoints: Hono) {
+  private createOpenApiEndpoint(openApiRouter: Hono, endpoints: Hono, openApiPath: string) {
     openApiRouter.get(
-      "/openapi.json",
+      openApiPath,
       openAPIRouteHandler(endpoints, OpenApiRouter.OpenApiDocumentation),
     )
   }
 
-  private createSwaggerUiEndpoint(openApiRouter: Hono) {
-    openApiRouter.get("/swagger-ui", swaggerUI({
-      url: "./openapi.json",
+  private createSwaggerUiEndpoint(openApiRouter: Hono, swaggerUiPath: string, openApiPath: string) {
+    openApiRouter.get(swaggerUiPath, swaggerUI({
+      url: "." + openApiPath,
       tryItOutEnabled: true,
       displayRequestDuration: true,
     }))
