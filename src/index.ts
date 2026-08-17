@@ -9,21 +9,25 @@ import { contentConverterRouter } from "./routes/contentConverterRouter.ts"
 
 export const app = new Hono()
 
-app.use("*", logger())
+const basePath = process.env.BASE_PATH
+const router = basePath ? app.basePath(basePath) : app
 
-new CorsRouter().configureCors(app)
 
-new StaticFilesRouter().configureStaticFilesRoutes(app)
+router.use("*", logger())
 
-app.get("/health", (c) => {
+new CorsRouter().configureCors(router)
+
+new StaticFilesRouter().configureStaticFilesRoutes(router)
+
+router.get("/health", (c) => {
   return c.json({ status: "ok", timestamp: new Date().toISOString() })
 })
 
-app.route("/extract", pageContentExtractionRouter)
+router.route("/extract", pageContentExtractionRouter)
 
-app.route("/", contentConverterRouter)
+router.route("/", contentConverterRouter)
 
-app.route("/", new OpenApiRouter().createOpenApiAndSwaggerUiEndpoints(app))
+router.route("/", new OpenApiRouter().createOpenApiAndSwaggerUiEndpoints(router))
 
 
 const host = process.env.HOST ?? "localhost"

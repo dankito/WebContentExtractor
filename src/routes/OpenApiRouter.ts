@@ -37,7 +37,7 @@ export class OpenApiRouter {
 
   private createSwaggerUiEndpoint(openApiRouter: Hono) {
     openApiRouter.get("/swagger-ui", swaggerUI({
-      url: "/openapi.json",
+      url: "./openapi.json",
       tryItOutEnabled: true,
       displayRequestDuration: true,
     }))
