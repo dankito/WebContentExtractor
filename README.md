@@ -67,6 +67,44 @@ The service can be configured using the following environment variables:
 
 ---
 
+## OpenAPI / Swagger-UI
+
+The service provides an OpenAPI 3.0 specification and an interactive Swagger-UI:
+
+### Swagger-UI
+
+`http://localhost:3030/swagger-ui`
+
+### OpenAPI Specification
+
+`GET /openapi.json`
+
+---
+
+## Model Context Protocol (MCP) Server
+
+This service also acts as an [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server, allowing LLMs to directly use the extraction tools.
+- **Endpoint**: `POST /mcp`
+- **Transport**: [StreamableHTTPTransport](https://github.com/dankito/hono-mcp)
+
+### Available MCP Tools
+
+- `extract_from_url`: Extract main content from a URL.
+- `extract_from_html`: Extract main content from provided HTML.
+- `multi_format_from_url`: Retrieve multiple output formats from a URL.
+- `multi_format_from_html`: Retrieve multiple output formats from provided HTML.
+- `convert_html`: Convert HTML to Markdown or text.
+
+---
+
+## Web-UI
+
+Web Content Extractor ships with a small, not fully functional Web-UI at
+
+`http://localhost:3030/`
+
+---
+
 ## API Documentation
 
 ### Endpoints
@@ -150,10 +188,6 @@ Convert provided HTML to Markdown or plain text.
 
 #### 7. `GET /health`
 Returns the server status and current timestamp.
-
-#### 8. Documentation
-- `GET /openapi.json`: OpenAPI 3.0 specification.
-- `GET /swagger-ui`: Interactive API documentation.
 
 ### Response Formats
 The response format can be configured using the `Accept` header:
