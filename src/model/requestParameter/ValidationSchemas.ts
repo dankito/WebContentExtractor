@@ -65,7 +65,7 @@ const UrlSchema = z.preprocess(
   }
 })
 
-export const ExtractFromUrlSchema = z.object({
+export const ExtractFromUrlQueryParamsSchema = z.object({
   url: UrlSchema,
   includeMetadata: booleanSchema.optional(),
   // Flattened structure as it comes from request params/body
@@ -80,6 +80,16 @@ export const ExtractFromUrlSchema = z.object({
   preserveImageUrlsInPlainText: booleanSchema.optional(),
 })
 
+export const ExtractFromUrlRequestBodySchema = z.object({
+  url: UrlSchema,
+  includeMetadata: booleanSchema.optional(),
+
+  webRequestOptions: WebRequestOptionsSchema.optional(),
+
+  markdownConversionOptions: MarkdownConversionOptionsSchema.optional(),
+  textConversionOptions: TextConversionOptionsSchema.optional(),
+})
+
 export const ExtractFromHtmlSchema = z.object({
   html: z.preprocess(
     (val) => (val === undefined || val === null ? "" : val),
@@ -87,11 +97,9 @@ export const ExtractFromHtmlSchema = z.object({
   ),
   url: z.string().optional(),
   includeMetadata: booleanSchema.optional(),
-  // convert to markdown options
-  includeImages: booleanSchema.optional(),
-  // convert to text options
-  preserveLinkUrlsInPlainText: booleanSchema.optional(),
-  preserveImageUrlsInPlainText: booleanSchema.optional(),
+
+  markdownConversionOptions: MarkdownConversionOptionsSchema.optional(),
+  textConversionOptions: TextConversionOptionsSchema.optional(),
 })
 
 export const OutputSelectionSchema = z.object({
@@ -123,14 +131,14 @@ export const MultiFormatFromHtmlRequestSchema = z.object({
   include: OutputSelectionSchema,
 
   markdownConversionOptions: MarkdownConversionOptionsSchema.optional(),
-  textConversionOptions: TextConversionOptionsSchema.optional()
+  textConversionOptions: TextConversionOptionsSchema.optional(),
 })
 
 export const ConvertHtmlRequestSchema = z.object({
   html: z.string(),
 
   markdownConversionOptions: MarkdownConversionOptionsSchema.optional(),
-  textConversionOptions: TextConversionOptionsSchema.optional()
+  textConversionOptions: TextConversionOptionsSchema.optional(),
 })
 
 export const WebResponseSchema = z.object({

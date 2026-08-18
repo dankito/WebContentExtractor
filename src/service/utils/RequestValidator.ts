@@ -5,9 +5,9 @@ import { TextConversionOptions } from "@shared/model/TextConversionOptions"
 import {
   ConvertHtmlRequestSchema,
   ExtractFromHtmlSchema,
-  ExtractFromUrlSchema, MultiFormatFromHtmlRequestSchema,
+  ExtractFromUrlQueryParamsSchema, ExtractFromUrlRequestBodySchema, MarkdownConversionOptionsSchema, MultiFormatFromHtmlRequestSchema,
   MultiFormatFromUrlRequestSchema,
-  OutputSelectionSchema,
+  OutputSelectionSchema, TextConversionOptionsSchema,
   WebRequestOptionsSchema
 } from "../../model/requestParameter/ValidationSchemas"
 import { z } from "zod"
@@ -20,13 +20,31 @@ import { ConvertHtmlRequest } from "@shared/model/requests/ConvertHtmlRequest.ts
 
 export class RequestValidator {
 
-  mapToExtractFromUrlRequest(data: z.infer<typeof ExtractFromUrlSchema>): ExtractFromUrlRequest {
+  mapToExtractFromUrlRequest(data: z.infer<typeof ExtractFromUrlQueryParamsSchema | typeof ExtractFromUrlRequestBodySchema>, extractFromBody: boolean): ExtractFromUrlRequest {
+    if (extractFromBody) {
+      return this.mapToExtractFromUrlRequestFromRequestBody(data)
+    } else {
+      return this.mapToExtractFromUrlRequestFromQueryParams(data)
+    }
+  }
+
+  mapToExtractFromUrlRequestFromQueryParams(data: z.infer<typeof ExtractFromUrlQueryParamsSchema>): ExtractFromUrlRequest {
     return new ExtractFromUrlRequest(
       data.url,
       data.includeMetadata,
-      this.mapToConvertToMarkdownOptionsFromQueryParameter(data),
-      this.mapToConvertToPlainTextOptionsFromQueryParameter(data),
-      this.mapToWebRequestOptions(data)
+      this.mapToMarkdownConversionOptionsFromQueryParameter(data),
+      this.mapToTextConversionOptionsFromQueryParameter(data),
+      this.mapToWebRequestOptions(data),
+    )
+  }
+
+  mapToExtractFromUrlRequestFromRequestBody(data: z.infer<typeof ExtractFromUrlRequestBodySchema>): ExtractFromUrlRequest {
+    return new ExtractFromUrlRequest(
+      data.url,
+      data.includeMetadata,
+      this.mapToMarkdownConversionOptions(data.markdownConversionOptions),
+      this.mapToTextConversionOptions(data.textConversionOptions),
+      data.webRequestOptions ? this.mapToWebRequestOptions(data.webRequestOptions) : undefined,
     )
   }
 
@@ -36,8 +54,8 @@ export class RequestValidator {
       data.html,
       data.url || undefined,
       data.includeMetadata,
-      this.mapToConvertToMarkdownOptionsFromQueryParameter(data),
-      this.mapToConvertToPlainTextOptionsFromQueryParameter(data)
+      this.mapToMarkdownConversionOptions(data.markdownConversionOptions),
+      this.mapToTextConversionOptions(data.textConversionOptions),
     )
   }
 
@@ -46,9 +64,9 @@ export class RequestValidator {
     return new MultiFormatFromUrlRequest(
       data.url,
       this.mapToOutputSelection(data.include),
-      this.mapToWebRequestOptions(data),
-      this.mapToConvertToMarkdownOptions(data),
-      this.mapToConvertToPlainTextOptions(data)
+      data.webRequestOptions ? this.mapToWebRequestOptions(data.webRequestOptions) : undefined,
+      this.mapToMarkdownConversionOptions(data.markdownConversionOptions),
+      this.mapToTextConversionOptions(data.textConversionOptions),
     )
   }
 
@@ -56,8 +74,8 @@ export class RequestValidator {
     return new MultiFormatFromHtmlRequest(
       data.html,
       this.mapToOutputSelection(data.include),
-      this.mapToConvertToMarkdownOptions(data),
-      this.mapToConvertToPlainTextOptions(data)
+      this.mapToMarkdownConversionOptions(data.markdownConversionOptions),
+      this.mapToTextConversionOptions(data.textConversionOptions),
     )
   }
 
@@ -73,21 +91,21 @@ export class RequestValidator {
   mapToConvertHtmlRequest(data: z.infer<typeof ConvertHtmlRequestSchema>): ConvertHtmlRequest {
     return new ConvertHtmlRequest(
       data.html,
-      this.mapToConvertToMarkdownOptions(data),
-      this.mapToConvertToPlainTextOptions(data)
+      this.mapToMarkdownConversionOptions(data.markdownConversionOptions),
+      this.mapToTextConversionOptions(data.textConversionOptions)
     )
   }
 
 
-  private mapToConvertToMarkdownOptions(data: z.infer<typeof MultiFormatFromHtmlRequestSchema | typeof MultiFormatFromUrlRequestSchema | typeof ConvertHtmlRequestSchema>): MarkdownConversionOptions | undefined {
-    if (data.markdownConversionOptions === undefined) {
+  private mapToMarkdownConversionOptions(data: z.infer<typeof MarkdownConversionOptionsSchema> | undefined): MarkdownConversionOptions | undefined {
+    if (data === undefined) {
       return undefined
     }
 
-    return new MarkdownConversionOptions(data.markdownConversionOptions.includeImages)
+    return new MarkdownConversionOptions(data.includeImages)
   }
 
-  private mapToConvertToMarkdownOptionsFromQueryParameter(data: z.infer<typeof ExtractFromUrlSchema> | z.infer<typeof ExtractFromHtmlSchema>): MarkdownConversionOptions | undefined {
+  private mapToMarkdownConversionOptionsFromQueryParameter(data: z.infer<typeof ExtractFromUrlQueryParamsSchema>): MarkdownConversionOptions | undefined {
     if (data.includeImages === undefined) {
       return undefined
     }
@@ -95,15 +113,15 @@ export class RequestValidator {
     return new MarkdownConversionOptions(data.includeImages)
   }
 
-  private mapToConvertToPlainTextOptions(data: z.infer<typeof MultiFormatFromHtmlRequestSchema | typeof MultiFormatFromUrlRequestSchema | typeof ConvertHtmlRequestSchema>): TextConversionOptions | undefined {
-    if (data.textConversionOptions === undefined) {
+  private mapToTextConversionOptions(data: z.infer<typeof TextConversionOptionsSchema> | undefined): TextConversionOptions | undefined {
+    if (data === undefined) {
       return undefined
     }
 
-    return new TextConversionOptions(data.textConversionOptions.preserveLinkUrls, data.textConversionOptions.preserveImageUrls)
+    return new TextConversionOptions(data.preserveLinkUrls, data.preserveImageUrls)
   }
 
-  private mapToConvertToPlainTextOptionsFromQueryParameter(data: z.infer<typeof ExtractFromUrlSchema> | z.infer<typeof ExtractFromHtmlSchema>): TextConversionOptions | undefined {
+  private mapToTextConversionOptionsFromQueryParameter(data: z.infer<typeof ExtractFromUrlQueryParamsSchema>): TextConversionOptions | undefined {
     if (data.preserveLinkUrlsInPlainText === undefined && data.preserveImageUrlsInPlainText === undefined) {
       return undefined
     }
@@ -111,7 +129,7 @@ export class RequestValidator {
     return new TextConversionOptions(data.preserveLinkUrlsInPlainText, data.preserveImageUrlsInPlainText)
   }
 
-  private mapToWebRequestOptions(data: z.infer<typeof WebRequestOptionsSchema | typeof ExtractFromUrlSchema>): WebRequestOptions | undefined {
+  private mapToWebRequestOptions(data: z.infer<typeof WebRequestOptionsSchema | typeof ExtractFromUrlQueryParamsSchema>): WebRequestOptions | undefined {
     if (data.timeout === undefined && data.userAgent === undefined && data.followRedirects === undefined) {
       return undefined
     }

@@ -11,7 +11,7 @@ import { ErrorResult } from "../model/ErrorResult.ts"
 import { validator } from "hono-openapi"
 import {
   ExtractFromHtmlSchema,
-  ExtractFromUrlSchema,
+  ExtractFromUrlQueryParamsSchema, ExtractFromUrlRequestBodySchema,
   MultiFormatFromHtmlRequestSchema,
   MultiFormatFromUrlRequestSchema
 } from "../model/requestParameter/ValidationSchemas.ts"
@@ -50,7 +50,7 @@ const validationHook = (result: any, context: Context) => {
  */
 pageContentExtractionRouter.get("/",
   ExtractRoutesOpenApiDescriptions.ExtractGet,
-  validator("query", ExtractFromUrlSchema, validationHook),
+  validator("query", ExtractFromUrlQueryParamsSchema, validationHook),
   async (context) => {
   return await extractFromUrl(context, false)
 })
@@ -63,7 +63,7 @@ pageContentExtractionRouter.get("/",
  */
 pageContentExtractionRouter.post("/",
   ExtractRoutesOpenApiDescriptions.ExtractPost,
-  validator("json", ExtractFromUrlSchema, validationHook),
+  validator("json", ExtractFromUrlRequestBodySchema, validationHook),
   async (context) => {
     return await extractFromUrl(context, true)
   }
@@ -104,7 +104,7 @@ async function extractFromUrl(context: Context, extractFromBody: boolean) {
   const data = (context.req as any).valid(target)
 
   try {
-    const request: ExtractFromUrlRequest = requestValidator.mapToExtractFromUrlRequest(data)
+    const request: ExtractFromUrlRequest = requestValidator.mapToExtractFromUrlRequest(data, extractFromBody)
 
     const result = await extractionService.extractContentFromUrl(request)
 
