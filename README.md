@@ -54,6 +54,18 @@ bun run dev
 
 ---
 
+## Environment Variables
+
+The service can be configured using the following environment variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `HOST` | The hostname/interface to listen on. | `localhost` |
+| `PORT` | The port to listen on. | `3030` |
+| `BASE_PATH` | Optional base path for the API (e.g., `/api/v1`). | - |
+
+---
+
 ## API Documentation
 
 ### Endpoints
@@ -66,6 +78,9 @@ Quickly extract content from a URL using query parameters.
   - `timeout` (optional): Request timeout in milliseconds.
   - `userAgent` (optional): Custom User-Agent header for the fetch request.
   - `followRedirects` (optional): Whether to follow HTTP redirects (`true` or `false`).
+  - `includeImages` (optional): Set to `true` to include images in Markdown output.
+  - `preserveLinkUrlsInPlainText` (optional): `true` to include link URLs in plain text output.
+  - `preserveImageUrlsInPlainText` (optional): `true` to include image URLs in plain text output.
 
 **Example**:
 ```shell
@@ -80,6 +95,9 @@ Preferred for long URLs or when passing multiple options.
   - `timeout` (optional): Request timeout in milliseconds.
   - `userAgent` (optional): Custom User-Agent header.
   - `followRedirects` (optional): `true` or `false`.
+  - `includeImages` (optional): `true` to include images in Markdown output.
+  - `preserveLinkUrlsInPlainText` (optional): `true` to include link URLs in plain text output.
+  - `preserveImageUrlsInPlainText` (optional): `true` to include image URLs in plain text output.
 
 **Example**:
 ```shell
@@ -94,6 +112,9 @@ Extract content from a raw HTML string you already have.
   - `html` (required): The raw HTML content.
   - `url` (optional): The original URL (used for resolving relative links and images).
   - `includeMetadata` (optional): `true` to include metadata.
+  - `includeImages` (optional): `true` to include images in Markdown output.
+  - `preserveLinkUrlsInPlainText` (optional): `true` to include link URLs in plain text output.
+  - `preserveImageUrlsInPlainText` (optional): `true` to include image URLs in plain text output.
 
 **Example**:
 ```shell
@@ -102,14 +123,43 @@ curl -X POST http://localhost:3030/extract/html \
   -d '{"html": "<html><body><h1>Example</h1><p>Content</p></body></html>", "includeMetadata": true}'
 ```
 
-#### 4. `GET /health`
+#### 4. `POST /extract/multi-format`
+Extract content in multiple formats (HTML, Markdown, Text) in a single request.
+- **Body (JSON)**:
+  - `url` (required): The URL to extract.
+  - `include` (required): Object specifying which formats to include:
+    - `rawHtml`, `rawMarkdown`, `rawText`, `contentHtml`, `contentMarkdown`, `contentText`, `metadata` (all optional booleans).
+  - `webRequestOptions` (optional): `timeout`, `userAgent`, `followRedirects`.
+  - `markdownConversionOptions` (optional): `includeImages`.
+  - `textConversionOptions` (optional): `preserveLinkUrls`, `preserveImageUrls`.
+
+#### 5. `POST /extract/multi-format/html`
+Similar to `/extract/multi-format`, but accepts raw HTML.
+- **Body (JSON)**:
+  - `html` (required): The raw HTML content.
+  - `include` (required): Same as above.
+  - `markdownConversionOptions`, `textConversionOptions` (optional).
+
+#### 6. `POST /convert`
+Convert provided HTML to Markdown or plain text.
+- **Body (JSON)**:
+  - `html` (required): The HTML content to convert.
+  - `markdownConversionOptions` (optional): `includeImages`.
+  - `textConversionOptions` (optional): `preserveLinkUrls`, `preserveImageUrls`.
+
+#### 7. `GET /health`
 Returns the server status and current timestamp.
+
+#### 8. Documentation
+- `GET /openapi.json`: OpenAPI 3.0 specification.
+- `GET /swagger-ui`: Interactive API documentation.
 
 ### Response Formats
 The response format can be configured using the `Accept` header:
 
-- **`application/json` (Default)**: Returns a JSON object containing the extracted `pageContentHtml`, `url`, and `metadata` (if requested).
+- **`application/json` (Default)**: Returns a JSON object containing the extracted data.
 - **`text/html`**: Returns only the extracted content as a raw HTML string.
+- **`text/markdown`**: Returns the extracted content converted to Markdown.
 - **`text/plain`**: Returns the extracted content converted to plain text.
 
 **Example** (HTML response):
@@ -117,8 +167,14 @@ The response format can be configured using the `Accept` header:
 curl -H "Accept: text/html" "http://localhost:3030/extract?url=https://github.com/dankito/WebContentExtractor/blob/main/README.md"
 ```
 
+### Output Configuration
+
+#### Markdown Configuration
+When using `text/markdown` or requesting Markdown output, you can use:
+- `includeImages`: `true` to include images in the Markdown output.
+
 #### Plain Text Configuration
-When using `text/plain`, you can pass these additional parameters in your request to control the conversion:
+When using `text/plain` or requesting text output, you can use:
 - `preserveLinkUrlsInPlainText`: `true` to include link URLs in the text output.
 - `preserveImageUrlsInPlainText`: `true` to include image source URLs in the text output.
 
