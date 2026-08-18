@@ -6,6 +6,7 @@ import { OpenApiRouter } from "./routes/OpenApiRouter.ts"
 import { CorsRouter } from "./routes/CorsRouter.ts"
 import { StaticFilesRouter } from "./routes/StaticFilesRouter.ts"
 import { contentConverterRouter } from "./routes/contentConverterRouter.ts"
+import { McpRouter } from "./routes/McpRouter.ts"
 
 export const app = new Hono()
 
@@ -18,6 +19,8 @@ app.use("*", logger()) // request logger always registers for the root, not for 
 new CorsRouter().configureCors(router)
 
 new StaticFilesRouter().configureStaticFilesRoutes(router, basePath)
+
+new McpRouter().addMcpServerRoutes(router)
 
 router.get("/health", (c) => {
   return c.json({ status: "ok", timestamp: new Date().toISOString() })
