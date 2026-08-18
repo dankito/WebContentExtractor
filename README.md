@@ -36,6 +36,7 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=3030
+      - BASE_PATH=/
 ```
 Then start it with:
 ```shell
