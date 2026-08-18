@@ -2,21 +2,26 @@ import type { Hono } from "hono"
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StreamableHTTPTransport } from '@hono/mcp'
 import {
-  ConvertHtmlRequestSchema,
+  ConvertHtmlRequestSchema, ErrorResponseSchema,
   ExtractFromHtmlSchema,
-  ExtractFromUrlRequestBodySchema, MultiFormatFromHtmlRequestSchema,
-  MultiFormatFromUrlRequestSchema
+  ExtractFromUrlRequestBodySchema, ExtractResponseSchema, MultiFormatFromHtmlRequestSchema,
+  MultiFormatFromUrlRequestSchema, MultiFormatResponseSchema
 } from "../model/requestParameter/ValidationSchemas.ts"
 import { DI } from "../service/DI.ts"
 import pkg from "../../package.json"
+import { ErrorResponse } from "@shared/model/responses/ErrorResponse.ts"
+import { ExtractResponse } from "@shared/model/responses/ExtractResponse.ts"
+import type { Result } from "../model/Result.ts"
+import type { ExtractedContent } from "../model/ExtractedContent.ts"
+import type { ExtractRequestBase } from "../model/requestParameter/ExtractRequestBase.ts"
+import type { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse.ts"
+import type { ErrorResult } from "../model/ErrorResult.ts"
+import type { CallToolResult } from "@modelcontextprotocol/sdk/dist/esm/types.d.ts"
 
 export class McpRouter {
 
   addMcpServerRoutes(app: Hono) {
     app.all("/mcp", async (c) => {
-      const sessionId = c.req.header('mcp-session-id')
-      console.log(`sessionId: `, sessionId)
-
       const server = this.createMcpServer()
       const transport = new StreamableHTTPTransport()
       await server.connect(transport)
@@ -41,13 +46,13 @@ export class McpRouter {
         title: "Extract main content from URL",
         description: "Extract web page main content from a URL",
         inputSchema: ExtractFromUrlRequestBodySchema.shape,
+        outputSchema: ExtractResponseSchema.shape,
       },
       async (args) => {
         const request = requestValidator.mapToExtractFromUrlRequest(args, true)
         const result = await extractionService.extractContentFromUrl(request)
-        return {
-          content: [{ type: "text", text: JSON.stringify(result) }]
-        }
+
+        return this.mapExtractResponse(result, request)
       }
     )
 
@@ -57,13 +62,13 @@ export class McpRouter {
         title: "Extract main content from HTML",
         description: "Extract web page main content from provided HTML",
         inputSchema: ExtractFromHtmlSchema.shape,
+        // outputSchema: ExtractResponseSchema.shape,
       },
       async (args) => {
         const request = requestValidator.mapToExtractFromHtmlRequest(args)
         const result = extractionService.extractContentFromHtml(request.html, request.url)
-        return {
-          content: [{ type: "text", text: JSON.stringify(result) }]
-        }
+
+        return this.mapExtractResponse(result, request)
       }
     )
 
@@ -73,13 +78,13 @@ export class McpRouter {
         title: "Retrieve multiple output formats from URL",
         description: "Retrieve multiple output formats like raw HTML and content Markdown with a single call from a URL",
         inputSchema: MultiFormatFromUrlRequestSchema.shape,
+        outputSchema: MultiFormatResponseSchema.shape,
       },
       async (args) => {
         const request = requestValidator.mapToMultiFormatFromUrlRequest(args)
         const result = await extractionService.extractMultipleFormatsFromUrl(request)
-        return {
-          content: [{ type: "text", text: JSON.stringify(result) }]
-        }
+
+        return this.mapMultiFormatResponse(result)
       }
     )
 
@@ -89,13 +94,13 @@ export class McpRouter {
         title: "Retrieve multiple output formats from HTML",
         description: "Retrieve multiple output formats from provided HTML",
         inputSchema: MultiFormatFromHtmlRequestSchema.shape,
+        outputSchema: MultiFormatResponseSchema.shape,
       },
       async (args) => {
         const request = requestValidator.mapToMultiFormatFromHtmlRequest(args)
         const result = await extractionService.extractMultipleFormatsFromHtml(request)
-        return {
-          content: [{ type: "text", text: JSON.stringify(result) }]
-        }
+
+        return this.mapMultiFormatResponse(result)
       }
     )
 
@@ -109,14 +114,46 @@ export class McpRouter {
       async (args) => {
         const request = requestValidator.mapToConvertHtmlRequest(args)
         const markdownResult = extractionService.convertHtmlToMarkdown(request.html, request.markdownConversionOptions)
-        const textResult = extractionService.convertHtmlToText(request.html, request.textConversionOptions)
         return {
-          content: [{ type: "text", text: JSON.stringify({ markdown: markdownResult, text: textResult }) }]
+          content: [{ type: "text", text: JSON.stringify(markdownResult) }]
         }
       }
     )
 
     return mcpServer
+  }
+
+
+  private mapExtractResponse(result: Result<ExtractedContent>, request: ExtractRequestBase): CallToolResult {
+    if (result.success) {
+      return {
+        structuredContent: ExtractResponseSchema.parse(result.data),
+        content: [{ type: "text", text: JSON.stringify(new ExtractResponse(result.data.url, result.data.pageContentHtml, request.includeMetadata ? result.data.metadata : undefined)) }]
+      }
+    } else {
+      return this.mapErrorResponse(result)
+    }
+  }
+
+  private mapMultiFormatResponse(result: Result<MultiFormatResponse>): CallToolResult {
+    if (result.success) {
+      return {
+        structuredContent: MultiFormatResponseSchema.parse(result.data),
+        content: [{ type: "text", text: JSON.stringify(result.data) }]
+      }
+    } else {
+      return this.mapErrorResponse(result)
+    }
+  }
+
+  private mapErrorResponse(result: ErrorResult): CallToolResult {
+    const errorResponse = new ErrorResponse(result.details.errorMessage, result.details.error?.cause?.toString())
+
+    return {
+      isError: true,
+      structuredContent: ErrorResponseSchema.parse(errorResponse),
+      content: [{ type: "text", text: JSON.stringify(errorResponse) }]
+    }
   }
 
 }

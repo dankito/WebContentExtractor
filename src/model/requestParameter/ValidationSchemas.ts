@@ -48,7 +48,10 @@ const UrlSchema = z.preprocess(
   (val) => (val === undefined || val === null ? "" : val),
   z.string().min(1, "Missing required parameter: url")
 ).superRefine((url, ctx) => {
-  if (!url) return // Handled by min(1)
+  if (!url) { // Handled by min(1)
+    return
+  }
+
   try {
     const parsed = new URL(url)
     if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
@@ -187,7 +190,7 @@ export const ExtractedMetadataSchema = z.object({
 })
 
 export const MultiFormatResponseSchema = z.object({
-  webResponse: WebResponseSchema,
+  webResponse: WebResponseSchema.optional(),
 
   rawHtml: z.string().optional(),
   rawMarkdown: MarkdownConversionResultSchema.optional(),
