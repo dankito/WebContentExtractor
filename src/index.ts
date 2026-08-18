@@ -13,7 +13,7 @@ const basePath = process.env.BASE_PATH
 const router = basePath ? app.basePath(basePath) : app
 
 
-router.use("*", logger())
+app.use("*", logger()) // request logger always registers for the root, not for basePath
 
 new CorsRouter().configureCors(router)
 
