@@ -17,7 +17,7 @@ app.use("*", logger()) // request logger always registers for the root, not for 
 
 new CorsRouter().configureCors(router)
 
-new StaticFilesRouter().configureStaticFilesRoutes(router)
+new StaticFilesRouter().configureStaticFilesRoutes(router, basePath)
 
 router.get("/health", (c) => {
   return c.json({ status: "ok", timestamp: new Date().toISOString() })

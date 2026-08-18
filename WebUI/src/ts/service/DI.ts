@@ -23,7 +23,7 @@ export class DI {
       baseUrl += ":" + port
     }
 
-    baseUrl += ""
+    baseUrl += DI.determineBasePath()
 
     return baseUrl
   }
@@ -36,7 +36,14 @@ export class DI {
 
     const fileUrl = new URL(import.meta.url)
 
-    return `${fileUrl.protocol}//${fileUrl.hostname}`
+    const isNonDefaultPort = fileUrl.port !== "80" && fileUrl.port !== "443"
+
+    return `${fileUrl.protocol}//${fileUrl.hostname}${isNonDefaultPort ? ":" + fileUrl.port : ""}`
+  }
+
+  private static determineBasePath(): string {
+    const { pathname } = new URL(document.baseURI)
+    return pathname.endsWith("/") ? pathname.slice(0, -1) : pathname
   }
 
 }
