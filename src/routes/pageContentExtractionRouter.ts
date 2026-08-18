@@ -104,11 +104,11 @@ async function extractFromUrl(context: Context, extractFromBody: boolean) {
   const data = (context.req as any).valid(target)
 
   try {
-    const params: ExtractFromUrlRequest = requestValidator.mapToExtractFromUrlParams(data)
+    const request: ExtractFromUrlRequest = requestValidator.mapToExtractFromUrlRequest(data)
 
-    const result = await extractionService.extractContentFromUrl(params)
+    const result = await extractionService.extractContentFromUrl(request)
 
-    return mapToResponse(params, result, context)
+    return mapToResponse(request, result, context)
   } catch (error) {
     return createErrorResponseFromError(error, context)
   }
@@ -118,11 +118,11 @@ async function extractFromHtml(context: Context) {
   const data = (context.req as any).valid("json")
 
   try {
-    const params: ExtractFromHtmlRequest = requestValidator.mapToExtractFromHtmlParams(data)
+    const request: ExtractFromHtmlRequest = requestValidator.mapToExtractFromHtmlRequest(data)
 
-    const result = extractionService.extractContentFromHtml(params.html, params.url)
+    const result = extractionService.extractContentFromHtml(request.html, request.url)
 
-    return mapToResponse(params, result, context)
+    return mapToResponse(request, result, context)
   } catch (error) {
     return createErrorResponseFromError(error, context)
   }
@@ -183,7 +183,7 @@ function isOutputSelectionValid(include: OutputSelection): ErrorResult | undefin
 }
 
 
-function mapToResponse(params: ExtractRequestBase, result: Result<ExtractedContent>, context: Context) {
+function mapToResponse(request: ExtractRequestBase, result: Result<ExtractedContent>, context: Context) {
   if (result.success === false) {
     console.warn("Extracting content failed", result.details)
     return returnErrorResponse(result, context)
@@ -194,21 +194,21 @@ function mapToResponse(params: ExtractRequestBase, result: Result<ExtractedConte
     if (format === ResponseFormat.Html) {
       return context.html(content.pageContentHtml)
     } else if (format === ResponseFormat.Markdown) {
-      const conversionResult = extractionService.convertHtmlToMarkdown(content.pageContentHtml, params.convertToMarkdownOptions)
+      const conversionResult = extractionService.convertHtmlToMarkdown(content.pageContentHtml, request.convertToMarkdownOptions)
       if (conversionResult.success) {
         return returnMarkdown(conversionResult.markdown!, context)
       } else {
         return returnErrorResponse(ErrorResult.for(conversionResult.error!), context)
       }
     } else if (format === ResponseFormat.Text) {
-      const result = extractionService.convertHtmlToText(content.pageContentHtml, params.convertToPlainTextOptions)
+      const result = extractionService.convertHtmlToText(content.pageContentHtml, request.convertToPlainTextOptions)
       if (result.success === false) {
         return returnErrorResponse(ErrorResult.for(result.error!), context)
       } else {
         return returnText(result.text!, context)
       }
     } else {
-      return context.json(new ExtractResponse(content.url, content.pageContentHtml, params.includeMetadata ? content.metadata : undefined))
+      return context.json(new ExtractResponse(content.url, content.pageContentHtml, request.includeMetadata ? content.metadata : undefined))
     }
   }
 }

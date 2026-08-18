@@ -20,7 +20,7 @@ import { ConvertHtmlRequest } from "@shared/model/requests/ConvertHtmlRequest.ts
 
 export class RequestValidator {
 
-  mapToExtractFromUrlParams(data: z.infer<typeof ExtractFromUrlSchema>): ExtractFromUrlRequest {
+  mapToExtractFromUrlRequest(data: z.infer<typeof ExtractFromUrlSchema>): ExtractFromUrlRequest {
     return new ExtractFromUrlRequest(
       data.url,
       data.includeMetadata,
@@ -31,7 +31,7 @@ export class RequestValidator {
   }
 
 
-  mapToExtractFromHtmlParams(data: z.infer<typeof ExtractFromHtmlSchema>): ExtractFromHtmlRequest {
+  mapToExtractFromHtmlRequest(data: z.infer<typeof ExtractFromHtmlSchema>): ExtractFromHtmlRequest {
     return new ExtractFromHtmlRequest(
       data.html,
       data.url || undefined,
