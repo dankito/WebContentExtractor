@@ -20,7 +20,7 @@ export class WebExtractionClient {
 
   async extractFromUrl(request: ExtractionRequest): Promise<ExtractResponse> {
     if (request.format === OutputFormat.Html) {
-      return this.webClient.post(new WebRequest("/extract", request))
+      return this.webClient.post(new WebRequest("/extract/from-url", request))
     } else {
       const response: string = await this.webClient.post(new WebRequest("/extract", request, "application/json", this.mapOutputFormat(request.format)))
       return { pageContentHtml: response, url: request.url }
@@ -29,10 +29,10 @@ export class WebExtractionClient {
 
   async extractFromHtml(request: ExtractFromHtmlRequest): Promise<ExtractResponse> {
     if (request.format === OutputFormat.Html) {
-      return this.webClient.post(new WebRequest(`/extract/html`,
+      return this.webClient.post(new WebRequest(`/extract/from-html`,
         request, "application/json", "application/json"))
     } else {
-      const response: string = await this.webClient.post(new WebRequest(`/extract/html`,
+      const response: string = await this.webClient.post(new WebRequest(`/extract/from-html`,
         request, "application/json", this.mapOutputFormat(request.format)))
       return { pageContentHtml: response }
     }
@@ -51,11 +51,11 @@ export class WebExtractionClient {
 
 
   async extractMultipleFormatsFromUrl(request: MultiFormatFromUrlRequest): Promise<MultiFormatResponse> {
-    return this.webClient.post(new WebRequest("/extract/multi-format", request))
+    return this.webClient.post(new WebRequest("/extract/from-url/formats", request))
   }
 
   async extractMultipleFormatsFromHtml(request: MultiFormatFromHtmlRequest): Promise<MultiFormatResponse> {
-    return this.webClient.post(new WebRequest("/extract/multi-format/html", request))
+    return this.webClient.post(new WebRequest("/extract/from-html/formats", request))
   }
 
 
