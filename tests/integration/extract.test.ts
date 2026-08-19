@@ -4,9 +4,9 @@ import { describe, expect, it } from "bun:test"
 const app = ApiTestBase.App
 
 
-describe("/extract", () => {
+describe("/extract/from-url", () => {
   it(`Non-http URL returns error`, async () => {
-    const response = await app.request(`/extract?url=ftp://google.com`)
+    const response = await app.request(`/extract/from-url?url=ftp://google.com`)
     const body = await response.json()
 
     console.log(body)
@@ -16,7 +16,7 @@ describe("/extract", () => {
   })
 
   it(`Local URL returns error`, async () => {
-    const response = await app.request(`/extract?url=http://192.168.1.17`)
+    const response = await app.request(`/extract/from-url?url=http://192.168.1.17`)
     const body = await response.json()
 
     console.log(body)
@@ -25,10 +25,10 @@ describe("/extract", () => {
     expect(body.error).toInclude("Calling local URL is not permitted for security reasons")
   })
 
-  describe("POST /extract", () => {
+  describe("POST /extract/from-url", () => {
     it("Should return unsupported protocol for 'ftp://'", async () => {
       // We can't easily test success without mocking fetch, but we can test validation
-      const response = await app.request("/extract", {
+      const response = await app.request("/extract/from-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url: "ftp://invalid" })
@@ -37,7 +37,7 @@ describe("/extract", () => {
     })
 
     it("Should return 400 for missing URL", async () => {
-      const response = await app.request("/extract", {
+      const response = await app.request("/extract/from-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({})
@@ -46,7 +46,7 @@ describe("/extract", () => {
     })
   })
 
-  describe("POST /extract/html", () => {
+  describe("POST /extract/from-html", () => {
     const validHtml = `
       <html>
         <head><title>Test Page</title></head>
@@ -58,7 +58,7 @@ describe("/extract", () => {
     `
 
     it("Should extract from HTML body", async () => {
-      const response = await app.request("/extract/html", {
+      const response = await app.request("/extract/from-html", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ html: validHtml })
@@ -71,7 +71,7 @@ describe("/extract", () => {
     })
 
     it("Should include metadata when requested", async () => {
-      const response = await app.request("/extract/html", {
+      const response = await app.request("/extract/from-html", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ html: validHtml, includeMetadata: true })
@@ -84,7 +84,7 @@ describe("/extract", () => {
     })
 
     it("Should return 400 for missing HTML", async () => {
-      const response = await app.request("/extract/html", {
+      const response = await app.request("/extract/from-html", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({})
@@ -104,7 +104,7 @@ describe("/extract", () => {
     `
 
     it("Should return HTML when Accept is text/html", async () => {
-      const response = await app.request("/extract/html", {
+      const response = await app.request("/extract/from-html", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -120,7 +120,7 @@ describe("/extract", () => {
     })
 
     it("Should return plain text when Accept is text/plain", async () => {
-      const response = await app.request("/extract/html", {
+      const response = await app.request("/extract/from-html", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -136,7 +136,7 @@ describe("/extract", () => {
     })
 
     it("Should return JSON by default", async () => {
-      const response = await app.request("/extract/html", {
+      const response = await app.request("/extract/from-html", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json"
@@ -151,7 +151,7 @@ describe("/extract", () => {
     })
 
     it("Should respect Accept header quality values", async () => {
-      const response = await app.request("/extract/html", {
+      const response = await app.request("/extract/from-html", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -168,7 +168,7 @@ describe("/extract", () => {
 
 
     it("Should return Markdown for text/markdown", async () => {
-      const response = await app.request("/extract/html", {
+      const response = await app.request("/extract/from-html", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -184,7 +184,7 @@ describe("/extract", () => {
     })
 
     it("Should respect Markdown options (includeImages)", async () => {
-      const response = await app.request("/extract/html", {
+      const response = await app.request("/extract/from-html", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -201,7 +201,7 @@ describe("/extract", () => {
 
 
     it("Should respect plain text options (preserveLinkUrlsInPlainText)", async () => {
-      const response = await app.request("/extract/html", {
+      const response = await app.request("/extract/from-html", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -209,7 +209,9 @@ describe("/extract", () => {
         },
         body: JSON.stringify({ 
           html: validHtml,
-          preserveLinkUrlsInPlainText: true
+          textConversionOptions: {
+            preserveLinkUrls: true
+          }
         })
       })
       
@@ -228,7 +230,7 @@ describe("/extract", () => {
           </body>
         </html>
       `
-      const response = await app.request("/extract/html", {
+      const response = await app.request("/extract/from-html", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -236,7 +238,9 @@ describe("/extract", () => {
         },
         body: JSON.stringify({ 
           html: htmlWithImage,
-          preserveImageUrlsInPlainText: true
+          textConversionOptions: {
+            preserveImageUrls: true
+          }
         })
       })
       

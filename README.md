@@ -109,7 +109,7 @@ Web Content Extractor ships with a small, not fully functional Web-UI at
 
 ### Endpoints
 
-#### 1. `GET /extract`
+#### 1. `GET /extract/from-url`
 Quickly extract content from a URL using query parameters.
 - **Parameters**:
   - `url` (required): The URL of the page to extract.
@@ -123,10 +123,10 @@ Quickly extract content from a URL using query parameters.
 
 **Example**:
 ```shell
-curl "http://localhost:3030/extract?url=https://github.com/dankito/WebContentExtractor/blob/main/README.md&includeMetadata=true"
+curl "http://localhost:3030/extract/from-url?url=https://github.com/dankito/WebContentExtractor/blob/main/README.md&includeMetadata=true"
 ```
 
-#### 2. `POST /extract`
+#### 2. `POST /extract/from-url`
 Preferred for long URLs or when passing multiple options.
 - **Body (JSON)**:
   - `url` (required): The URL of the page to extract.
@@ -140,12 +140,12 @@ Preferred for long URLs or when passing multiple options.
 
 **Example**:
 ```shell
-curl -X POST http://localhost:3030/extract \
+curl -X POST http://localhost:3030/extract/from-url \
   -H "Content-Type: application/json" \
   -d '{"url": "https://github.com/dankito/WebContentExtractor/blob/main/README.md", "includeMetadata": true}'
 ```
 
-#### 3. `POST /extract/html`
+#### 3. `POST /extract/from-html`
 Extract content from a raw HTML string you already have.
 - **Body (JSON)**:
   - `html` (required): The raw HTML content.
@@ -157,12 +157,12 @@ Extract content from a raw HTML string you already have.
 
 **Example**:
 ```shell
-curl -X POST http://localhost:3030/extract/html \
+curl -X POST http://localhost:3030/extract/from-html \
   -H "Content-Type: application/json" \
   -d '{"html": "<html><body><h1>Example</h1><p>Content</p></body></html>", "includeMetadata": true}'
 ```
 
-#### 4. `POST /extract/multi-format`
+#### 4. `POST /extract/from-url/formats`
 Extract content in multiple formats (HTML, Markdown, Text) in a single request.
 - **Body (JSON)**:
   - `url` (required): The URL to extract.
@@ -172,8 +172,8 @@ Extract content in multiple formats (HTML, Markdown, Text) in a single request.
   - `markdownConversionOptions` (optional): `includeImages`.
   - `textConversionOptions` (optional): `preserveLinkUrls`, `preserveImageUrls`.
 
-#### 5. `POST /extract/multi-format/html`
-Similar to `/extract/multi-format`, but accepts raw HTML.
+#### 5. `POST /extract/from-html/formats`
+Similar to `/extract/from-url/formats`, but accepts raw HTML.
 - **Body (JSON)**:
   - `html` (required): The raw HTML content.
   - `include` (required): Same as above.
@@ -216,7 +216,7 @@ When using `text/plain` or requesting text output, you can use:
 **Example**:
 ```shell
 curl -H "Accept: text/plain" \
-  "http://localhost:3030/extract?url=https://github.com/dankito/WebContentExtractor/blob/main/README.md&preserveLinkUrlsInPlainText=true&preserveImageUrlsInPlainText=true"
+  "http://localhost:3030/extract/from-url?url=https://github.com/dankito/WebContentExtractor/blob/main/README.md&preserveLinkUrlsInPlainText=true&preserveImageUrlsInPlainText=true"
 ```
 
 

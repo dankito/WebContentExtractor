@@ -44,11 +44,11 @@ const validationHook = (result: any, context: Context) => {
 
 
 /**
- * GET /extract?url=...&format=...&includeMetadata=...&timeout=...&userAgent=...
+ * GET /extract/from-url?url=...&format=...&includeMetadata=...&timeout=...&userAgent=...
  *
  * Quick, cacheable single-call extraction via query params.
  */
-pageContentExtractionRouter.get("/",
+pageContentExtractionRouter.get("/from-url",
   ExtractRoutesOpenApiDescriptions.ExtractGet,
   validator("query", ExtractFromUrlQueryParamsSchema, validationHook),
   async (context) => {
@@ -56,12 +56,12 @@ pageContentExtractionRouter.get("/",
 })
 
 /**
- * POST /extract
+ * POST /extract/from-url
  * Body: { url, format?, includeMetadata?, timeout?, userAgent? }
  *
  * Preferred when passing long URLs or additional options.
  */
-pageContentExtractionRouter.post("/",
+pageContentExtractionRouter.post("/from-url",
   ExtractRoutesOpenApiDescriptions.ExtractPost,
   validator("json", ExtractFromUrlRequestBodySchema, validationHook),
   async (context) => {
@@ -71,12 +71,12 @@ pageContentExtractionRouter.post("/",
 
 
 /**
- * POST /extract/html
+ * POST /extract/from-html
  * Body: { html, url?, format?, includeMetadata? }
  *
  * Extract content from provided HTML.
  */
-pageContentExtractionRouter.post("/html",
+pageContentExtractionRouter.post("/from-html",
   ExtractRoutesOpenApiDescriptions.ExtractHtmlPost,
   validator("json", ExtractFromHtmlSchema, validationHook),
   async (context) => {
@@ -84,14 +84,14 @@ pageContentExtractionRouter.post("/html",
 })
 
 
-pageContentExtractionRouter.post("/multi-format",
+pageContentExtractionRouter.post("/from-url/formats",
   ExtractRoutesOpenApiDescriptions.ExtractMultipleFormatsFromUrlPost,
   validator("json", MultiFormatFromUrlRequestSchema, validationHook),
   async (context: Context) => {
   return await extractMultipleFormatsFromUrl(context)
 })
 
-pageContentExtractionRouter.post("/multi-format/html",
+pageContentExtractionRouter.post("/from-html/formats",
   ExtractRoutesOpenApiDescriptions.ExtractMultipleFormatsFromHtmlPost,
   validator("json", MultiFormatFromHtmlRequestSchema, validationHook),
   async (context: Context) => {
