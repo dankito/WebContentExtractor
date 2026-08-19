@@ -31,6 +31,7 @@ export class RequestValidator {
   mapToExtractFromUrlRequestFromQueryParams(data: z.infer<typeof ExtractFromUrlQueryParamsSchema>): ExtractFromUrlRequest {
     return new ExtractFromUrlRequest(
       data.url,
+      data.outputFormat,
       data.includeMetadata,
       this.mapToMarkdownConversionOptionsFromQueryParameter(data),
       this.mapToTextConversionOptionsFromQueryParameter(data),
@@ -41,6 +42,7 @@ export class RequestValidator {
   mapToExtractFromUrlRequestFromRequestBody(data: z.infer<typeof ExtractFromUrlRequestBodySchema>): ExtractFromUrlRequest {
     return new ExtractFromUrlRequest(
       data.url,
+      data.outputFormat,
       data.includeMetadata,
       this.mapToMarkdownConversionOptions(data.markdownConversionOptions),
       this.mapToTextConversionOptions(data.textConversionOptions),
@@ -53,6 +55,7 @@ export class RequestValidator {
     return new ExtractFromHtmlRequest(
       data.html,
       data.url || undefined,
+      data.outputFormat,
       data.includeMetadata,
       this.mapToMarkdownConversionOptions(data.markdownConversionOptions),
       this.mapToTextConversionOptions(data.textConversionOptions),

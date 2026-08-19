@@ -2,6 +2,7 @@ import { z } from "zod"
 import { MarkdownConverter } from "@shared/model/MarkdownConverter.ts"
 import { TextConverter } from "@shared/model/TextConverter.ts"
 import { WebFetcher } from "@shared/model/WebFetcher.ts"
+import { ResponseFormat } from "../responses/ResponseFormat.ts"
 
 const booleanSchema = z.preprocess((val) => {
   if (typeof val === "string") {
@@ -65,6 +66,7 @@ const UrlSchema = z.preprocess(
 
 export const ExtractFromUrlQueryParamsSchema = z.object({
   url: UrlSchema,
+  outputFormat: z.enum(ResponseFormat).optional(),
   includeMetadata: booleanSchema.optional(),
   // Flattened structure as it comes from request params/body
   // web fetcher options
@@ -80,6 +82,9 @@ export const ExtractFromUrlQueryParamsSchema = z.object({
 
 export const ExtractFromUrlRequestBodySchema = z.object({
   url: UrlSchema,
+
+  outputFormat: z.enum(ResponseFormat).optional(),
+
   includeMetadata: booleanSchema.optional(),
 
   webRequestOptions: WebRequestOptionsSchema.optional(),
@@ -94,6 +99,9 @@ export const ExtractFromHtmlSchema = z.object({
     z.string().min(1, "Missing required parameter: html")
   ),
   url: z.string().optional(),
+
+  outputFormat: z.enum(ResponseFormat).optional(),
+
   includeMetadata: booleanSchema.optional(),
 
   markdownConversionOptions: MarkdownConversionOptionsSchema.optional(),

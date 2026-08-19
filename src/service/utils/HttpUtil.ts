@@ -3,13 +3,13 @@ import { ResponseFormat } from "../../model/responses/ResponseFormat.ts"
 
 export class HttpUtil {
 
-  getPreferredResponseFormat(request: HonoRequest): ResponseFormat {
+  getPreferredResponseFormat(request: HonoRequest, outputFormat?: ResponseFormat): ResponseFormat {
     const acceptHeader = request.header("Accept") ?? ""
 
-    return this.getPreferredResponseFormatForAcceptHeader(acceptHeader)
+    return this.getPreferredResponseFormatForAcceptHeader(acceptHeader, outputFormat)
   }
 
-  getPreferredResponseFormatForAcceptHeader(acceptHeader: string): ResponseFormat {
+  getPreferredResponseFormatForAcceptHeader(acceptHeader: string, outputFormat?: ResponseFormat): ResponseFormat {
     // Parse Accept header with quality values (q=...)
     const preferredFormatsSorted = acceptHeader.split(",")
       .map(part => {
@@ -39,7 +39,7 @@ export class HttpUtil {
       }
     }
 
-    return ResponseFormat.Json // fallback
+    return outputFormat ?? ResponseFormat.Json // fallback
   }
 
 }

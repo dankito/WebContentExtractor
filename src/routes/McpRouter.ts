@@ -2,10 +2,14 @@ import type { Hono } from "hono"
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StreamableHTTPTransport } from '@hono/mcp'
 import {
-  ConvertHtmlRequestSchema, ErrorResponseSchema,
+  ConvertHtmlRequestSchema,
+  ErrorResponseSchema,
   ExtractFromHtmlSchema,
-  ExtractFromUrlRequestBodySchema, ExtractResponseSchema, MultiFormatFromHtmlRequestSchema,
-  MultiFormatFromUrlRequestSchema, MultiFormatResponseSchema
+  ExtractFromUrlRequestBodySchema,
+  ExtractResponseSchema,
+  MultiFormatFromHtmlRequestSchema,
+  MultiFormatFromUrlRequestSchema,
+  MultiFormatResponseSchema
 } from "../model/requestParameter/ValidationSchemas.ts"
 import { DI } from "../service/DI.ts"
 import pkg from "../../package.json"
@@ -17,6 +21,7 @@ import type { ExtractRequestBase } from "../model/requestParameter/ExtractReques
 import type { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse.ts"
 import type { ErrorResult } from "../model/ErrorResult.ts"
 import type { CallToolResult } from "@modelcontextprotocol/sdk/dist/esm/types.d.ts"
+import { ResponseFormat } from "../model/responses/ResponseFormat.ts"
 
 export class McpRouter {
 
@@ -46,7 +51,6 @@ export class McpRouter {
         title: "Extract main content from URL",
         description: "Extract web page main content from a URL",
         inputSchema: ExtractFromUrlRequestBodySchema.shape,
-        outputSchema: ExtractResponseSchema.shape,
       },
       async (args) => {
         const request = requestValidator.mapToExtractFromUrlRequest(args, true)
@@ -62,7 +66,6 @@ export class McpRouter {
         title: "Extract main content from HTML",
         description: "Extract web page main content from provided HTML",
         inputSchema: ExtractFromHtmlSchema.shape,
-        // outputSchema: ExtractResponseSchema.shape,
       },
       async (args) => {
         const request = requestValidator.mapToExtractFromHtmlRequest(args)
@@ -126,9 +129,25 @@ export class McpRouter {
 
   private mapExtractResponse(result: Result<ExtractedContent>, request: ExtractRequestBase): CallToolResult {
     if (result.success) {
-      return {
-        structuredContent: ExtractResponseSchema.parse(result.data),
-        content: [{ type: "text", text: JSON.stringify(new ExtractResponse(result.data.url, result.data.pageContentHtml, request.includeMetadata ? result.data.metadata : undefined)) }]
+      if (request.outputFormat === ResponseFormat.Html) {
+        return {
+          content: [{ type: "text", text: result.data.pageContentHtml }]
+        }
+      } else if (request.outputFormat === ResponseFormat.Markdown) {
+        const markdown = DI.pageContentExtractionService.convertHtmlToMarkdown(result.data.pageContentHtml, request.markdownConversionOptions)
+        return {
+          content: [{ type: "text", text: markdown.markdown }]
+        }
+      } else if (request.outputFormat === ResponseFormat.Text) {
+        const text = DI.pageContentExtractionService.convertHtmlToText(result.data.pageContentHtml, request.textConversionOptions)
+        return {
+          content: [{ type: "text", text: text.text }]
+        }
+      } else {
+        return {
+          structuredContent: ExtractResponseSchema.parse(result.data),
+          content: [{ type: "text", text: JSON.stringify(new ExtractResponse(result.data.url, result.data.pageContentHtml, request.includeMetadata ? result.data.metadata : undefined)) }]
+        }
       }
     } else {
       return this.mapErrorResponse(result)

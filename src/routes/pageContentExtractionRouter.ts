@@ -189,7 +189,7 @@ function mapToResponse(request: ExtractRequestBase, result: Result<ExtractedCont
     return returnErrorResponse(result, context)
   } else {
     const content = result.data
-    const format = httpUtil.getPreferredResponseFormat(context.req)
+    const format = httpUtil.getPreferredResponseFormat(context.req, request.outputFormat)
 
     if (format === ResponseFormat.Html) {
       return context.html(content.pageContentHtml)

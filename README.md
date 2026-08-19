@@ -113,6 +113,7 @@ Web Content Extractor ships with a small, not fully functional Web-UI at
 Quickly extract content from a URL using query parameters.
 - **Parameters**:
   - `url` (required): The URL of the page to extract.
+  - `outputFormat` (optional): The response format. One of `json` (default), `html`, `markdown`, `text`.
   - `includeMetadata` (optional): Set to `true` to include metadata in the response.
   - `timeout` (optional): Request timeout in milliseconds.
   - `userAgent` (optional): Custom User-Agent header for the fetch request.
@@ -130,6 +131,7 @@ curl "http://localhost:3030/extract/from-url?url=https://github.com/dankito/WebC
 Preferred for long URLs or when passing multiple options.
 - **Body (JSON)**:
   - `url` (required): The URL of the page to extract.
+  - `outputFormat` (optional): The response format. One of `json` (default), `html`, `markdown`, `text`.
   - `includeMetadata` (optional): `true` to include metadata.
   - `timeout` (optional): Request timeout in milliseconds.
   - `userAgent` (optional): Custom User-Agent header.
@@ -150,6 +152,7 @@ Extract content from a raw HTML string you already have.
 - **Body (JSON)**:
   - `html` (required): The raw HTML content.
   - `url` (optional): The original URL (used for resolving relative links and images).
+  - `outputFormat` (optional): The response format. One of `json` (default), `html`, `markdown`, `text`.
   - `includeMetadata` (optional): `true` to include metadata.
   - `includeImages` (optional): `true` to include images in Markdown output.
   - `preserveLinkUrlsInPlainText` (optional): `true` to include link URLs in plain text output.
@@ -190,7 +193,7 @@ Convert provided HTML to Markdown or plain text.
 Returns the server status and current timestamp.
 
 ### Response Formats
-The response format can be configured using the `Accept` header:
+The response format can be configured using the `outputFormat` request parameter (preferred) or the `Accept` header:
 
 - **`application/json` (Default)**: Returns a JSON object containing the extracted data.
 - **`text/html`**: Returns only the extracted content as a raw HTML string.
@@ -199,7 +202,12 @@ The response format can be configured using the `Accept` header:
 
 **Example** (HTML response):
 ```shell
-curl -H "Accept: text/html" "http://localhost:3030/extract?url=https://github.com/dankito/WebContentExtractor/blob/main/README.md"
+curl "http://localhost:3030/extract/from-url?url=https://github.com/dankito/WebContentExtractor/blob/main/README.md&outputFormat=html"
+```
+
+**Example** (Accept header):
+```shell
+curl -H "Accept: text/html" "http://localhost:3030/extract/from-url?url=https://github.com/dankito/WebContentExtractor/blob/main/README.md"
 ```
 
 ### Output Configuration
@@ -214,6 +222,11 @@ When using `text/plain` or requesting text output, you can use:
 - `preserveImageUrlsInPlainText`: `true` to include image source URLs in the text output.
 
 **Example**:
+```shell
+curl "http://localhost:3030/extract/from-url?url=https://github.com/dankito/WebContentExtractor/blob/main/README.md&outputFormat=text&preserveLinkUrlsInPlainText=true&preserveImageUrlsInPlainText=true"
+```
+
+**Example** (Accept header):
 ```shell
 curl -H "Accept: text/plain" \
   "http://localhost:3030/extract/from-url?url=https://github.com/dankito/WebContentExtractor/blob/main/README.md&preserveLinkUrlsInPlainText=true&preserveImageUrlsInPlainText=true"
