@@ -20,7 +20,7 @@ import type { ExtractedContent } from "../model/ExtractedContent.ts"
 import type { ExtractRequestBase } from "../model/requestParameter/ExtractRequestBase.ts"
 import type { MultiFormatResponse } from "@shared/model/responses/MultiFormatResponse.ts"
 import type { ErrorResult } from "../model/ErrorResult.ts"
-import type { CallToolResult } from "@modelcontextprotocol/sdk/dist/esm/types.d.ts"
+import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js"
 import { ResponseFormat } from "../model/responses/ResponseFormat.ts"
 
 export class McpRouter {
