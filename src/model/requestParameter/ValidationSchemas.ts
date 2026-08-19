@@ -24,11 +24,6 @@ const numberSchema = z.preprocess((val) => {
   return undefined
 }, z.number().optional())
 
-export const ConvertToPlainTextOptionsSchema = z.object({
-  preserveLinkUrlsInPlainText: booleanSchema.optional(),
-  preserveImageUrlsInPlainText: booleanSchema.optional(),
-})
-
 export const WebRequestOptionsSchema = z.object({
   timeout: numberSchema,
   userAgent: z.string().optional(),

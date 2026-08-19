@@ -1,5 +1,5 @@
 import { describeRoute, resolver } from "hono-openapi"
-import { ErrorResponseSchema, ExtractResponseSchema, MarkdownConversionResultSchema, MultiFormatResponseSchema } from "../../model/requestParameter/ValidationSchemas.ts"
+import { ErrorResponseSchema, ExtractResponseSchema, MultiFormatResponseSchema } from "../../model/requestParameter/ValidationSchemas.ts"
 
 export class ExtractRoutesOpenApiDescriptions {
 
