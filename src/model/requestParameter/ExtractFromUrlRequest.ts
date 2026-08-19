@@ -10,12 +10,12 @@ export class ExtractFromUrlRequest extends ExtractRequestBase {
 
     includeMetadata?: boolean,
 
-    convertToMarkdownOptions?: MarkdownConversionOptions,
-    convertToPlainTextOptions?: TextConversionOptions,
+    markdownConversionOptions?: MarkdownConversionOptions,
+    textConversionOptions?: TextConversionOptions,
 
     readonly webRequestOptions?: WebRequestOptions,
   ) {
-    super(url, includeMetadata, convertToMarkdownOptions, convertToPlainTextOptions)
+    super(url, includeMetadata, markdownConversionOptions, textConversionOptions)
   }
 
 }

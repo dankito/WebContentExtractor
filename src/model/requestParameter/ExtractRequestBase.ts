@@ -8,8 +8,8 @@ export class ExtractRequestBase {
 
     readonly includeMetadata?: boolean,
 
-    readonly convertToMarkdownOptions?: MarkdownConversionOptions,
-    readonly convertToPlainTextOptions?: TextConversionOptions,
+    readonly markdownConversionOptions?: MarkdownConversionOptions,
+    readonly textConversionOptions?: TextConversionOptions,
   ) { }
 
 }

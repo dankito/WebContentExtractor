@@ -194,14 +194,14 @@ function mapToResponse(request: ExtractRequestBase, result: Result<ExtractedCont
     if (format === ResponseFormat.Html) {
       return context.html(content.pageContentHtml)
     } else if (format === ResponseFormat.Markdown) {
-      const conversionResult = extractionService.convertHtmlToMarkdown(content.pageContentHtml, request.convertToMarkdownOptions)
+      const conversionResult = extractionService.convertHtmlToMarkdown(content.pageContentHtml, request.markdownConversionOptions)
       if (conversionResult.success) {
         return returnMarkdown(conversionResult.markdown!, context)
       } else {
         return returnErrorResponse(ErrorResult.for(conversionResult.error!), context)
       }
     } else if (format === ResponseFormat.Text) {
-      const result = extractionService.convertHtmlToText(content.pageContentHtml, request.convertToPlainTextOptions)
+      const result = extractionService.convertHtmlToText(content.pageContentHtml, request.textConversionOptions)
       if (result.success === false) {
         return returnErrorResponse(ErrorResult.for(result.error!), context)
       } else {

@@ -10,10 +10,10 @@ export class ExtractFromHtmlRequest extends ExtractRequestBase {
 
     includeMetadata?: boolean,
 
-    convertToMarkdownOptions?: MarkdownConversionOptions,
-    convertToPlainTextOptions?: TextConversionOptions,
+    markdownConversionOptions?: MarkdownConversionOptions,
+    textConversionOptions?: TextConversionOptions,
   ) {
-    super(url, includeMetadata, convertToMarkdownOptions, convertToPlainTextOptions)
+    super(url, includeMetadata, markdownConversionOptions, textConversionOptions)
   }
 
 }
