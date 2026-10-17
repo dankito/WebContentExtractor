@@ -35,7 +35,10 @@
   let includeMetadata = $state<boolean | undefined>(false)
   let fetchers = $state<WebClientEngine[]>([])
   let extractors = $state<WebContentExtractor[]>([])
+
+  // Markdown conversion options
   let converters = $state<MarkdownConverter[]>([])
+  let includeImages = $state(true)
 
   let loading = $state(false)
   let actionRequiresFetcher = $derived(sourceMode !== SourceMode.Html)
@@ -187,8 +190,7 @@
   }
 
   function getMarkdownConversionOptions(): MarkdownConversionOptions {
-    // TODO: make MarkdownConversionOptions configurable
-    return new MarkdownConversionOptions(converters, true)
+    return new MarkdownConversionOptions(converters, includeImages)
   }
 
   function getTextConversionOptions(): TextConversionOptions {
@@ -227,6 +229,8 @@
 
       {#if action === ExtractionAction.Convert || format !== OutputFormat.Html}
         <MultiSelect label="Converters" options={converterOptions} selectedOptions={converters} selectionChanged={value => converters = value} />
+
+        <SwitchInput label="Include images" bind:value={includeImages} disabled={loading} />
       {/if}
     </div>
   </div>
