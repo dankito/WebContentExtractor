@@ -45,11 +45,46 @@
   const service = DI.service
 
 
+  const extractOptions = [
+    new Option(ExtractionAction.Extract, "Extract"),
+    new Option(ExtractionAction.Convert, "Convert"),
+    // new Option(ExtractionAction.CompareExtractors, "Compare Extractors"),
+    // new Option(ExtractionAction.CompareConverters, "Compare Converters"),
+  ]
+
+  const formatOptions = [
+    new Option(OutputFormat.Html, "HTML"),
+    new Option(OutputFormat.Markdown, "Markdown"),
+    new Option(OutputFormat.Text, "Text"),
+  ]
+
+  const fetcherOptions = [
+    new Option(WebClientEngine.JsFetchApi, "JS fetch-API"),
+    new Option(WebClientEngine.CurlCffi, "curl-cffi"),
+    new Option(WebClientEngine.Camoufox, "Camoufox"),
+    new Option(WebClientEngine.Zendriver, "Zendriver"),
+  ]
+
+  const extractorOptions = [
+    new Option(WebContentExtractor.ReadabilityJs, "ReadabilityJs"),
+  ]
+
+  const converterOptions = [
+    new Option(MarkdownConverter.Kreuzberg, "Kreuzberg"),
+    new Option(MarkdownConverter.Turndown, "Turndown"),
+  ]
+
+
+  $effect(() => {
+    sourceMode = action === ExtractionAction.Convert || action === ExtractionAction.CompareConverters ? SourceMode.Html : SourceMode.Url
+  })
+
   $effect(() => {
     if (!!!isSelectingSourceModePossible) {
       sourceMode = SourceMode.Html // URL is not sensible for conversion
     }
   })
+
 
   async function executeAction() {
     if (action === ExtractionAction.Extract) {
@@ -160,39 +195,6 @@
     // TODO: make TextConversionOptions configurable
     return new TextConversionOptions(true, true)
   }
-
-  const extractOptions = [
-    new Option(ExtractionAction.Extract, "Extract"),
-    new Option(ExtractionAction.Convert, "Convert"),
-    // new Option(ExtractionAction.CompareExtractors, "Compare Extractors"),
-    // new Option(ExtractionAction.CompareConverters, "Compare Converters"),
-  ]
-
-  const formatOptions = [
-    new Option(OutputFormat.Html, "HTML"),
-    new Option(OutputFormat.Markdown, "Markdown"),
-    new Option(OutputFormat.Text, "Text"),
-  ]
-
-  const fetcherOptions = [
-    new Option(WebClientEngine.JsFetchApi, "JS fetch-API"),
-    new Option(WebClientEngine.CurlCffi, "curl-cffi"),
-    new Option(WebClientEngine.Camoufox, "Camoufox"),
-    new Option(WebClientEngine.Zendriver, "Zendriver"),
-  ]
-
-  const extractorOptions = [
-    new Option(WebContentExtractor.ReadabilityJs, "ReadabilityJs"),
-  ]
-
-  const converterOptions = [
-    new Option(MarkdownConverter.Kreuzberg, "Kreuzberg"),
-    new Option(MarkdownConverter.Turndown, "Turndown"),
-  ]
-
-  $effect(() => {
-    sourceMode = action === ExtractionAction.Convert || action === ExtractionAction.CompareConverters ? SourceMode.Html : SourceMode.Url
-  })
 </script>
 
 
