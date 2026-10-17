@@ -12,6 +12,8 @@ import { HtmlToTextConverter } from "./contentConverter/HtmlToTextConverter.ts"
 import type { HtmlToMarkdownConverter } from "./contentConverter/HtmlToMarkdownConverter.ts"
 import { KreuzbergHtmlToMarkdownConverter } from "./contentConverter/KreuzbergHtmlToMarkdownConverter.ts"
 import { WebClientSelector } from "../webClient/WebClientSelector.ts"
+import { HtmlToMarkdownConverterSelector } from "./contentConverter/HtmlToMarkdownConverterSelector.ts"
+import { TurndownHtmlToMarkdownConverter } from "./contentConverter/TurndownHtmlToMarkdownConverter.ts"
 
 export class DI {
 
@@ -24,7 +26,9 @@ export class DI {
 
   static readonly htmlToTextConverter = new HtmlToTextConverter()
 
-  static readonly htmlToMarkdownConverter: HtmlToMarkdownConverter = new KreuzbergHtmlToMarkdownConverter()
+  static readonly htmlToMarkdownConverter: HtmlToMarkdownConverter = new HtmlToMarkdownConverterSelector([
+    new KreuzbergHtmlToMarkdownConverter(), new TurndownHtmlToMarkdownConverter()
+  ])
 
   static readonly contentConverter = new ContentConverterService(DI.htmlToMarkdownConverter, DI.htmlToTextConverter)
 

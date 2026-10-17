@@ -72,7 +72,7 @@
     await extract(async include => {
       const webRequestOptions = new WebRequestOptions(fetchers)
       // TODO: make MarkdownConversionOptions and TextConversionOptions configurable
-      const markdownOptions = new MarkdownConversionOptions(true)
+      const markdownOptions = new MarkdownConversionOptions(converters, true)
       const textOptions = new TextConversionOptions(true, true)
       const request = new MultiFormatFromUrlRequest(urlStr, include, webRequestOptions, markdownOptions, textOptions)
       // TODO: support multiple content converters
@@ -94,7 +94,7 @@
 
     await extract(async include => {
       // TODO: make MarkdownConversionOptions and TextConversionOptions configurable
-      const markdownOptions = new MarkdownConversionOptions(true)
+      const markdownOptions = new MarkdownConversionOptions(converters, true)
       const textOptions = new TextConversionOptions(true, true)
       const request = new MultiFormatFromHtmlRequest(rawHtml.trim(), include, markdownOptions, textOptions)
 
@@ -142,11 +142,10 @@
 
     try {
       // TODO: support multiple content converters
-      // TODO: make MarkdownConversionOptions and TextConversionOptions configurable
-      const markdownOptions = new MarkdownConversionOptions(true)
-      const textOptions = new TextConversionOptions(true, true)
+      // TODO: make MarkdownConversionOptions configurable
+      const markdownOptions = new MarkdownConversionOptions(converters, true)
       // if (converters.length === 0) {
-        const result = await service.convertHtmlToMarkdown(html, options, markdownOptions, textOptions)
+        const result = await service.convertHtmlToMarkdown(html, markdownOptions)
         convertResults[result.converter] = result
       // } else {
       //   converters.forEach(async (converter) => {
