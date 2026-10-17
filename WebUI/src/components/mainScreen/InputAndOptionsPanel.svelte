@@ -71,10 +71,7 @@
 
     await extract(async include => {
       const webRequestOptions = new WebRequestOptions(fetchers)
-      // TODO: make MarkdownConversionOptions and TextConversionOptions configurable
-      const markdownOptions = new MarkdownConversionOptions(converters, true)
-      const textOptions = new TextConversionOptions(true, true)
-      const request = new MultiFormatFromUrlRequest(urlStr, include, webRequestOptions, markdownOptions, textOptions)
+      const request = new MultiFormatFromUrlRequest(urlStr, include, webRequestOptions, getMarkdownConversionOptions(), getTextConversionOptions())
       // TODO: support multiple content converters
       // if (extractors.length == 0) {
       const response = await service.extractMultipleFormatsFromUrl(request)
@@ -93,10 +90,7 @@
     }
 
     await extract(async include => {
-      // TODO: make MarkdownConversionOptions and TextConversionOptions configurable
-      const markdownOptions = new MarkdownConversionOptions(converters, true)
-      const textOptions = new TextConversionOptions(true, true)
-      const request = new MultiFormatFromHtmlRequest(rawHtml.trim(), include, markdownOptions, textOptions)
+      const request = new MultiFormatFromHtmlRequest(rawHtml.trim(), include, getMarkdownConversionOptions(), getTextConversionOptions())
 
       const response = await service.extractMultipleFormatsFromHtml(request)
       return [ response ]
@@ -142,10 +136,8 @@
 
     try {
       // TODO: support multiple content converters
-      // TODO: make MarkdownConversionOptions configurable
-      const markdownOptions = new MarkdownConversionOptions(converters, true)
       // if (converters.length === 0) {
-        const result = await service.convertHtmlToMarkdown(html, markdownOptions)
+        const result = await service.convertHtmlToMarkdown(html, getMarkdownConversionOptions())
         convertResults[result.converter] = result
       // } else {
       //   converters.forEach(async (converter) => {
@@ -157,6 +149,16 @@
     } finally {
       loading = false
     }
+  }
+
+  function getMarkdownConversionOptions(): MarkdownConversionOptions {
+    // TODO: make MarkdownConversionOptions configurable
+    return new MarkdownConversionOptions(converters, true)
+  }
+
+  function getTextConversionOptions(): TextConversionOptions {
+    // TODO: make TextConversionOptions configurable
+    return new TextConversionOptions(true, true)
   }
 
   const extractOptions = [
