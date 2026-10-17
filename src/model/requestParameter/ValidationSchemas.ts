@@ -27,7 +27,7 @@ const numberSchema = z.preprocess((val) => {
 
 export const WebRequestOptionsSchema = z.object({
   timeout: numberSchema,
-  userAgent: z.string().optional(),
+  userAgent: z.string().optional().meta({ example: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0" }),
   followRedirects: booleanSchema.optional(),
 })
 
