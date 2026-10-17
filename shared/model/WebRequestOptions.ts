@@ -1,3 +1,5 @@
+import type { WebClientEngine } from "@shared/model/WebClientEngine.ts"
+
 export class WebRequestOptions {
 
   static DefaultTimeout = 60_000
@@ -7,6 +9,8 @@ export class WebRequestOptions {
     readonly userAgent: string | undefined = undefined,
     readonly timeout: number = WebRequestOptions.DefaultTimeout,
     readonly followRedirects: boolean = WebRequestOptions.DefaultFollowRedirects,
+
+    readonly fetchers: WebClientEngine[] | undefined = undefined,
   ) { }
 
 }

@@ -13,7 +13,8 @@ export class WebFetcherWebClient implements WebClient {
 
 
   async fetch(url: string, options?: WebRequestOptions): Promise<WebClientResponse> {
-    const request = new WebFetcherRequest(url, options?.timeout, options?.userAgent, options?.followRedirects)
+    const strategies = (options?.fetchers ?? []).filter(it => it != WebClientEngine.JsFetchApi).map(it => this.mapEngineToStrategy(it))
+    const request = new WebFetcherRequest(url, options?.timeout, options?.userAgent, options?.followRedirects, strategies)
 
     const response = await fetch(this.baseUrl + "/fetch", {
       method: "POST",
@@ -35,7 +36,7 @@ export class WebFetcherWebClient implements WebClient {
   private async mapSuccessResponse(response: Response): Promise<WebClientResponse> {
     const fetchResponse = await response.json() as WebFetcherResponse
 
-    const fetcher = this.mapStrategy(fetchResponse.strategy)
+    const fetcher = this.mapStrategyToEngine(fetchResponse.strategy)
     const cookies: string[] | undefined = fetchResponse.cookies ? [] : undefined // TODO: map cookies
     const durationMs = fetchResponse.elapsed_microseconds ? fetchResponse.elapsed_microseconds / 1000 : undefined
 
@@ -43,13 +44,23 @@ export class WebFetcherWebClient implements WebClient {
       fetchResponse.headers, cookies, durationMs)
   }
 
-  private mapStrategy(strategy: FetchStrategy): WebClientEngine {
+  private mapStrategyToEngine(strategy: FetchStrategy): WebClientEngine {
     if (strategy === FetchStrategy.CAMOUFOX) {
       return WebClientEngine.Camoufox
     } else if (strategy === FetchStrategy.ZENDRIVER) {
       return WebClientEngine.Zendriver
     } else {
       return WebClientEngine.CurlCffi
+    }
+  }
+
+  private mapEngineToStrategy(engine: WebClientEngine): FetchStrategy {
+    if (engine === WebClientEngine.Camoufox) {
+      return FetchStrategy.CAMOUFOX
+    } else if (engine === WebClientEngine.Zendriver) {
+      return FetchStrategy.ZENDRIVER
+    } else {
+      return FetchStrategy.CURL_CFFI
     }
   }
 
