@@ -1,9 +1,9 @@
-import { WebFetcher } from "./WebFetcher"
+import { WebClientEngine } from "./WebClientEngine.ts"
 
 export class WebResponse {
 
   constructor(
-    readonly fetcher: WebFetcher,
+    readonly fetcher: WebClientEngine,
 
     readonly error?: string,
 

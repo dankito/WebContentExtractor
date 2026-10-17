@@ -1,0 +1,30 @@
+{
+  "html": "<html>",
+  "status_code": 200,
+  "final_url": "<url>",
+  "strategy": "curl_cffi",
+  "http_version": "3",
+  "headers": {
+    "server": "nginx",
+    "date": "Sat, 17 Oct 2026 15:28:46 GMT",
+    "content-type": "text/html; charset=UTF-8",
+    "last-modified": "Sat, 17 Oct 2026 15:28:46 GMT",
+    "content-encoding": "gzip",
+    "age": "920",
+    "accept-ranges": "bytes",
+    "strict-transport-security": "max-age=15768000",
+    "x-frame-options": "DENY",
+    "x-xss-protection": "1; mode=block",
+    "x-content-type-options": "nosniff",
+    "cross-origin-opener-policy": "same-origin",
+    "set-cookie": "trusted_id=9486ee32-1a2e-498c-874e-c0d1615e34d9; Path=/; Max-Age=31536000; SameSite=Lax; Secure",
+    "x-hacc-refreshed": "",
+    "vary": "Accept-Encoding, X-Export-Format, X-Export-Agent, X-Export-IAP",
+    "cache-control": "no-store",
+    "content-length": "51653"
+  },
+  "cookies": {
+    "trusted_id": "9486ee32-1a2e-498c-874e-c0d1615e34d9"
+  },
+  "elapsed_microseconds": 63024
+}

@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { MarkdownConverter } from "@shared/model/MarkdownConverter.ts"
 import { TextConverter } from "@shared/model/TextConverter.ts"
-import { WebFetcher } from "@shared/model/WebFetcher.ts"
+import { WebClientEngine } from "@shared/model/WebClientEngine.ts"
 import { ResponseFormat } from "../responses/ResponseFormat.ts"
 
 const booleanSchema = z.preprocess((val) => {
@@ -148,7 +148,7 @@ export const ConvertHtmlRequestSchema = z.object({
 })
 
 export const WebResponseSchema = z.object({
-  fetcher: z.enum(WebFetcher),
+  fetcher: z.enum(WebClientEngine),
 
   error: z.string().optional(),
 

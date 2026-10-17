@@ -5,7 +5,7 @@
   import Card from "../common/form/Card.svelte"
   import { MarkdownConverter } from "@shared/model/MarkdownConverter"
   import { TextConverter } from "@shared/model/TextConverter"
-  import { WebFetcher } from "@shared/model/WebFetcher"
+  import { WebClientEngine } from "@shared/model/WebClientEngine"
   import { RequestedFormat } from "../../ts/model/RequestedFormat"
   import ComboBox from "../common/form/ComboBox.svelte"
   import { Option } from "../../ts/ui/Option"
@@ -14,7 +14,7 @@
   import { MeasuredDuration } from "../../ts/model/MeasuredDuration"
 
   let { content, format, fetcher = undefined, converter = undefined, returnedFormats = [], displayedFormat = $bindable(), durations }:
-    { content: string, format: OutputFormat, fetcher?: WebFetcher, converter?: MarkdownConverter | TextConverter,
+    { content: string, format: OutputFormat, fetcher?: WebClientEngine, converter?: MarkdownConverter | TextConverter,
       returnedFormats?: RequestedFormat[], displayedFormat?: RequestedFormat, durations?: Partial<Record<MeasuredDuration, Duration>> } = $props()
 
   let viewMode = $state<"source" | "rendered">("rendered")
@@ -98,17 +98,16 @@
     return [ ...tools, countChars, requestDuration ].filter(it => !!it).join(" · ")
   }
 
-  function getShortFetcherName(fetcher: WebFetcher): string {
-    if (fetcher === WebFetcher.JsFetchApi) {
+  function getShortFetcherName(fetcher: WebClientEngine): string {
+    if (fetcher === WebClientEngine.JsFetchApi) {
       return "JS fetch"
+    } else if (fetcher === WebClientEngine.CurlCffi) {
+      return "curl"
+    } else if (fetcher === WebClientEngine.Camoufox) {
+      return "Camoufox"
+    } else if (fetcher === WebClientEngine.Zendriver) {
+      return "Zendriver"
     }
-    // else if (fetcher === WebFetcher.CurlCffi) {
-    //   return "curl"
-    // } else if (fetcher === WebFetcher.Camoufox) {
-    //   return "Camoufox"
-    // } else if (fetcher === WebFetcher.Zendriver) {
-    //   return "Zendriver"
-    // }
     else  {
       return fetcher
     }

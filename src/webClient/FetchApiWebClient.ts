@@ -1,6 +1,6 @@
 import { WebRequestOptions } from "@shared/model/WebRequestOptions"
 import type { WebClient } from "./WebClient.ts"
-import { WebFetcher as WebFetcherEnum } from "@shared/model/WebFetcher.ts"
+import { WebClientEngine } from "@shared/model/WebClientEngine.ts"
 import { ErrorUtil } from "../service/utils/ErrorUtil.ts"
 import { WebClientResponse } from "./WebClientResponse.ts"
 import { Stopwatch } from "@shared/service/utils/Stopwatch.ts"
@@ -27,15 +27,15 @@ export class FetchApiWebClient implements WebClient {
 
       if (!response.ok) {
         console.error(`Fetching ${url} failed with status: ${response.status}`, responseBody)
-        return WebClientResponse.error(WebFetcherEnum.JsFetchApi, `Fetching ${url} failed with status: ${response.status}.${responseBody ? "Response body: " + responseBody : ""}`,
+        return WebClientResponse.error(WebClientEngine.JsFetchApi, `Fetching ${url} failed with status: ${response.status}.${responseBody ? "Response body: " + responseBody : ""}`,
           response.status, response.url, this.headersToRecord(response.headers), response.headers.getSetCookie(), duration)
       }
 
-      return WebClientResponse.success(WebFetcherEnum.JsFetchApi, responseBody, response.status, response.url,
+      return WebClientResponse.success(WebClientEngine.JsFetchApi, responseBody, response.status, response.url,
         this.headersToRecord(response.headers), response.headers.getSetCookie(), duration)
     } catch (error) {
       console.error(`Failed to fetch HTML from ${url}:`, error)
-      return WebClientResponse.error(WebFetcherEnum.JsFetchApi, ErrorUtil.errorMessageOfError(error))
+      return WebClientResponse.error(WebClientEngine.JsFetchApi, ErrorUtil.errorMessageOfError(error))
     }
   }
 

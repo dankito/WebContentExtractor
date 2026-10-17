@@ -1,18 +1,18 @@
-import { WebFetcher } from "@shared/model/WebFetcher"
+import { WebClientEngine } from "@shared/model/WebClientEngine.ts"
 
 export class WebClientResponse {
 
-  static success(fetcher: WebFetcher, response: string, statusCode: number, finalUrl: string, headers: Record<string, string>, cookies: string[], durationMs?: number): WebClientResponse {
+  static success(fetcher: WebClientEngine, response: string, statusCode: number, finalUrl: string, headers: Record<string, string>, cookies: string[], durationMs?: number): WebClientResponse {
     return new WebClientResponse(fetcher, undefined, response, statusCode, finalUrl, headers, cookies, durationMs)
   }
 
-  static error(fetcher: WebFetcher, error: string, statusCode?: number, finalUrl?: string, headers?: Record<string, string>, cookies?: string[], durationMs?: number): WebClientResponse {
+  static error(fetcher: WebClientEngine, error: string, statusCode?: number, finalUrl?: string, headers?: Record<string, string>, cookies?: string[], durationMs?: number): WebClientResponse {
     return new WebClientResponse(fetcher, error, undefined, statusCode, finalUrl, headers, cookies, durationMs)
   }
 
 
   constructor(
-    readonly fetcher: WebFetcher,
+    readonly fetcher: WebClientEngine,
 
     readonly error?: string,
 
