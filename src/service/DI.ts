@@ -3,8 +3,8 @@ import { RequestValidator } from "./utils/RequestValidator.ts"
 import { DomService } from "./html/DomService.ts"
 import { ReadabilityContentExtractor } from "./ReadabilityContentExtractor.ts"
 import { HtmlCleaner } from "./html/HtmlCleaner.ts"
-import type { WebFetcher } from "../webFetcher/WebFetcher.ts"
-import { FetchApiWebFetcher } from "../webFetcher/FetchApiWebFetcher.ts"
+import type { WebClient } from "../webClient/WebClient.ts"
+import { FetchApiWebClient } from "../webClient/FetchApiWebClient.ts"
 import { ContentConverterService } from "./contentConverter/ContentConverterService.ts"
 import { UrlVerificationService } from "./utils/UrlVerificationService.ts"
 import { HttpUtil } from "./utils/HttpUtil.ts"
@@ -27,7 +27,7 @@ export class DI {
 
   static readonly contentConverter = new ContentConverterService(DI.htmlToMarkdownConverter, DI.htmlToTextConverter)
 
-  static readonly webFetcher: WebFetcher = new FetchApiWebFetcher()
+  static readonly webFetcher: WebClient = new FetchApiWebClient()
 
   static readonly urlVerificationService = new UrlVerificationService()
 

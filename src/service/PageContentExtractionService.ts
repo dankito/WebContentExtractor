@@ -2,7 +2,7 @@ import { ExtractedContent } from "../model/ExtractedContent"
 import type { ReadabilityContentExtractor } from "./ReadabilityContentExtractor"
 import type { Result } from "../model/Result"
 import type { ExtractFromUrlRequest } from "../model/requestParameter/ExtractFromUrlRequest"
-import type { WebFetcher } from "../webFetcher/WebFetcher"
+import type { WebClient } from "../webClient/WebClient.ts"
 import type { ContentConverterService } from "./contentConverter/ContentConverterService"
 import type { HtmlCleaner } from "./html/HtmlCleaner"
 import { TextConversionOptions } from "@shared/model/TextConversionOptions"
@@ -15,7 +15,7 @@ import type { WebRequestOptions } from "@shared/model/WebRequestOptions.ts"
 import { TextConversionResult } from "@shared/model/TextConversionResult.ts"
 import type { MarkdownConversionResult } from "@shared/model/MarkdownConversionResult.ts"
 import { SuccessResult } from "../model/SuccessResult.ts"
-import { WebFetcherResponse } from "../webFetcher/WebFetcherResponse.ts"
+import { WebClientResponse } from "../webClient/WebClientResponse.ts"
 import { WebResponse } from "@shared/model/WebResponse.ts"
 import { Stopwatch } from "@shared/service/utils/Stopwatch.ts"
 import type { MultiFormatFromHtmlRequest } from "@shared/model/requests/MultiFormatFromHtmlRequest.ts"
@@ -27,7 +27,7 @@ export class PageContentExtractionService {
     private readonly readability: ReadabilityContentExtractor,
     private readonly htmlCleaner: HtmlCleaner,
     private readonly contentConverter: ContentConverterService,
-    private readonly webFetcher: WebFetcher,
+    private readonly webFetcher: WebClient,
     private readonly urlVerificationService: UrlVerificationService,
   ) { }
 
@@ -120,7 +120,7 @@ export class PageContentExtractionService {
   }
 
 
-  private async fetchPageHtml(url: string, webRequestOptions?: WebRequestOptions): Promise<Result<WebFetcherResponse>> {
+  private async fetchPageHtml(url: string, webRequestOptions?: WebRequestOptions): Promise<Result<WebClientResponse>> {
     // for security reasons local urls and non-http urls get blocked.
     // An attacker could use the server to probe internal network resources, access cloud metadata services (e.g., 169.254.169.254), or bypass firewalls by making the request originate from the server itself.
     const urlVerificationError = await this.urlVerificationService.hasCorrectProtocolAndIsNonLocalUrl(url!)
