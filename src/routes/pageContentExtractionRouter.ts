@@ -145,6 +145,7 @@ async function extractMultipleFormatsFromUrl(context: Context) {
       return context.json(result.data)
     }
   } catch (error) {
+    console.log("error", error)
     return createErrorResponseFromError(error, context)
   }
 }
