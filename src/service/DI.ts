@@ -11,6 +11,7 @@ import { HttpUtil } from "./utils/HttpUtil.ts"
 import { HtmlToTextConverter } from "./contentConverter/HtmlToTextConverter.ts"
 import type { HtmlToMarkdownConverter } from "./contentConverter/HtmlToMarkdownConverter.ts"
 import { KreuzbergHtmlToMarkdownConverter } from "./contentConverter/KreuzbergHtmlToMarkdownConverter.ts"
+import { WebClientSelector } from "../webClient/WebClientSelector.ts"
 
 export class DI {
 
@@ -27,7 +28,7 @@ export class DI {
 
   static readonly contentConverter = new ContentConverterService(DI.htmlToMarkdownConverter, DI.htmlToTextConverter)
 
-  static readonly webFetcher: WebClient = new FetchApiWebClient()
+  static readonly webFetcher: WebClient = new WebClientSelector(new FetchApiWebClient(), process.env.WEB_FETCHER_URL ?? undefined)
 
   static readonly urlVerificationService = new UrlVerificationService()
 
