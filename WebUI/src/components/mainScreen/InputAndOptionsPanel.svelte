@@ -40,6 +40,10 @@
   let converters = $state<MarkdownConverter[]>([])
   let includeImages = $state(true)
 
+  // Text conversion options
+  let preserveLinkUrls = $state(false)
+  let preserveImageUrls = $state(false)
+
   let loading = $state(false)
   let actionRequiresFetcher = $derived(sourceMode !== SourceMode.Html)
   let actionRequiresExtraction = $derived(action === ExtractionAction.Extract || action === ExtractionAction.CompareExtractors)
@@ -194,8 +198,7 @@
   }
 
   function getTextConversionOptions(): TextConversionOptions {
-    // TODO: make TextConversionOptions configurable
-    return new TextConversionOptions(true, true)
+    return new TextConversionOptions(preserveLinkUrls, preserveImageUrls)
   }
 </script>
 
@@ -229,8 +232,16 @@
 
       {#if action === ExtractionAction.Convert || format !== OutputFormat.Html}
         <MultiSelect label="Converters" options={converterOptions} selectedOptions={converters} selectionChanged={value => converters = value} />
+      {/if}
 
+      {#if format === OutputFormat.Markdown}
         <SwitchInput label="Include images" bind:value={includeImages} disabled={loading} />
+      {/if}
+
+      {#if format === OutputFormat.Text}
+        <SwitchInput label="Preserve Link URLs" bind:value={preserveLinkUrls} disabled={loading} />
+
+        <SwitchInput label="Preserve Image URLs" bind:value={preserveImageUrls} disabled={loading} />
       {/if}
     </div>
   </div>
