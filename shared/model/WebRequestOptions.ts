@@ -6,11 +6,11 @@ export class WebRequestOptions {
   static DefaultFollowRedirects = true
 
   constructor(
-    readonly userAgent: string | undefined = undefined,
-    readonly timeout: number = WebRequestOptions.DefaultTimeout,
-    readonly followRedirects: boolean = WebRequestOptions.DefaultFollowRedirects,
-
     readonly fetchers: WebClientEngine[] | undefined = undefined,
+
+    readonly userAgent: string | undefined = undefined,
+    readonly timeout: number | undefined = WebRequestOptions.DefaultTimeout,
+    readonly followRedirects: boolean = WebRequestOptions.DefaultFollowRedirects,
   ) { }
 
 }

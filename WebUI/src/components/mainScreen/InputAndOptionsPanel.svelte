@@ -4,7 +4,6 @@
   import SwitchInput from "../common/form/SwitchInput.svelte"
   import { Option } from "../../ts/ui/Option"
   import { OutputFormat } from "../../ts/model/OutputFormat"
-  import { WebFetcher } from "../../ts/model/WebFetcher"
   import { WebContentExtractor } from "../../ts/model/WebContentExtractor"
   import { MarkdownConverter } from "@shared/model/MarkdownConverter"
   import { DI } from "../../ts/service/DI"
@@ -20,6 +19,8 @@
   import { Stopwatch } from "@shared/service/utils/Stopwatch"
   import { Duration } from "@shared/service/utils/Duration"
   import { MultiFormatFromHtmlRequest } from "@shared/model/requests/MultiFormatFromHtmlRequest"
+  import { WebRequestOptions } from "@shared/model/WebRequestOptions"
+  import { WebClientEngine } from "@shared/model/WebClientEngine"
 
 
   let { action = $bindable(), sourceMode = $bindable(), format = $bindable(), extractionResults = $bindable(), convertResults = $bindable({}), requestDuration = $bindable(), error = $bindable() } =
@@ -30,7 +31,7 @@
   let rawHtml = $state("")
 
   let includeMetadata = $state<boolean | undefined>(false)
-  let fetcher = $state<WebFetcher | undefined>(undefined)
+  let fetchers = $state<WebClientEngine[]>([])
   let extractors = $state<WebContentExtractor[]>([])
   let converters = $state<MarkdownConverter[]>([])
 
@@ -67,8 +68,9 @@
     }
 
     await extract(async include => {
-      // TODO: add WebRequestOptions, MarkdownConversionOptions and TextConversionOptions
-      const request = new MultiFormatFromUrlRequest(urlStr, include)
+      // TODO: add MarkdownConversionOptions and TextConversionOptions
+      const webRequestOptions = new WebRequestOptions(fetchers)
+      const request = new MultiFormatFromUrlRequest(urlStr, include, webRequestOptions)
       // TODO: support multiple content converters
       // if (extractors.length == 0) {
       const response = await service.extractMultipleFormatsFromUrl(request)
@@ -163,10 +165,10 @@
   ]
 
   const fetcherOptions = [
-    new Option(WebFetcher.JsFetchApi, "JS fetch-API"),
-    // new Option(WebFetcher.CurlCffi, "curl-cffi"),
-    // new Option(WebFetcher.Camoufox, "Camoufox"),
-    // new Option(WebFetcher.Zendriver, "Zendriver"),
+    new Option(WebClientEngine.JsFetchApi, "JS fetch-API"),
+    new Option(WebClientEngine.CurlCffi, "curl-cffi"),
+    new Option(WebClientEngine.Camoufox, "Camoufox"),
+    new Option(WebClientEngine.Zendriver, "Zendriver"),
   ]
 
   const extractorOptions = [
@@ -207,7 +209,7 @@
       {/if}
 
       {#if actionRequiresFetcher}
-        <ComboBox label="Fetcher" options={fetcherOptions} selectedOption={fetcher} selectionChanged={value => fetcher = value} />
+        <MultiSelect label="Fetcher" options={fetcherOptions} selectedOptions={fetchers} selectionChanged={value => fetchers = value} />
       {/if}
 
       {#if actionRequiresExtraction}

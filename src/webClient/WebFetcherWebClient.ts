@@ -14,7 +14,8 @@ export class WebFetcherWebClient implements WebClient {
 
   async fetch(url: string, options?: WebRequestOptions): Promise<WebClientResponse> {
     const strategies = (options?.fetchers ?? []).filter(it => it != WebClientEngine.JsFetchApi).map(it => this.mapEngineToStrategy(it))
-    const request = new WebFetcherRequest(url, options?.timeout, options?.userAgent, options?.followRedirects, strategies)
+    const timeout = options?.timeout ? options.timeout / 1000 : undefined
+    const request = new WebFetcherRequest(url, timeout, options?.userAgent, options?.followRedirects, strategies)
 
     const response = await fetch(this.baseUrl + "/fetch", {
       method: "POST",

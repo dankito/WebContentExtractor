@@ -26,7 +26,8 @@ const numberSchema = z.preprocess((val) => {
 }, z.number().optional())
 
 export const WebRequestOptionsSchema = z.object({
-  timeout: numberSchema,
+  fetchers: z.enum(WebClientEngine).array().optional(),
+  timeout: numberSchema.optional(),
   userAgent: z.string().optional().meta({ example: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0" }),
   followRedirects: booleanSchema.optional(),
 })
@@ -70,6 +71,7 @@ export const ExtractFromUrlQueryParamsSchema = z.object({
   includeMetadata: booleanSchema.optional(),
   // Flattened structure as it comes from request params/body
   // web fetcher options
+  fetchers: z.enum(WebClientEngine).array().optional(),
   timeout: numberSchema,
   userAgent: z.string().optional(),
   followRedirects: booleanSchema.optional(),

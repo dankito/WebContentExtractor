@@ -133,11 +133,11 @@ export class RequestValidator {
   }
 
   private mapToWebRequestOptions(data: z.infer<typeof WebRequestOptionsSchema | typeof ExtractFromUrlQueryParamsSchema>): WebRequestOptions | undefined {
-    if (data.timeout === undefined && data.userAgent === undefined && data.followRedirects === undefined) {
+    if (data.fetchers === undefined && data.timeout === undefined && data.userAgent === undefined && data.followRedirects === undefined) {
       return undefined
     }
 
-    return new WebRequestOptions(data.userAgent, data.timeout, data.followRedirects)
+    return new WebRequestOptions(data.fetchers ?? [], data.userAgent, data.timeout, data.followRedirects)
   }
 
 }
