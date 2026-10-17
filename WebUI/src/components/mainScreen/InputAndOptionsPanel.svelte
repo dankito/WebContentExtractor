@@ -21,6 +21,8 @@
   import { MultiFormatFromHtmlRequest } from "@shared/model/requests/MultiFormatFromHtmlRequest"
   import { WebRequestOptions } from "@shared/model/WebRequestOptions"
   import { WebClientEngine } from "@shared/model/WebClientEngine"
+  import { MarkdownConversionOptions } from "@shared/model/MarkdownConversionOptions"
+  import { TextConversionOptions } from "@shared/model/TextConversionOptions"
 
 
   let { action = $bindable(), sourceMode = $bindable(), format = $bindable(), extractionResults = $bindable(), convertResults = $bindable({}), requestDuration = $bindable(), error = $bindable() } =
@@ -68,9 +70,11 @@
     }
 
     await extract(async include => {
-      // TODO: add MarkdownConversionOptions and TextConversionOptions
       const webRequestOptions = new WebRequestOptions(fetchers)
-      const request = new MultiFormatFromUrlRequest(urlStr, include, webRequestOptions)
+      // TODO: make MarkdownConversionOptions and TextConversionOptions configurable
+      const markdownOptions = new MarkdownConversionOptions(true)
+      const textOptions = new TextConversionOptions(true, true)
+      const request = new MultiFormatFromUrlRequest(urlStr, include, webRequestOptions, markdownOptions, textOptions)
       // TODO: support multiple content converters
       // if (extractors.length == 0) {
       const response = await service.extractMultipleFormatsFromUrl(request)
@@ -89,7 +93,10 @@
     }
 
     await extract(async include => {
-      const request = new MultiFormatFromHtmlRequest(rawHtml.trim(), include)
+      // TODO: make MarkdownConversionOptions and TextConversionOptions configurable
+      const markdownOptions = new MarkdownConversionOptions(true)
+      const textOptions = new TextConversionOptions(true, true)
+      const request = new MultiFormatFromHtmlRequest(rawHtml.trim(), include, markdownOptions, textOptions)
 
       const response = await service.extractMultipleFormatsFromHtml(request)
       return [ response ]
@@ -134,10 +141,12 @@
     convertResults = {}
 
     try {
-      // TODO: add MarkdownConversionOptions
       // TODO: support multiple content converters
+      // TODO: make MarkdownConversionOptions and TextConversionOptions configurable
+      const markdownOptions = new MarkdownConversionOptions(true)
+      const textOptions = new TextConversionOptions(true, true)
       // if (converters.length === 0) {
-        const result = await service.convertHtmlToMarkdown(html)
+        const result = await service.convertHtmlToMarkdown(html, options, markdownOptions, textOptions)
         convertResults[result.converter] = result
       // } else {
       //   converters.forEach(async (converter) => {
@@ -172,9 +181,6 @@
   ]
 
   const extractorOptions = [
-    // new Option(WebContentExtractor.Trafilatura, "Trafilatura"),
-    // new Option(WebContentExtractor.ReadabilityLxml, "Readability Lxml"),
-    // new Option(WebContentExtractor.Newspaper4k, "Newspaper4k"),
     new Option(WebContentExtractor.ReadabilityJs, "ReadabilityJs"),
   ]
 
