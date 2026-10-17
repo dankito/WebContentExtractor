@@ -17,11 +17,6 @@ export class DI {
 
   private static getBaseUrl(): string {
     let baseUrl = DI.determineBackendHost()
-    const port = import.meta.env.VITE_BACKEND_PORT
-
-    if (port) {
-      baseUrl += ":" + port
-    }
 
     baseUrl += DI.determineBasePath()
 
@@ -36,9 +31,10 @@ export class DI {
 
     const fileUrl = new URL(import.meta.url)
 
+    const configuredPort = import.meta.env.VITE_BACKEND_PORT
     const isNonDefaultPort = fileUrl.port !== "80" && fileUrl.port !== "443"
 
-    return `${fileUrl.protocol}//${fileUrl.hostname}${isNonDefaultPort ? ":" + fileUrl.port : ""}`
+    return `${fileUrl.protocol}//${fileUrl.hostname}${configuredPort ? `:${configuredPort}` : isNonDefaultPort ? ":" + fileUrl.port : ""}`
   }
 
   private static determineBasePath(): string {
