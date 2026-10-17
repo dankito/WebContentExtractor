@@ -38,6 +38,7 @@
 
   // Markdown conversion options
   let converters = $state<MarkdownConverter[]>([])
+  let includeLinks = $state(true)
   let includeImages = $state(true)
 
   // Text conversion options
@@ -194,7 +195,7 @@
   }
 
   function getMarkdownConversionOptions(): MarkdownConversionOptions {
-    return new MarkdownConversionOptions(converters, includeImages)
+    return new MarkdownConversionOptions(converters, includeLinks, includeImages)
   }
 
   function getTextConversionOptions(): TextConversionOptions {
@@ -235,6 +236,8 @@
       {/if}
 
       {#if format === OutputFormat.Markdown}
+        <SwitchInput label="Include links" bind:value={includeLinks} disabled={loading} />
+
         <SwitchInput label="Include images" bind:value={includeImages} disabled={loading} />
       {/if}
 

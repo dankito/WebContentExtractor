@@ -57,6 +57,8 @@ export class KreuzbergHtmlToMarkdownConverter implements HtmlToMarkdownConverter
       escapeAsterisks: false,
       escapeUnderscores: false,
 
+      stripTags: options?.includeLinks == false ? [ "a" ] : undefined,
+
       // may make configurable
       linkStyle: LinkStyle.Inline,
       strongEmSymbol: "*", // or "_"

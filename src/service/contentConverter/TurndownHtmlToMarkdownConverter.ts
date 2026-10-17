@@ -68,6 +68,14 @@ export class TurndownHtmlToMarkdownConverter implements HtmlToMarkdownConverter 
       })
     }
 
+    if (options?.includeLinks === false) {
+      turndownService.addRule("skip-links", {
+        // @ts-ignore
+        filter: "a",
+        replacement: (content: string) => content,
+      })
+    }
+
     return turndownService
   }
 

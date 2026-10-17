@@ -105,15 +105,15 @@ export class RequestValidator {
       return undefined
     }
 
-    return new MarkdownConversionOptions(data.converters, data.includeImages)
+    return new MarkdownConversionOptions(data.converters, data.includeLinks, data.includeImages)
   }
 
   private mapToMarkdownConversionOptionsFromQueryParameter(data: z.infer<typeof ExtractFromUrlQueryParamsSchema>): MarkdownConversionOptions | undefined {
-    if (data.converters == undefined && data.includeImages === undefined) {
+    if (data.converters == undefined && data.includeLinks === undefined && data.includeImages === undefined) {
       return undefined
     }
 
-    return new MarkdownConversionOptions(data.converters, data.includeImages)
+    return new MarkdownConversionOptions(data.converters, data.includeLinks, data.includeImages)
   }
 
   private mapToTextConversionOptions(data: z.infer<typeof TextConversionOptionsSchema> | undefined): TextConversionOptions | undefined {

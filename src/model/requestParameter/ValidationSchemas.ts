@@ -35,6 +35,7 @@ export const WebRequestOptionsSchema = z.object({
 export const MarkdownConversionOptionsSchema = z.object({
   converters: z.array(z.enum(MarkdownConverter)).optional(),
   includeImages: booleanSchema.optional(),
+  includeLinks: booleanSchema.optional(),
 })
 
 export const TextConversionOptionsSchema = z.object({
@@ -79,6 +80,7 @@ export const ExtractFromUrlQueryParamsSchema = z.object({
   // convert to markdown options
   converters: z.array(z.enum(MarkdownConverter)).optional(),
   includeImages: booleanSchema.optional(),
+  includeLinks: booleanSchema.optional(),
   // convert to text options
   preserveLinkUrlsInPlainText: booleanSchema.optional(),
   preserveImageUrlsInPlainText: booleanSchema.optional(),

@@ -50,6 +50,14 @@ describe("KreuzbergHtmlToMarkdownConverter", () => {
       assertConversion(`<a href="https://liebe.de">Liebe</a>`, "[Liebe](https://liebe.de)")
     })
 
+    it("<a> includeLinks: false -> Liebe", () => {
+      assertConversion(`<a href="https://liebe.de">Liebe</a>`, "Liebe", new MarkdownConversionOptions(undefined, false, false))
+    })
+
+    it("<a> includeLinks: true -> [Liebe](url)", () => {
+      assertConversion(`<a href="https://liebe.de">Liebe</a>`, "[Liebe](https://liebe.de)", new MarkdownConversionOptions(undefined, true, false))
+    })
+
 
     it("<img> includeImages: false -> image description", () => {
       assertConversion(`<img src="https://liebe.de/liebe.png">Liebe</img>`, "Liebe", {
