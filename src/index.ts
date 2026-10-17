@@ -7,12 +7,18 @@ import { CorsRouter } from "./routes/CorsRouter.ts"
 import { StaticFilesRouter } from "./routes/StaticFilesRouter.ts"
 import { contentConverterRouter } from "./routes/contentConverterRouter.ts"
 import { McpRouter } from "./routes/McpRouter.ts"
+import { prometheus } from "@hono/prometheus"
 
 export const app = new Hono()
 
 const basePath = process.env.BASE_PATH
 const router = basePath ? app.basePath(basePath) : app
 
+
+// add metrics. Include this before app.use("*", logger()) so that requests to /metrics are not logged
+const { printMetrics, registerMetrics } = prometheus()
+app.use("*", registerMetrics)
+app.get("/metrics", printMetrics)
 
 app.use("*", logger()) // request logger always registers for the root, not for basePath
 
