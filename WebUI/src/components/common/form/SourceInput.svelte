@@ -33,9 +33,9 @@
         aria-label="Toggle input mode"
     >
       {#if mode === SourceMode.Url}
-        <Globe class="w-4 h-4" />
+        <Code2 class="size-4 text-primary" />
       {:else}
-        <Code2 class="w-4 h-4 text-primary" />
+        <Globe class="size-4 text-primary" />
       {/if}
     </button>
   {/if}
