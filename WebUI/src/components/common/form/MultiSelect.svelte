@@ -116,7 +116,7 @@
         {#each options as option (String(option.value))}
           <label
               aria-selected={isSelected(option.value)}
-              class="flex items-center gap-2.5 px-3 py-2 cursor-pointer select-none
+              class="flex items-center gap-2.5 px-3 py-2 cursor-pointer select-none border-zinc-200
                    hover:bg-zinc-50 transition-colors
                    {option.disabled ? 'opacity-40 pointer-events-none' : ''}"
           >
