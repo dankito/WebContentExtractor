@@ -9,9 +9,9 @@ export class FetchApiWebClient implements WebClient {
 
   async fetch(url: string, options?: WebRequestOptions): Promise<WebClientResponse> {
     try {
-      const headers = new Headers();
+      const headers = new Headers()
       if (options?.userAgent) {
-        headers.set("User-Agent", options.userAgent);
+        headers.set("User-Agent", options.userAgent)
       }
       const stopwatch = new Stopwatch()
 
