@@ -41,7 +41,7 @@
   {/if}
 
   {#if mode === SourceMode.Url}
-    <input type="url" bind:value={url} placeholder="https://example.com" onkeydown={onKeydown} {disabled}
+    <input type="url" bind:value={url} placeholder="Enter URL or click the markup button on the left for HTML input" onkeydown={onKeydown} {disabled}
         class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-zinc-300
              text-zinc-800 placeholder-zinc-400
              focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary
