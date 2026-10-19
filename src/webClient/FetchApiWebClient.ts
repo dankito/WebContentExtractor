@@ -22,7 +22,8 @@ export class FetchApiWebClient implements WebClient {
         headers
       })
 
-      const responseBody = await response.text()
+      const buffer = await response.arrayBuffer()
+      const responseBody = this.decodeBody(buffer, response.headers.get("Content-Type"))
       const duration = stopwatch.stopToMillis()
 
       if (!response.ok) {
@@ -39,6 +40,27 @@ export class FetchApiWebClient implements WebClient {
     }
   }
 
+
+  private decodeBody(buffer: ArrayBuffer, contentType: string | null): string {
+    const charset = this.detectCharset(buffer, contentType) ?? "utf-8"
+    try {
+      return new TextDecoder(charset).decode(buffer)
+    } catch {
+      // unknown or unsupported label
+      return new TextDecoder("utf-8").decode(buffer)
+    }
+  }
+
+  private detectCharset(buffer: ArrayBuffer, contentType: string | null): string | null {
+    const fromHeader = contentType?.match(/charset=["']?([^\s;"']+)/i)?.[1]
+    if (fromHeader) {
+      return fromHeader
+    }
+
+    // Sniff the first 2 KB; latin1 decoding is safe for ASCII-only markup
+    const head = new TextDecoder("latin1").decode(buffer.slice(0, 2048))
+    return head.match(/<meta[^>]+charset=["']?([^\s"'>\/;]+)/i)?.[1] ?? null
+  }
 
   private headersToRecord(headers: Headers): Record<string, string> {
     const result: Record<string, string> = {}
