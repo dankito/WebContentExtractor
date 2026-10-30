@@ -3,16 +3,21 @@ name: Publish Docker Image
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - "v[0-9]+.[0-9]+.[0-9]+"
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version tag (e.g. 1.2.3)'
+        description: "Version (e.g. 1.2.3 or v1.2.3). Must be an existing tag."
         required: true
+        type: string
       latest:
-        description: 'Tag as latest'
+        description: "Also tag as latest"
         type: boolean
-        default: true
+        default: false
+
+concurrency:
+  group: docker-publish-${{ github.event.inputs.version || github.ref_name }}
+  cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
@@ -21,22 +26,50 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: read
       packages: write
+      id-token: write
+      attestations: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Determine and validate version
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            RAW_VERSION="$INPUT_VERSION"
+          else
+            RAW_VERSION="$REF_NAME"
+          fi
+
+          VERSION="${RAW_VERSION#v}"
+
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Version '$RAW_VERSION' is not a valid <major>.<minor>.<patch>"
+            exit 1
+          fi
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout tag
+        uses: actions/checkout@v7
         with:
+          ref: refs/tags/${{ steps.version.outputs.tag }}
           fetch-depth: 0
 
-      - name: Check if tag is on main branch
-        if: github.event_name == 'push'
+      - name: Verify tag is on main
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
         run: |
-          git fetch origin main
-          if ! git branch -r --contains ${{ github.ref_name }} | grep -q 'origin/main'; then
-            echo "Tag ${{ github.ref_name }} is not on the main branch. Skipping."
+          git fetch origin main --depth=0 || git fetch origin main
+          if ! git merge-base --is-ancestor "$TAG" origin/main; then
+            echo "::error::Tag $TAG is not reachable from main"
             exit 1
           fi
 
@@ -46,7 +79,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to the Container registry
+      - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -59,16 +92,13 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=semver,pattern={{version}},value=${{ github.event.inputs.version }},enable=${{ github.event_name == 'workflow_dispatch' }}
-            type=semver,pattern={{major}}.{{minor}},value=${{ github.event.inputs.version }},enable=${{ github.event_name == 'workflow_dispatch' }}
-            type=semver,pattern={{major}},value=${{ github.event.inputs.version }},enable=${{ github.event_name == 'workflow_dispatch' }}
-            type=semver,pattern={{version}},enable=${{ github.event_name == 'push' }}
-            type=semver,pattern={{major}}.{{minor}},enable=${{ github.event_name == 'push' }}
-            type=semver,pattern={{major}},enable=${{ github.event_name == 'push' }}
-            type=raw,value=latest,enable=${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.latest == 'true') }}
-            type=raw,value=${{ github.event.inputs.version }},enable=${{ github.event_name == 'workflow_dispatch' }}
+            type=semver,pattern={{version}},value=${{ steps.version.outputs.tag }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.version.outputs.tag }}
+            type=semver,pattern={{major}},value=${{ steps.version.outputs.tag }}
+            type=raw,value=latest,enable=${{ github.event_name == 'push' || inputs.latest }}
 
-      - name: Build and push Docker image
+      - name: Build and push
+        id: push
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -76,9 +106,16 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VERSION=${{ steps.version.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args: |
-            VERSION=${{ steps.meta.outputs.version }}
-          provenance: true
+          provenance: mode=max
           sbom: true
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
