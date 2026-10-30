@@ -68,9 +68,8 @@
 
   const fetcherOptions = [
     new Option(WebClientEngine.JsFetchApi, "JS fetch-API"),
-    new Option(WebClientEngine.CurlCffi, "curl-cffi"),
+    new Option(WebClientEngine.Impit, "Impit"),
     new Option(WebClientEngine.Camoufox, "Camoufox"),
-    new Option(WebClientEngine.Zendriver, "Zendriver"),
   ]
 
   const extractorOptions = [

@@ -4,7 +4,7 @@ import { WebClientResponse } from "./WebClientResponse"
 import { WebClientEngine } from "@shared/model/WebClientEngine.ts"
 import type { WebFetcherResponse } from "./webFetcher/WebFetcherResponse"
 import { WebFetcherRequest } from "./webFetcher/WebFetcherRequest"
-import { FetchStrategy } from "./webFetcher/FetchStrategy.ts"
+import { FetchEngine } from "./webFetcher/FetchEngine.ts"
 
 
 export class WebFetcherWebClient implements WebClient {
@@ -13,11 +13,11 @@ export class WebFetcherWebClient implements WebClient {
 
 
   async fetch(url: string, options?: WebRequestOptions): Promise<WebClientResponse> {
-    const strategies = (options?.fetchers ?? []).filter(it => it != WebClientEngine.JsFetchApi).map(it => this.mapEngineToStrategy(it))
+    const engines = (options?.fetchers ?? []).filter(it => it != WebClientEngine.JsFetchApi).map(it => this.mapToFetchEngine(it))
     const timeout = options?.timeout ? options.timeout / 1000 : undefined
-    const request = new WebFetcherRequest(url, timeout, options?.userAgent, options?.followRedirects, strategies)
+    const request = new WebFetcherRequest(url, timeout, options?.userAgent, options?.followRedirects, engines)
 
-    const response = await fetch(this.baseUrl + "/fetch", {
+    const response = await fetch(this.baseUrl + "/fetch/details", {
       method: "POST",
       body: JSON.stringify(request),
       headers: {
@@ -37,31 +37,27 @@ export class WebFetcherWebClient implements WebClient {
   private async mapSuccessResponse(response: Response): Promise<WebClientResponse> {
     const fetchResponse = await response.json() as WebFetcherResponse
 
-    const fetcher = this.mapStrategyToEngine(fetchResponse.strategy)
+    const engine = this.mapToWebClientEngine(fetchResponse.engine)
     const cookies: string[] | undefined = fetchResponse.cookies ? [] : undefined // TODO: map cookies
-    const durationMs = fetchResponse.elapsed_microseconds ? fetchResponse.elapsed_microseconds / 1000 : undefined
+    const durationMs = fetchResponse.elapsedMs ?? undefined
 
-    return new WebClientResponse(fetcher, undefined, fetchResponse.html, fetchResponse.status_code, fetchResponse.final_url,
+    return new WebClientResponse(engine, undefined, fetchResponse.content, fetchResponse.statusCode, fetchResponse.finalUrl,
       fetchResponse.headers, cookies, durationMs)
   }
 
-  private mapStrategyToEngine(strategy: FetchStrategy): WebClientEngine {
-    if (strategy === FetchStrategy.CAMOUFOX) {
+  private mapToWebClientEngine(engine: FetchEngine): WebClientEngine {
+    if (engine === FetchEngine.Camoufox) {
       return WebClientEngine.Camoufox
-    } else if (strategy === FetchStrategy.ZENDRIVER) {
-      return WebClientEngine.Zendriver
     } else {
-      return WebClientEngine.CurlCffi
+      return WebClientEngine.Impit
     }
   }
 
-  private mapEngineToStrategy(engine: WebClientEngine): FetchStrategy {
+  private mapToFetchEngine(engine: WebClientEngine): FetchEngine {
     if (engine === WebClientEngine.Camoufox) {
-      return FetchStrategy.CAMOUFOX
-    } else if (engine === WebClientEngine.Zendriver) {
-      return FetchStrategy.ZENDRIVER
+      return FetchEngine.Camoufox
     } else {
-      return FetchStrategy.CURL_CFFI
+      return FetchEngine.Impit
     }
   }
 

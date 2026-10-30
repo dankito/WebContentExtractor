@@ -101,14 +101,11 @@
   function getShortFetcherName(fetcher: WebClientEngine): string {
     if (fetcher === WebClientEngine.JsFetchApi) {
       return "JS fetch"
-    } else if (fetcher === WebClientEngine.CurlCffi) {
-      return "curl"
+    } else if (fetcher === WebClientEngine.Impit) {
+      return "Impit"
     } else if (fetcher === WebClientEngine.Camoufox) {
       return "Camoufox"
-    } else if (fetcher === WebClientEngine.Zendriver) {
-      return "Zendriver"
-    }
-    else  {
+    } else  {
       return fetcher
     }
   }

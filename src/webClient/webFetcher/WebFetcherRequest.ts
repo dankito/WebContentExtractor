@@ -1,4 +1,4 @@
-import type { FetchStrategy } from "./FetchStrategy.ts"
+import type { FetchEngine } from "./FetchEngine.ts"
 
 export class WebFetcherRequest {
 
@@ -6,15 +6,18 @@ export class WebFetcherRequest {
     readonly url: string,
 
     readonly timeout?: number,
-    readonly user_agent?: string,
-    readonly follow_redirects?: boolean,
+    readonly fingerprint?: string,
+    readonly followRedirects?: boolean,
 
-    readonly strategies: FetchStrategy[] = [],
+    readonly engines: FetchEngine[] = [],
 
+    readonly executeJavaScript?: boolean,
+    readonly loadLazyContent?: boolean,
+
+    /** Headers to send to the target url. */
+    readonly headers?: Record<string, string>,
+    /** Cookies to send to the target url. */
     readonly cookies?: Record<string, string>,
-
-    readonly load_lazy_content?: boolean,
-    readonly execute_javascript?: boolean,
   ) { }
 
 }

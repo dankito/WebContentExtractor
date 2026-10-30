@@ -1,9 +1,7 @@
 export enum WebClientEngine {
   JsFetchApi = "JsFetchApi",
 
-  CurlCffi = "CurlCffi",
+  Impit = "Impit",
 
   Camoufox = "Camoufox",
-
-  Zendriver = "Zendriver",
 }
