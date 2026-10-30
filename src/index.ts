@@ -24,7 +24,7 @@ app.use("*", logger()) // request logger always registers for the root, not for 
 
 new CorsRouter().configureCors(router)
 
-new StaticFilesRouter().configureStaticFilesRoutes(router, basePath)
+new StaticFilesRouter().configureStaticFilesRoutes(app, basePath)
 
 new McpRouter().addMcpServerRoutes(router)
 
