@@ -49,6 +49,7 @@ ENV HOST=0.0.0.0
 ENV PORT=3030
 ENV NODE_ENV=production
 
-EXPOSE 3030
+# Expose the default port
+EXPOSE ${PORT}
 
 CMD ["src/index.ts"]
