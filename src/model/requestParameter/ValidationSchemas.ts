@@ -25,6 +25,14 @@ const numberSchema = z.preprocess((val) => {
   return undefined
 }, z.number().optional())
 
+const toArray = (value: unknown) => {
+  if (value === undefined || Array.isArray(value)) {
+    return value
+  }
+  return [value]
+}
+
+
 export const WebRequestOptionsSchema = z.object({
   fetchers: z.enum(WebClientEngine).array().optional(),
   timeout: numberSchema.optional(),
@@ -73,12 +81,12 @@ export const ExtractFromUrlQueryParamsSchema = z.object({
   includeMetadata: booleanSchema.optional(),
   // Flattened structure as it comes from request params/body
   // web fetcher options
-  fetchers: z.enum(WebClientEngine).array().optional(),
+  fetchers: z.preprocess(toArray, z.enum(WebClientEngine).array().optional()),
   timeout: numberSchema,
   userAgent: z.string().optional(),
   followRedirects: booleanSchema.optional(),
   // convert to markdown options
-  converters: z.array(z.enum(MarkdownConverter)).optional(),
+  converters: z.preprocess(toArray, z.enum(MarkdownConverter).array().optional()),
   includeImages: booleanSchema.optional(),
   includeLinks: booleanSchema.optional(),
   // convert to text options
