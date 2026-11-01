@@ -35,11 +35,20 @@ export class RequestValidator {
   }
 
   mapToExtractMarkdownFromUrlRequest(data: z.infer<typeof ExtractMarkdownFromUrlRequestBodySchema>): ExtractFromUrlRequest {
+    let markdownConversionOptions = this.mapToMarkdownConversionOptions(data.markdownConversionOptions)
+
+    // by default, include images
+    if (markdownConversionOptions == undefined) {
+      markdownConversionOptions = new MarkdownConversionOptions(undefined, true, true)
+    } else if (markdownConversionOptions?.includeImages == undefined) {
+      markdownConversionOptions = { ... markdownConversionOptions, includeImages: true }
+    }
+
     return new ExtractFromUrlRequest(
       data.url,
       ResponseFormat.Markdown,
       false,
-      this.mapToMarkdownConversionOptions(data.markdownConversionOptions),
+      markdownConversionOptions,
       undefined,
       data.webRequestOptions ? this.mapToWebRequestOptions(data.webRequestOptions) : undefined,
     )
