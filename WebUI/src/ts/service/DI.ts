@@ -16,6 +16,9 @@ export class DI {
 
 
   private static getBaseUrl(): string {
+    const { pathname } = new URL(document.baseURI)
+    console.log("pathname", pathname, document.baseURI)
+
     let baseUrl = DI.determineBackendHost()
 
     baseUrl += DI.determineBasePath()
@@ -39,6 +42,7 @@ export class DI {
 
   private static determineBasePath(): string {
     const { pathname } = new URL(document.baseURI)
+    console.log("pathname", pathname, document.baseURI)
     return pathname.endsWith("/") ? pathname.slice(0, -1) : pathname
   }
 

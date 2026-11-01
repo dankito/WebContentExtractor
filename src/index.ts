@@ -8,6 +8,8 @@ import { StaticFilesRouter } from "./routes/StaticFilesRouter.ts"
 import { contentConverterRouter } from "./routes/contentConverterRouter.ts"
 import { McpRouter } from "./routes/McpRouter.ts"
 import { prometheus } from "@hono/prometheus"
+import { OpenWebUiRouter } from "./routes/openWebUi/OpenWebUiRouter.ts"
+import { DI } from "./service/DI.ts"
 
 export const app = new Hono()
 
@@ -27,6 +29,8 @@ new CorsRouter().configureCors(router)
 new StaticFilesRouter().configureStaticFilesRoutes(app, basePath)
 
 new McpRouter().addMcpServerRoutes(router)
+
+new OpenWebUiRouter(DI.pageContentExtractionService).addRoutes(router)
 
 router.get("/health", (c) => {
   return c.json({ status: "ok", timestamp: new Date().toISOString() })
