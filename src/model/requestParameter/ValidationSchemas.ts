@@ -107,6 +107,19 @@ export const ExtractFromUrlRequestBodySchema = z.object({
   textConversionOptions: TextConversionOptionsSchema.optional(),
 })
 
+export const ExtractMarkdownFromUrlRequestBodySchema = z.object({
+  url: UrlSchema,
+
+  webRequestOptions: WebRequestOptionsSchema.optional(),
+
+  markdownConversionOptions: MarkdownConversionOptionsSchema.optional(),
+})
+
+// Pure Markdown string output, wrapped by MCP as a single text content block
+export const ExtractMarkdownFromUrlResponseSchema = z
+  .string()
+  .describe("The main content of the page as Markdown")
+
 export const ExtractFromHtmlSchema = z.object({
   html: z.preprocess(
     (val) => (val === undefined || val === null ? "" : val),

@@ -4,12 +4,12 @@ import { StreamableHTTPTransport } from '@hono/mcp'
 import {
   ConvertHtmlRequestSchema,
   ErrorResponseSchema,
-  ExtractFromHtmlSchema,
+  ExtractFromHtmlSchema, ExtractMarkdownFromUrlRequestBodySchema,
   ExtractFromUrlRequestBodySchema,
   ExtractResponseSchema,
   MultiFormatFromHtmlRequestSchema,
   MultiFormatFromUrlRequestSchema,
-  MultiFormatResponseSchema
+  MultiFormatResponseSchema, ExtractMarkdownFromUrlResponseSchema
 } from "../model/requestParameter/ValidationSchemas.ts"
 import { DI } from "../service/DI.ts"
 import pkg from "../../package.json"
@@ -54,6 +54,22 @@ export class McpRouter {
       },
       async (args) => {
         const request = requestValidator.mapToExtractFromUrlRequest(args, true)
+        const result = await extractionService.extractContentFromUrl(request)
+
+        return this.mapExtractResponse(result, request)
+      }
+    )
+
+    mcpServer.registerTool(
+      "extract_markdown_from_url",
+      {
+        title: "Extract main content from URL and returns it as Markdown",
+        description: "Fetches a web page, extracts its main article content (removing navigation, ads and other boilerplate) using Readability and returns it as Markdown.",
+        inputSchema: ExtractMarkdownFromUrlRequestBodySchema.shape,
+        outputSchema: ExtractMarkdownFromUrlResponseSchema,
+      },
+      async (args) => {
+        const request = requestValidator.mapToExtractMarkdownFromUrlRequest(args)
         const result = await extractionService.extractContentFromUrl(request)
 
         return this.mapExtractResponse(result, request)
@@ -136,12 +152,12 @@ export class McpRouter {
       } else if (request.outputFormat === ResponseFormat.Markdown) {
         const markdown = DI.pageContentExtractionService.convertHtmlToMarkdown(result.data.pageContentHtml, request.markdownConversionOptions)
         return {
-          content: [{ type: "text", text: markdown.markdown }]
+          content: [{ type: "text", text: markdown.markdown ?? "" }] // should always be defined
         }
       } else if (request.outputFormat === ResponseFormat.Text) {
         const text = DI.pageContentExtractionService.convertHtmlToText(result.data.pageContentHtml, request.textConversionOptions)
         return {
-          content: [{ type: "text", text: text.text }]
+          content: [{ type: "text", text: text.text ?? "" }] // should always be defined
         }
       } else {
         return {

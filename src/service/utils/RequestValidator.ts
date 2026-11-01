@@ -5,9 +5,14 @@ import { TextConversionOptions } from "@shared/model/TextConversionOptions"
 import {
   ConvertHtmlRequestSchema,
   ExtractFromHtmlSchema,
-  ExtractFromUrlQueryParamsSchema, ExtractFromUrlRequestBodySchema, MarkdownConversionOptionsSchema, MultiFormatFromHtmlRequestSchema,
+  ExtractMarkdownFromUrlRequestBodySchema,
+  ExtractFromUrlQueryParamsSchema,
+  ExtractFromUrlRequestBodySchema,
+  MarkdownConversionOptionsSchema,
+  MultiFormatFromHtmlRequestSchema,
   MultiFormatFromUrlRequestSchema,
-  OutputSelectionSchema, TextConversionOptionsSchema,
+  OutputSelectionSchema,
+  TextConversionOptionsSchema,
   WebRequestOptionsSchema
 } from "../../model/requestParameter/ValidationSchemas"
 import { z } from "zod"
@@ -16,6 +21,7 @@ import { MultiFormatFromUrlRequest } from "@shared/model/requests/MultiFormatFro
 import { OutputSelection } from "@shared/model/requests/OutputSelection.ts"
 import { MultiFormatFromHtmlRequest } from "@shared/model/requests/MultiFormatFromHtmlRequest.ts"
 import { ConvertHtmlRequest } from "@shared/model/requests/ConvertHtmlRequest.ts"
+import { ResponseFormat } from "../../model/responses/ResponseFormat.ts"
 
 
 export class RequestValidator {
@@ -26,6 +32,17 @@ export class RequestValidator {
     } else {
       return this.mapToExtractFromUrlRequestFromQueryParams(data)
     }
+  }
+
+  mapToExtractMarkdownFromUrlRequest(data: z.infer<typeof ExtractMarkdownFromUrlRequestBodySchema>): ExtractFromUrlRequest {
+    return new ExtractFromUrlRequest(
+      data.url,
+      ResponseFormat.Markdown,
+      false,
+      this.mapToMarkdownConversionOptions(data.markdownConversionOptions),
+      undefined,
+      data.webRequestOptions ? this.mapToWebRequestOptions(data.webRequestOptions) : undefined,
+    )
   }
 
   mapToExtractFromUrlRequestFromQueryParams(data: z.infer<typeof ExtractFromUrlQueryParamsSchema>): ExtractFromUrlRequest {
