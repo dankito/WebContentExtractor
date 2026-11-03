@@ -1,0 +1,16 @@
+services:
+
+  web-extractor:
+    image: ghcr.io/dankito/web-content-extractor:latest
+    container_name: web-extractor
+    restart: unless-stopped
+    ports:
+      - "3030:3030"
+    environment:
+      # Optional: configure the port and interface to listen on:
+      - HOST=0.0.0.0
+      - PORT=3030
+      # Optional: Base path to serve the API under (e.g. /web-extractor)
+      # - BASE_PATH=/web-extractor
+      # Optional: URL to WebFetcher instance for anti-bot bypass
+      # - WEB_FETCHER_URL=http://web-fetcher:8000
